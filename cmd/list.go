@@ -198,8 +198,23 @@ func formatTaskList(w io.Writer, tasks []*models.Task, oneline bool) {
 		if oneline {
 			fmt.Fprintln(w, formatTaskOneline(task))
 		} else {
-			fmt.Fprintln(w, formatTask(task, true))
-			// Add blank line between tasks for readability
+			// Get subtask stats for the task
+			var stats *SubtaskStats
+			if task.Parent == nil { // Only get subtasks for parent tasks
+				subtasks, err := repo.GetChildren(task.ID)
+				if err == nil && len(subtasks) > 0 {
+					stats = &SubtaskStats{Total: len(subtasks)}
+					for _, st := range subtasks {
+						if st.State == models.StateDone {
+							stats.Done++
+						}
+					}
+				}
+			}
+			
+			// Use git-style format
+			fmt.Fprint(w, formatTaskGitStyle(task, stats))
+			// Add blank line between tasks
 			if i < len(tasks)-1 {
 				fmt.Fprintln(w)
 			}

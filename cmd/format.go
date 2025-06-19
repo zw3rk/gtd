@@ -38,12 +38,12 @@ func formatTask(task *models.Task, showDetails bool) string {
 func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 	var b strings.Builder
 	
-	// Line 1: task <full-hash>...
-	hashLine := fmt.Sprintf("task %s...", task.ID)
+	// Line 1: task <full-hash>
+	hashLine := fmt.Sprintf("task %s", task.ID)
 	if useColor {
 		b.WriteString(colorize("task", colorYellow))
 		b.WriteString(" ")
-		b.WriteString(colorize(task.ID+"...", colorYellow))
+		b.WriteString(colorize(task.ID, colorYellow))
 	} else {
 		b.WriteString(hashLine)
 	}
