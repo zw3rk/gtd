@@ -1,0 +1,327 @@
+# claude-gtd Usage Guide
+
+A SQLite-driven CLI task management tool following GTD (Getting Things Done) methodology.
+
+## Quick Start
+
+```bash
+# Add a bug
+echo "Fix login validation
+Users can bypass login with empty password" | claude-gtd add-bug
+
+# Add a feature
+echo "Add dark mode toggle" | claude-gtd add-feature --priority high
+
+# List active tasks
+claude-gtd list
+
+# Mark task as in progress
+claude-gtd in-progress 1
+
+# Mark task as done
+claude-gtd done 1
+```
+
+## Installation
+
+```bash
+# Build from source
+make build
+
+# Install to $GOPATH/bin
+make install
+
+# Or run directly
+go run .
+```
+
+## Core Commands
+
+### Task Creation
+
+#### Add a Bug
+```bash
+# Basic bug
+echo "Fix memory leak" | claude-gtd add-bug
+
+# With priority and tags
+echo "Critical security issue
+SQL injection in user search" | claude-gtd add-bug --priority high --tags "security,critical"
+
+# With source reference
+echo "Null pointer exception" | claude-gtd add-bug --source "sentry:12345"
+```
+
+#### Add a Feature
+```bash
+# Simple feature
+echo "Add user preferences" | claude-gtd add-feature
+
+# With full details
+echo "Implement OAuth2 login
+Support GitHub and Google providers" | claude-gtd add-feature --priority medium --tags "auth,oauth"
+```
+
+#### Add a Regression
+```bash
+# Regression from specific commit
+echo "Search broken after refactor" | claude-gtd add-regression --source "git:abc123"
+```
+
+#### Add a Subtask
+```bash
+# Add subtask to existing task
+echo "Write unit tests" | claude-gtd add-subtask 5 --kind bug --priority high
+```
+
+### State Management
+
+```bash
+# Start working on a task
+claude-gtd in-progress 3
+
+# Complete a task
+claude-gtd done 3
+
+# Cancel a task
+claude-gtd cancel 3
+```
+
+### Task Blocking
+
+```bash
+# Block task 5 by task 3 (task 5 can't proceed until task 3 is done)
+claude-gtd block 5 --by 3
+
+# Remove blocking relationship
+claude-gtd unblock 5
+```
+
+### Listing and Filtering
+
+#### Basic Listing
+```bash
+# List active tasks (default)
+claude-gtd list
+
+# List with one-line format
+claude-gtd list --oneline
+
+# List all tasks including done/cancelled
+claude-gtd list --all
+
+# List only completed tasks
+claude-gtd list-done
+
+# List only cancelled tasks
+claude-gtd list-cancelled
+```
+
+#### Filtering
+```bash
+# Filter by state
+claude-gtd list --state in_progress
+
+# Filter by priority
+claude-gtd list --priority high
+
+# Filter by type
+claude-gtd list --kind bug
+
+# Filter by tag
+claude-gtd list --tag security
+
+# Combine filters
+claude-gtd list --priority high --kind bug --tag critical
+```
+
+### Task Details
+
+```bash
+# Show full details of a task
+claude-gtd show 7
+
+# Shows:
+# - Full description
+# - Subtasks tree
+# - Blocking relationships
+# - All metadata
+```
+
+### Search
+
+```bash
+# Search in titles and descriptions
+claude-gtd search "memory leak"
+
+# Case-insensitive partial matching
+claude-gtd search database
+
+# Search with compact output
+claude-gtd search --oneline connection
+```
+
+### Summary and Statistics
+
+```bash
+# Show full summary
+claude-gtd summary
+
+# Show only active tasks summary
+claude-gtd summary --active
+```
+
+### Export
+
+```bash
+# Export to JSON (default)
+claude-gtd export
+
+# Export to CSV
+claude-gtd export --format csv
+
+# Export to Markdown
+claude-gtd export --format markdown
+
+# Export to file
+claude-gtd export --format json --output tasks.json
+
+# Export with filters
+claude-gtd export --format csv --state done --kind bug
+
+# Export only active tasks
+claude-gtd export --active
+```
+
+## Input Format
+
+Most commands that create tasks read from stdin using heredoc format:
+
+```bash
+# Single line (title only)
+echo "Task title" | claude-gtd add-bug
+
+# Multi-line (title + description)
+cat <<EOF | claude-gtd add-feature
+Task title
+Detailed description
+Can span multiple lines
+EOF
+
+# Or using echo with -e
+echo -e "Title\nDescription" | claude-gtd add-bug
+```
+
+## Task States
+
+- **NEW**: Newly created task (default)
+- **IN_PROGRESS**: Currently being worked on
+- **DONE**: Completed task
+- **CANCELLED**: Cancelled task
+
+## Priority Levels
+
+- **high**: 🔴 Critical tasks
+- **medium**: 🟡 Normal priority (default)
+- **low**: 🟢 Low priority
+
+## Task Types
+
+- **BUG**: 🐛 Defects and issues
+- **FEATURE**: ⭐ New functionality
+- **REGRESSION**: 🔄 Previously working features that broke
+
+## Output Formats
+
+### Standard Format
+```
+[1] 🔴 IN_PROGRESS Add user authentication
+    Bug • Created: 2024-01-15 • Tags: security, auth
+    
+[2] 🟡 NEW Implement dark mode
+    Feature • Created: 2024-01-16
+```
+
+### Oneline Format
+```
+[1] 🔴 IN_PROGRESS Add user authentication
+[2] 🟡 NEW Implement dark mode
+```
+
+### Export Formats
+- **JSON**: Full task data with all fields
+- **CSV**: Tabular format for spreadsheets
+- **Markdown**: Human-readable with detailed descriptions
+
+## Special Indicators
+
+- 🚫 Task is blocked by another task
+- 📋 Task has subtasks
+- 🏷️ Task has tags
+- 📎 Task has source reference
+
+## Examples
+
+### Complete Workflow
+```bash
+# 1. Add a feature with subtasks
+echo "Implement user dashboard" | claude-gtd add-feature --priority high --tags "ui,dashboard"
+
+# 2. Add subtasks
+echo "Design dashboard layout" | claude-gtd add-subtask 1 --kind feature
+echo "Implement API endpoints" | claude-gtd add-subtask 1 --kind feature
+echo "Write tests" | claude-gtd add-subtask 1 --kind feature
+
+# 3. Start working
+claude-gtd in-progress 2  # Start with design
+
+# 4. Check progress
+claude-gtd show 1  # See parent with all subtasks
+
+# 5. Complete subtasks
+claude-gtd done 2
+claude-gtd done 3
+claude-gtd done 4
+
+# 6. Complete parent
+claude-gtd done 1
+```
+
+### Bug Triage Workflow
+```bash
+# List all high-priority bugs
+claude-gtd list --kind bug --priority high
+
+# Search for specific issues
+claude-gtd search "memory leak"
+
+# Block a feature by a bug
+claude-gtd block 10 --by 5  # Feature 10 blocked by bug 5
+
+# Get summary of bug status
+claude-gtd list --kind bug --oneline
+```
+
+### Reporting
+```bash
+# Weekly summary
+claude-gtd summary
+
+# Export completed tasks for review
+claude-gtd export --format markdown --state done --output completed-tasks.md
+
+# Export all tasks for backup
+claude-gtd export --format json --all --output backup.json
+```
+
+## Tips
+
+1. **Use tags consistently**: Create a tagging convention (e.g., `security`, `performance`, `ui`)
+2. **Set realistic priorities**: Reserve "high" for truly critical tasks
+3. **Break down large tasks**: Use subtasks for better tracking
+4. **Regular reviews**: Use `summary` and `list` commands to stay on top of tasks
+5. **Document sources**: Use `--source` to track where tasks originated
+
+## Database Location
+
+The tool automatically finds your git repository root and stores the database there as `claude-tasks.db`. This ensures each project has its own task database.
