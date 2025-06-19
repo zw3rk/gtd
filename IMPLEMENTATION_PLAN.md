@@ -6,38 +6,38 @@ This document provides a concrete step-by-step plan for implementing the claude-
 ## Phase 1: Project Setup and Infrastructure
 
 ### Step 1: Initialize Nix Development Environment
-- [ ] Create `flake.nix` with Go development environment
-- [ ] Add SQLite and Go build tools
-- [ ] Create `.envrc` with `use flake`
-- [ ] Add `.gitignore` with common Go patterns and `claude-tasks.db`
-- [ ] Test: Verify `direnv allow` loads environment correctly
+- [x] Create `flake.nix` with Go development environment
+- [x] Add SQLite and Go build tools
+- [x] Create `.envrc` with `use flake`
+- [x] Add `.gitignore` with common Go patterns and `claude-tasks.db`
+- [x] Test: Verify `direnv allow` loads environment correctly
 
 ### Step 2: Initialize Go Module
-- [ ] Run `go mod init github.com/zw3rk/claude-gtd`
-- [ ] Create basic `main.go` with hello world
-- [ ] Test: `go run .` prints hello world
-- [ ] Commit: "Initialize Go module with basic main function"
+- [x] Run `go mod init github.com/zw3rk/claude-gtd`
+- [x] Create basic `main.go` with hello world
+- [x] Test: `go run .` prints hello world
+- [x] Commit: "Initialize Go module with basic main function"
 
 ### Step 3: Setup Project Structure
-- [ ] Create directory structure:
+- [x] Create directory structure:
   - `cmd/` - CLI command implementations
   - `internal/database/` - Database layer
   - `internal/models/` - Data models
   - `internal/git/` - Git repository detection
-- [ ] Create `Makefile` with build, test, lint targets
-- [ ] Test: `make build` creates binary
-- [ ] Commit: "Add project directory structure and Makefile"
+- [x] Create `Makefile` with build, test, lint targets
+- [x] Test: `make build` creates binary
+- [x] Commit: "Add project directory structure and Makefile"
 
 ## Phase 2: Core Infrastructure (TDD)
 
 ### Step 4: Git Repository Detection
-- [ ] Write tests for git root detection in `internal/git/git_test.go`
+- [x] Write tests for git root detection in `internal/git/git_test.go`
   - Test finding .git in current directory
   - Test finding .git in parent directories
   - Test error when no .git found
-- [ ] Implement `FindGitRoot()` function
-- [ ] Test: All git detection tests pass
-- [ ] Commit: "Add git repository root detection"
+- [x] Implement `FindGitRoot()` function
+- [x] Test: All git detection tests pass
+- [x] Commit: "Add git repository root detection"
 
 ### Step 5: Database Connection Layer
 - [ ] Write tests for database initialization in `internal/database/db_test.go`

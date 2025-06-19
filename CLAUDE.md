@@ -94,3 +94,7 @@ The core `tasks` table includes:
 ## Code Quality Guidelines
 
 - Create frequent meaningful, high quality commit messsages.
+
+## Memory Guidelines
+
+- Always mark all completed tasks as completed in the relevant .md files.
