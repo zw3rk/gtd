@@ -103,35 +103,6 @@ func Execute() {
 // Placeholder commands - to be implemented
 
 
-func newInProgressCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "in-progress",
-		Short: "Mark a task as in progress",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
-
-func newDoneCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "done",
-		Short: "Mark a task as done",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
-
-func newCancelCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "cancel",
-		Short: "Cancel a task",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
 
 func newBlockCommand() *cobra.Command {
 	return &cobra.Command{
