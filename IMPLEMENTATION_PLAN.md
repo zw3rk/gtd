@@ -40,14 +40,14 @@ This document provides a concrete step-by-step plan for implementing the claude-
 - [x] Commit: "Add git repository root detection"
 
 ### Step 5: Database Connection Layer
-- [ ] Write tests for database initialization in `internal/database/db_test.go`
+- [x] Write tests for database initialization in `internal/database/db_test.go`
   - Test database creation
   - Test connection pooling
   - Test schema creation
-- [ ] Implement database connection with SQLite driver
-- [ ] Implement schema migration/creation
-- [ ] Test: Database tests pass, schema is created correctly
-- [ ] Commit: "Add database connection layer with schema creation"
+- [x] Implement database connection with SQLite driver
+- [x] Implement schema migration/creation
+- [x] Test: Database tests pass, schema is created correctly
+- [x] Commit: "Add database connection layer with schema creation"
 
 ### Step 6: Task Model and Repository
 - [ ] Write tests for Task model in `internal/models/task_test.go`
