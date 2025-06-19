@@ -27,10 +27,12 @@ const (
 
 // Task states
 const (
+	StateInbox      = "INBOX"
 	StateNew        = "NEW"
 	StateInProgress = "IN_PROGRESS"
 	StateDone       = "DONE"
 	StateCancelled  = "CANCELLED"
+	StateInvalid    = "INVALID"
 )
 
 // Task represents a task in the system

@@ -1,25 +1,31 @@
-# claude-gtd Usage Guide
+# gtd Usage Guide
 
 A SQLite-driven CLI task management tool following GTD (Getting Things Done) methodology.
 
 ## Quick Start
 
 ```bash
-# Add a bug
+# Add a bug (goes to INBOX for review)
 echo "Fix login validation
-Users can bypass login with empty password" | claude-gtd add-bug
+Users can bypass login with empty password" | gtd add-bug
 
-# Add a feature
-echo "Add dark mode toggle" | claude-gtd add-feature --priority high
+# Add a feature (also goes to INBOX)
+echo "Add dark mode toggle" | gtd add-feature --priority high
 
-# List active tasks
-claude-gtd list
+# Complete current active work first
+gtd list  # Check your current commitments
 
-# Mark task as in progress
-claude-gtd in-progress 1
+# Review tasks in INBOX (only when active tasks are manageable)
+gtd review
 
-# Mark task as done
-claude-gtd done 1
+# Accept task from INBOX after review (moves to NEW)
+gtd accept 1a2b3c4
+
+# Start working on accepted tasks
+gtd in-progress 1a2b3c4
+
+# Complete tasks
+gtd done 1a2b3c4
 ```
 
 ## Installation
@@ -41,15 +47,15 @@ go run .
 
 #### Add a Bug
 ```bash
-# Basic bug
-echo "Fix memory leak" | claude-gtd add-bug
+# Basic bug (goes to INBOX for review)
+echo "Fix memory leak" | gtd add-bug
 
 # With priority and tags
 echo "Critical security issue
-SQL injection in user search" | claude-gtd add-bug --priority high --tags "security,critical"
+SQL injection in user search" | gtd add-bug --priority high --tags "security,critical"
 
 # With source reference
-echo "Null pointer exception" | claude-gtd add-bug --source "sentry:12345"
+echo "Null pointer exception" | gtd add-bug --source "sentry:12345"
 ```
 
 #### Add a Feature
@@ -74,17 +80,36 @@ echo "Search broken after refactor" | claude-gtd add-regression --source "git:ab
 echo "Write unit tests" | claude-gtd add-subtask 5 --kind bug --priority high
 ```
 
+### INBOX and Review Workflow
+
+```bash
+# First, ensure current work is manageable
+gtd list  # Check your active tasks
+
+# Review all tasks in INBOX (tool warns if you have too many active tasks)
+gtd review
+
+# Accept task from INBOX (move to NEW state for future work)
+gtd accept 1a2b3c4
+
+# Reject task from INBOX (mark as INVALID)
+gtd reject 1a2b3c4
+
+# Export INBOX tasks for review
+gtd review --output json
+```
+
 ### State Management
 
 ```bash
 # Start working on a task
-claude-gtd in-progress 3
+gtd in-progress 3
 
 # Complete a task
-claude-gtd done 3
+gtd done 3
 
 # Cancel a task
-claude-gtd cancel 3
+gtd cancel 3
 ```
 
 ### Task Blocking
@@ -220,10 +245,16 @@ echo -e "Quick fix\nJust a small typo" | claude-gtd add-bug
 
 ## Task States
 
-- **NEW**: Newly created task (default)
+- **INBOX**: All new tasks start here and require review (default for add-* commands)
+- **NEW**: Tasks that have been reviewed and accepted, ready to work on
 - **IN_PROGRESS**: Currently being worked on
 - **DONE**: Completed task
 - **CANCELLED**: Cancelled task
+- **INVALID**: Rejected task that should not be worked on
+
+**Workflow:** INBOX → (review) → NEW/INVALID → IN_PROGRESS → DONE/CANCELLED
+
+**Key Principle:** Everything starts in INBOX. Review decides what becomes actionable work (NEW) or gets rejected (INVALID).
 
 ## Priority Levels
 
@@ -262,10 +293,12 @@ echo -e "Quick fix\nJust a small typo" | claude-gtd add-bug
 ## Special Indicators
 
 - ⊘ Task is blocked by another task
+- ◇ INBOX state (requires review)
 - ◆ NEW state
 - ▶ IN_PROGRESS state
 - ✓ DONE state
 - ✗ CANCELLED state
+- ✘ INVALID state
 
 ## Examples
 
@@ -294,19 +327,40 @@ claude-gtd done 4
 claude-gtd done 1
 ```
 
+### INBOX Review Workflow
+```bash
+# Complete current work first
+gtd list  # Ensure your active tasks are manageable
+
+# Check what tasks need review (tool will warn if you have too many active tasks)
+gtd review
+
+# Review a specific task in detail
+gtd show 1a2b3c4
+
+# Accept task (move to NEW, ready for future work)
+gtd accept 1a2b3c4
+
+# Reject task (mark as INVALID)
+gtd reject 5e6f7g8
+
+# Export INBOX for team review
+gtd review --output markdown
+```
+
 ### Bug Triage Workflow
 ```bash
 # List all high-priority bugs
-claude-gtd list --kind bug --priority high
+gtd list --kind bug --priority high
 
 # Search for specific issues
-claude-gtd search "memory leak"
+gtd search "memory leak"
 
 # Block a feature by a bug
-claude-gtd block 10 --by 5  # Feature 10 blocked by bug 5
+gtd block 10 --by 5  # Feature 10 blocked by bug 5
 
 # Get summary of bug status
-claude-gtd list --kind bug --oneline
+gtd list --kind bug --oneline
 ```
 
 ### Reporting

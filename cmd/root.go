@@ -88,6 +88,9 @@ It stores tasks per-project in a claude-tasks.db file at the git repository root
 		newSearchCommand(),
 		newSummaryCommand(),
 		newExportCommand(),
+		newReviewCommand(),
+		newAcceptCommand(),
+		newRejectCommand(),
 	)
 
 	return rootCmd

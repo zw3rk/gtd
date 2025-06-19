@@ -220,9 +220,21 @@ func (r *TaskRepository) List(opts ListOptions) ([]*Task, error) {
 	var conditions []string
 	var args []interface{}
 
-	// Default: exclude DONE and CANCELLED unless specifically requested
-	if !opts.ShowDone && !opts.ShowCancelled && opts.State == "" {
-		conditions = append(conditions, "state NOT IN ('DONE', 'CANCELLED')")
+	// Default: exclude INBOX, DONE, CANCELLED, and INVALID unless specifically requested
+	if !opts.All && opts.State == "" {
+		excludeStates := []string{}
+		if !opts.ShowDone {
+			excludeStates = append(excludeStates, "'DONE'")
+		}
+		if !opts.ShowCancelled {
+			excludeStates = append(excludeStates, "'CANCELLED'")
+		}
+		// Always exclude INBOX and INVALID unless explicitly requested
+		excludeStates = append(excludeStates, "'INBOX'", "'INVALID'")
+
+		if len(excludeStates) > 0 {
+			conditions = append(conditions, fmt.Sprintf("state NOT IN (%s)", strings.Join(excludeStates, ", ")))
+		}
 	}
 
 	// Add specific filters
@@ -279,6 +291,30 @@ func (r *TaskRepository) List(opts ListOptions) ([]*Task, error) {
 	rows, err := r.db.DB.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tasks: %w", err)
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			// Log error but don't override the main error
+			fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+		}
+	}()
+
+	return r.scanTasks(rows)
+}
+
+// ListByState retrieves all tasks with a specific state
+func (r *TaskRepository) ListByState(state string) ([]*Task, error) {
+	query := `
+		SELECT id, parent, priority, state, kind, title, description, author,
+		       created, updated, source, blocked_by, tags
+		FROM tasks
+		WHERE state = ?
+		ORDER BY created DESC
+	`
+
+	rows, err := r.db.DB.Query(query, state)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list tasks by state: %w", err)
 	}
 	defer func() {
 		if err := rows.Close(); err != nil {
