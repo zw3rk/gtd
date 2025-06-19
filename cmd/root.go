@@ -100,30 +100,3 @@ func Execute() {
 	}
 }
 
-// Placeholder commands - to be implemented
-
-
-
-
-
-
-
-func newSummaryCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "summary",
-		Short: "Show task summary statistics",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
-
-func newExportCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "export",
-		Short: "Export tasks to various formats",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}

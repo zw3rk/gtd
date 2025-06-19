@@ -138,41 +138,41 @@ This document provides a concrete step-by-step plan for implementing the claude-
 - [x] Commit: "Add filtered listing with multiple query options"
 
 ### Step 14: Task Details and Search
-- [ ] Write tests for show command
+- [x] Write tests for show command
   - Test task detail display
   - Test subtask tree display
   - Test error on invalid ID
-- [ ] Write tests for search command
+- [x] Write tests for search command
   - Test title search
   - Test description search
   - Test case-insensitive search
-- [ ] Implement show command with subtask tree
-- [ ] Implement search command
-- [ ] Test: Show and search commands work correctly
-- [ ] Commit: "Add show and search commands"
+- [x] Implement show command with subtask tree
+- [x] Implement search command
+- [x] Test: Show and search commands work correctly
+- [x] Commit: "Add show and search commands"
 
 ## Phase 5: Reporting and Export (TDD)
 
 ### Step 15: Summary Statistics
-- [ ] Write tests for summary command
+- [x] Write tests for summary command
   - Test count by state
   - Test count by priority
   - Test count by kind
-- [ ] Implement summary statistics calculation
-- [ ] Create formatted summary output
-- [ ] Test: Summary shows accurate statistics
-- [ ] Commit: "Add summary statistics command"
+- [x] Implement summary statistics calculation
+- [x] Create formatted summary output
+- [x] Test: Summary shows accurate statistics
+- [x] Commit: "Add summary statistics command"
 
 ### Step 16: Export Functionality
-- [ ] Write tests for export formats
+- [x] Write tests for export formats
   - Test JSON export
   - Test CSV export
   - Test Markdown export
-- [ ] Implement JSON exporter
-- [ ] Implement CSV exporter
-- [ ] Implement Markdown exporter
-- [ ] Test: All export formats produce valid output
-- [ ] Commit: "Add export functionality (JSON, CSV, Markdown)"
+- [x] Implement JSON exporter
+- [x] Implement CSV exporter
+- [x] Implement Markdown exporter
+- [x] Test: All export formats produce valid output
+- [x] Commit: "Add export functionality (JSON, CSV, Markdown)"
 
 ## Phase 6: Polish and Performance
 
