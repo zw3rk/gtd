@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/zw3rk/claude-gtd/internal/models"
@@ -21,14 +22,23 @@ func newAddBugCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-bug",
 		Short: "Add a new bug task",
-		Long: `Add a new bug task by providing a title and optional description.
-Input is read from stdin in the format:
+		Long: `Add a new bug task by providing a title and description.
+Input is read from stdin in Git-style format:
   TITLE
-  DESCRIPTION (optional, can be multiple lines)`,
-		Example: `  echo "Fix memory leak" | claude-gtd add-bug
+  
+  DESCRIPTION (required, can be multiple lines)`,
+		Example: `  claude-gtd add-bug <<EOF
+Fix memory leak
+
+Memory usage grows unbounded when processing large files.
+Need to investigate the file processing loop.
+EOF
+
   claude-gtd add-bug --priority high --source "app.go:42" <<EOF
 Fix authentication bypass
-Users can access admin panel without proper credentials
+
+Users can access admin panel without proper credentials.
+This is a critical security vulnerability.
 EOF`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return addTask(cmd, models.KindBug, &flags)
@@ -46,14 +56,23 @@ func newAddFeatureCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-feature",
 		Short: "Add a new feature task",
-		Long: `Add a new feature task by providing a title and optional description.
-Input is read from stdin in the format:
+		Long: `Add a new feature task by providing a title and description.
+Input is read from stdin in Git-style format:
   TITLE
-  DESCRIPTION (optional, can be multiple lines)`,
-		Example: `  echo "Add dark mode" | claude-gtd add-feature
+  
+  DESCRIPTION (required, can be multiple lines)`,
+		Example: `  claude-gtd add-feature <<EOF
+Add dark mode
+
+Implement a toggle for dark/light theme switching.
+Should persist user preference across sessions.
+EOF
+
   claude-gtd add-feature --priority medium --tags "ui,enhancement" <<EOF
 Implement user preferences
-Allow users to customize their dashboard layout
+
+Allow users to customize their dashboard layout.
+Include options for widget placement and color schemes.
 EOF`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return addTask(cmd, models.KindFeature, &flags)
@@ -71,14 +90,23 @@ func newAddRegressionCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-regression",
 		Short: "Add a new regression task",
-		Long: `Add a new regression task by providing a title and optional description.
-Input is read from stdin in the format:
+		Long: `Add a new regression task by providing a title and description.
+Input is read from stdin in Git-style format:
   TITLE
-  DESCRIPTION (optional, can be multiple lines)`,
-		Example: `  echo "Login broken after update" | claude-gtd add-regression
+  
+  DESCRIPTION (required, can be multiple lines)`,
+		Example: `  claude-gtd add-regression <<EOF
+Login broken after update
+
+Authentication fails with valid credentials after v2.1.0 update.
+Users report "Invalid credentials" error despite correct password.
+EOF
+
   claude-gtd add-regression --priority high --source "v2.1.0" <<EOF
 Search functionality regression
-Search results are no longer sorted by relevance
+
+Search results are no longer sorted by relevance.
+This worked correctly in v2.0.5 but broke in v2.1.0.
 EOF`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return addTask(cmd, models.KindRegression, &flags)
@@ -126,6 +154,10 @@ func addTask(cmd *cobra.Command, kind string, flags *addFlags) error {
 	
 	// Save to database
 	if err := repo.Create(task); err != nil {
+		// Check if it's a validation error and provide helpful guidance
+		if strings.Contains(err.Error(), "description is required") {
+			return fmt.Errorf("failed to create task: %w\n\nTasks must include both a title and a description.\nUse Git-style format:\n  <title>\n  \n  <description>", err)
+		}
 		return fmt.Errorf("failed to create task: %w", err)
 	}
 	

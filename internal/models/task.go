@@ -71,6 +71,11 @@ func (t *Task) Validate() error {
 		return fmt.Errorf("title is required")
 	}
 
+	// Description is required
+	if strings.TrimSpace(t.Description) == "" {
+		return fmt.Errorf("description is required - tasks must have a body explaining the work")
+	}
+
 	// Validate kind
 	switch t.Kind {
 	case KindBug, KindFeature, KindRegression:

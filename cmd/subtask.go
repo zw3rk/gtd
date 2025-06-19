@@ -18,13 +18,22 @@ func newAddSubtaskCommand() *cobra.Command {
 		Use:   "add-subtask PARENT_ID --kind bug|feature|regression [flags]",
 		Short: "Add a subtask to an existing task",
 		Long: `Add a subtask to an existing task by providing the parent task ID and kind.
-Input is read from stdin in the format:
+Input is read from stdin in Git-style format:
   TITLE
-  DESCRIPTION (optional, can be multiple lines)`,
-		Example: `  echo "Fix auth module leak" | claude-gtd add-subtask abc123 --kind bug
+  
+  DESCRIPTION (required, can be multiple lines)`,
+		Example: `  claude-gtd add-subtask abc123 --kind bug <<EOF
+Fix auth module leak
+
+Memory leak in the authentication module causing OOM errors.
+Need to properly dispose of session objects.
+EOF
+
   claude-gtd add-subtask 1a2b --kind feature --priority high <<EOF
 Implement dark mode toggle
-Add a switch in settings to toggle between light and dark themes
+
+Add a switch in settings to toggle between light and dark themes.
+Should update all UI components to respect the theme setting.
 EOF`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
