@@ -101,35 +101,6 @@ func Execute() {
 }
 
 // Placeholder commands - to be implemented
-func newAddBugCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "add-bug",
-		Short: "Add a new bug task",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
-
-func newAddFeatureCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "add-feature",
-		Short: "Add a new feature task",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
-
-func newAddRegressionCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "add-regression",
-		Short: "Add a new regression task",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
 
 func newAddSubtaskCommand() *cobra.Command {
 	return &cobra.Command{
