@@ -31,12 +31,14 @@
           # Ensure we have static libraries for SQLite
           buildInputs = with pkgs; [
             sqlite.dev
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             musl
           ];
           
           nativeBuildInputs = with pkgs; [
-            musl
             pkg-config
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+            musl
           ];
         };
       in
@@ -68,7 +70,8 @@
             ripgrep
             jq
             
-            # For static builds
+            # For static builds (Linux only)
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             musl
             musl.dev
           ];
