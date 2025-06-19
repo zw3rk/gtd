@@ -50,14 +50,14 @@ This document provides a concrete step-by-step plan for implementing the claude-
 - [x] Commit: "Add database connection layer with schema creation"
 
 ### Step 6: Task Model and Repository
-- [ ] Write tests for Task model in `internal/models/task_test.go`
+- [x] Write tests for Task model in `internal/models/task_test.go`
   - Test task creation with validation
   - Test state transitions
   - Test parent/child relationships
-- [ ] Implement Task struct with validation methods
-- [ ] Implement TaskRepository with CRUD operations
-- [ ] Test: Model validation and repository tests pass
-- [ ] Commit: "Add Task model and repository with validation"
+- [x] Implement Task struct with validation methods
+- [x] Implement TaskRepository with CRUD operations
+- [x] Test: Model validation and repository tests pass
+- [x] Commit: "Add Task model and repository with validation"
 
 ## Phase 3: CLI Command Implementation (TDD)
 
