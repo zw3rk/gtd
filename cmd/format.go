@@ -9,9 +9,9 @@ import (
 
 // Priority indicators
 const (
-	emojiHigh   = "●" // U+25CF - Black Circle (was 🔴)
-	emojiMedium = "◐" // U+25D0 - Circle with Left Half Black (was 🟡)
-	emojiLow    = "○" // U+25CB - White Circle (was 🟢)
+	emojiHigh   = "!" // Exclamation mark for high priority
+	emojiMedium = "=" // Equals sign for medium priority
+	emojiLow    = "-" // Hyphen for low priority
 )
 
 // State indicators
@@ -85,7 +85,7 @@ func getPriorityEmoji(priority string) string {
 	case models.PriorityLow:
 		return emojiLow
 	default:
-		return "◌" // U+25CC - Dotted Circle
+		return "." // Period for unknown/default priority
 	}
 }
 
