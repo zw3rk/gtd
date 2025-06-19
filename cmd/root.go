@@ -104,25 +104,6 @@ func Execute() {
 
 
 
-func newBlockCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "block",
-		Short: "Mark a task as blocked by another task",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
-
-func newUnblockCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "unblock",
-		Short: "Remove blocking status from a task",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
 
 
 func newShowCommand() *cobra.Command {
