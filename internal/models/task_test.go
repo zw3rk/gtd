@@ -106,11 +106,11 @@ func TestTaskValidate(t *testing.T) {
 
 func TestTaskCanTransitionTo(t *testing.T) {
 	tests := []struct {
-		name     string
-		from     string
-		to       string
-		canMove  bool
-		hasChild bool
+		name       string
+		from       string
+		to         string
+		canMove    bool
+		hasChild   bool
 		childState string
 	}{
 		// NEW state transitions
@@ -209,12 +209,12 @@ func TestTaskCanTransitionTo(t *testing.T) {
 			task := &Task{
 				State: tt.from,
 			}
-			
+
 			var children []*Task
 			if tt.hasChild {
 				children = []*Task{{State: tt.childState}}
 			}
-			
+
 			got := task.CanTransitionTo(tt.to, children)
 			if got != tt.canMove {
 				t.Errorf("Task.CanTransitionTo() = %v, want %v", got, tt.canMove)
@@ -287,12 +287,12 @@ func TestTaskParseTags(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			task := Task{Tags: tt.tags}
 			got := task.ParseTags()
-			
+
 			if len(got) != len(tt.expected) {
 				t.Errorf("Task.ParseTags() returned %d tags, want %d", len(got), len(tt.expected))
 				return
 			}
-			
+
 			for i, tag := range got {
 				if tag != tt.expected[i] {
 					t.Errorf("Task.ParseTags()[%d] = %v, want %v", i, tag, tt.expected[i])
@@ -344,7 +344,7 @@ func intPtr(i int) *int {
 func TestNewTask(t *testing.T) {
 	now := time.Now()
 	task := NewTask(KindBug, "Fix memory leak", "Memory usage grows over time")
-	
+
 	if task.Kind != KindBug {
 		t.Errorf("NewTask() Kind = %v, want %v", task.Kind, KindBug)
 	}

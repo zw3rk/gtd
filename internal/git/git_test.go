@@ -92,30 +92,30 @@ func TestFindGitRoot(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			testDir := tt.setup(t)
-			
+
 			// Change to test directory
 			oldDir, err := os.Getwd()
 			if err != nil {
 				t.Fatal(err)
 			}
 			defer os.Chdir(oldDir)
-			
+
 			if err := os.Chdir(testDir); err != nil {
 				t.Fatal(err)
 			}
-			
+
 			// Use absolute path for the absolute path test
 			startPath := tt.startPath
 			if tt.name == "handles absolute path" {
 				startPath = testDir
 			}
-			
+
 			got, err := FindGitRoot(startPath)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("FindGitRoot() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			if !tt.wantErr {
 				// Verify the returned path contains .git
 				gitPath := filepath.Join(got, ".git")
@@ -134,35 +134,35 @@ func TestFindGitRootWithSymlink(t *testing.T) {
 	if err := os.Mkdir(realGitDir, 0755); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	gitDir := filepath.Join(realGitDir, ".git")
 	if err := os.Mkdir(gitDir, 0755); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	// Create a symlink to the repo
 	linkDir := filepath.Join(tmpDir, "link-to-repo")
 	if err := os.Symlink(realGitDir, linkDir); err != nil {
 		t.Skip("Symlinks not supported on this platform")
 	}
-	
+
 	// Change to symlinked directory
 	oldDir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.Chdir(oldDir)
-	
+
 	if err := os.Chdir(linkDir); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	got, err := FindGitRoot(".")
 	if err != nil {
 		t.Errorf("FindGitRoot() unexpected error = %v", err)
 		return
 	}
-	
+
 	// Should find the git root through the symlink
 	if _, err := os.Stat(filepath.Join(got, ".git")); err != nil {
 		t.Errorf("FindGitRoot() = %v, but .git not found there", got)

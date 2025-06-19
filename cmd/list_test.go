@@ -11,15 +11,15 @@ import (
 func TestListCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create test tasks with various states and priorities
 	tasks := []struct {
-		kind     string
-		title    string
-		state    string
-		priority string
-		source   string
-		tags     string
+		kind      string
+		title     string
+		state     string
+		priority  string
+		source    string
+		tags      string
 		blockedBy *int
 	}{
 		{models.KindBug, "High priority bug in progress", models.StateInProgress, models.PriorityHigh, "app.go:42", "backend,urgent", nil},
@@ -28,7 +28,7 @@ func TestListCommand(t *testing.T) {
 		{models.KindRegression, "Done regression", models.StateDone, models.PriorityHigh, "", "", nil},
 		{models.KindBug, "Cancelled bug", models.StateCancelled, models.PriorityMedium, "", "", nil},
 	}
-	
+
 	createdTasks := make([]*models.Task, 0, len(tasks))
 	for _, tt := range tasks {
 		task := models.NewTask(tt.kind, tt.title, "")
@@ -42,7 +42,7 @@ func TestListCommand(t *testing.T) {
 		}
 		createdTasks = append(createdTasks, task)
 	}
-	
+
 	// Create blocked task
 	blockedTask := models.NewTask(models.KindFeature, "Blocked feature", "")
 	blockedTask.State = models.StateNew
@@ -51,12 +51,12 @@ func TestListCommand(t *testing.T) {
 	if err := testRepo.Create(blockedTask); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	tests := []struct {
-		name     string
-		args     []string
-		wantErr  bool
-		contains []string
+		name        string
+		args        []string
+		wantErr     bool
+		contains    []string
 		notContains []string
 	}{
 		{
@@ -167,29 +167,29 @@ func TestListCommand(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
-			
+
 			cmd := newListCommand()
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
 			cmd.SetArgs(tt.args)
-			
+
 			err := cmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			output := stdout.String()
 			for _, want := range tt.contains {
 				if !strings.Contains(output, want) {
 					t.Errorf("Output does not contain %q\nGot: %s", want, output)
 				}
 			}
-			
+
 			for _, notWant := range tt.notContains {
 				if strings.Contains(output, notWant) {
 					t.Errorf("Output should not contain %q\nGot: %s", notWant, output)
@@ -202,36 +202,36 @@ func TestListCommand(t *testing.T) {
 func TestListDoneCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create tasks
 	doneTask1 := models.NewTask(models.KindBug, "Fixed bug", "")
 	doneTask1.State = models.StateDone
 	if err := testRepo.Create(doneTask1); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	doneTask2 := models.NewTask(models.KindFeature, "Completed feature", "")
 	doneTask2.State = models.StateDone
 	doneTask2.Priority = models.PriorityHigh
 	if err := testRepo.Create(doneTask2); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	activeTask := models.NewTask(models.KindBug, "Active bug", "")
 	if err := testRepo.Create(activeTask); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	var stdout bytes.Buffer
 	cmd := newListDoneCommand()
 	cmd.SetOut(&stdout)
-	
+
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("Execute() error = %v", err)
 	}
-	
+
 	output := stdout.String()
-	
+
 	// Should contain done tasks
 	if !strings.Contains(output, "Fixed bug") {
 		t.Error("Output should contain 'Fixed bug'")
@@ -239,7 +239,7 @@ func TestListDoneCommand(t *testing.T) {
 	if !strings.Contains(output, "Completed feature") {
 		t.Error("Output should contain 'Completed feature'")
 	}
-	
+
 	// Should not contain active task
 	if strings.Contains(output, "Active bug") {
 		t.Error("Output should not contain 'Active bug'")
@@ -249,34 +249,34 @@ func TestListDoneCommand(t *testing.T) {
 func TestListCancelledCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create tasks
 	cancelledTask := models.NewTask(models.KindBug, "Cancelled bug", "")
 	cancelledTask.State = models.StateCancelled
 	if err := testRepo.Create(cancelledTask); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	activeTask := models.NewTask(models.KindBug, "Active bug", "")
 	if err := testRepo.Create(activeTask); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	var stdout bytes.Buffer
 	cmd := newListCancelledCommand()
 	cmd.SetOut(&stdout)
-	
+
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("Execute() error = %v", err)
 	}
-	
+
 	output := stdout.String()
-	
+
 	// Should contain cancelled task
 	if !strings.Contains(output, "Cancelled bug") {
 		t.Error("Output should contain 'Cancelled bug'")
 	}
-	
+
 	// Should not contain active task
 	if strings.Contains(output, "Active bug") {
 		t.Error("Output should not contain 'Active bug'")

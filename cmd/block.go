@@ -9,7 +9,7 @@ import (
 // newBlockCommand creates the block command
 func newBlockCommand() *cobra.Command {
 	var blockingTaskID string
-	
+
 	cmd := &cobra.Command{
 		Use:   "block TASK_ID --by BLOCKING_TASK_ID",
 		Short: "Mark a task as blocked by another task",
@@ -21,45 +21,45 @@ This indicates that the task cannot proceed until the blocking task is completed
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Get task ID (hash or hash prefix)
 			taskID := args[0]
-			
+
 			// Validate blocking task ID was provided
 			if blockingTaskID == "" {
 				return fmt.Errorf("blocking task ID is required (use --by flag)")
 			}
-			
+
 			// Get both tasks to show info
 			task, err := repo.GetByID(taskID)
 			if err != nil {
 				return fmt.Errorf("task not found: %w", err)
 			}
-			
+
 			blockingTask, err := repo.GetByID(blockingTaskID)
 			if err != nil {
 				return fmt.Errorf("blocking task not found: %w", err)
 			}
-			
+
 			// Validate not blocking by itself
 			if task.ID == blockingTask.ID {
 				return fmt.Errorf("cannot block a task by itself")
 			}
-			
+
 			// Block the task
 			if err := repo.Block(task.ID, blockingTask.ID); err != nil {
 				return fmt.Errorf("failed to block task: %w", err)
 			}
-			
+
 			// Output success message
-			fmt.Fprintf(cmd.OutOrStdout(), 
-				"Task %s is now blocked by task %s\n  %s\n  blocked by: %s\n", 
+			fmt.Fprintf(cmd.OutOrStdout(),
+				"Task %s is now blocked by task %s\n  %s\n  blocked by: %s\n",
 				task.ShortHash(), blockingTask.ShortHash(), task.Title, blockingTask.Title)
-			
+
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().StringVar(&blockingTaskID, "by", "", "ID/hash of the task that is blocking this task")
 	cmd.MarkFlagRequired("by")
-	
+
 	return cmd
 }
 
@@ -75,32 +75,32 @@ func newUnblockCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Get task ID (hash or hash prefix)
 			taskID := args[0]
-			
+
 			// Get the task to show info
 			task, err := repo.GetByID(taskID)
 			if err != nil {
 				return fmt.Errorf("task not found: %w", err)
 			}
-			
+
 			// Check if it was blocked
 			wasBlocked := task.IsBlocked()
-			
+
 			// Unblock the task
 			if err := repo.Unblock(task.ID); err != nil {
 				return fmt.Errorf("failed to unblock task: %w", err)
 			}
-			
+
 			// Output success message
 			if wasBlocked {
-				fmt.Fprintf(cmd.OutOrStdout(), 
-					"Task %s is no longer blocked: %s\n", 
+				fmt.Fprintf(cmd.OutOrStdout(),
+					"Task %s is no longer blocked: %s\n",
 					task.ShortHash(), task.Title)
 			} else {
-				fmt.Fprintf(cmd.OutOrStdout(), 
-					"Task %s was not blocked: %s\n", 
+				fmt.Fprintf(cmd.OutOrStdout(),
+					"Task %s was not blocked: %s\n",
 					task.ShortHash(), task.Title)
 			}
-			
+
 			return nil
 		},
 	}

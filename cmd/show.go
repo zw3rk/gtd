@@ -21,28 +21,28 @@ func newShowCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Get task ID (hash or hash prefix)
 			taskID := args[0]
-			
+
 			// Get the task
 			task, err := repo.GetByID(taskID)
 			if err != nil {
 				return fmt.Errorf("task not found: %w", err)
 			}
-			
+
 			// Get parent if this is a subtask
 			var parent *models.Task
 			if task.Parent != nil {
 				parent, _ = repo.GetByID(*task.Parent)
 			}
-			
+
 			// Get subtasks
 			subtasks, err := repo.GetChildren(task.ID)
 			if err != nil {
 				return fmt.Errorf("failed to get subtasks: %w", err)
 			}
-			
+
 			// Format and output
 			formatTaskDetails(cmd.OutOrStdout(), task, parent, subtasks)
-			
+
 			return nil
 		},
 	}
@@ -60,32 +60,32 @@ func formatTaskDetails(w io.Writer, task *models.Task, parent *models.Task, subt
 			}
 		}
 	}
-	
+
 	// Use git-style format
 	fmt.Fprint(w, formatTaskGitStyle(task, stats))
-	
+
 	// Parent info if this is a subtask
 	if parent != nil {
 		fmt.Fprintf(w, "\nParent: %s - %s\n", parent.ShortHash(), parent.Title)
 	}
-	
+
 	// Subtasks
 	if len(subtasks) > 0 {
 		fmt.Fprintln(w, "\nSubtasks:")
 		fmt.Fprintln(w, strings.Repeat("-", 30))
-		
+
 		for _, subtask := range subtasks {
 			// Use the subtask format with metadata on the right
 			subtaskLine := formatSubtask(subtask)
 			fmt.Fprintf(w, "  %s\n", subtaskLine)
-			
+
 			if subtask.Description != "" {
 				// Show first line of description, indented
 				lines := strings.Split(subtask.Description, "\n")
 				fmt.Fprintf(w, "      %s\n", lines[0])
 			}
 		}
-		
+
 		// Summary
 		fmt.Fprintf(w, "\n%s\n", formatSubtaskSummary(subtasks))
 	}
@@ -97,7 +97,7 @@ func formatSubtaskSummary(subtasks []*models.Task) string {
 	for _, task := range subtasks {
 		counts[task.State]++
 	}
-	
+
 	var parts []string
 	if n := counts[models.StateDone]; n > 0 {
 		parts = append(parts, fmt.Sprintf("%d done", n))
@@ -111,7 +111,7 @@ func formatSubtaskSummary(subtasks []*models.Task) string {
 	if n := counts[models.StateCancelled]; n > 0 {
 		parts = append(parts, fmt.Sprintf("%d cancelled", n))
 	}
-	
+
 	total := len(subtasks)
 	return fmt.Sprintf("Total: %d subtasks (%s)", total, strings.Join(parts, ", "))
 }

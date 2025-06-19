@@ -11,7 +11,7 @@ import (
 func TestSearchCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create test tasks with searchable content
 	tasks := []struct {
 		kind        string
@@ -24,7 +24,7 @@ func TestSearchCommand(t *testing.T) {
 		{models.KindBug, "Memory leak in worker", "Worker process memory usage grows over time", "memory,worker"},
 		{models.KindRegression, "Search broken", "Full text search returns no results", "search,regression"},
 	}
-	
+
 	for _, tt := range tasks {
 		task := models.NewTask(tt.kind, tt.title, tt.description)
 		task.Tags = tt.tags
@@ -32,15 +32,15 @@ func TestSearchCommand(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	
+
 	tests := []struct {
-		name     string
-		args     []string
-		wantErr  bool
-		errMsg   string
-		contains []string
+		name        string
+		args        []string
+		wantErr     bool
+		errMsg      string
+		contains    []string
 		notContains []string
-		minResults int
+		minResults  int
 	}{
 		{
 			name: "search in title",
@@ -117,39 +117,39 @@ func TestSearchCommand(t *testing.T) {
 			minResults: 1,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
-			
+
 			cmd := newSearchCommand()
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
 			cmd.SetArgs(tt.args)
-			
+
 			err := cmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
 				t.Errorf("Error = %v, want error containing %q", err, tt.errMsg)
 			}
-			
+
 			output := stdout.String()
 			for _, want := range tt.contains {
 				if !strings.Contains(output, want) {
 					t.Errorf("Output does not contain %q\nGot: %s", want, output)
 				}
 			}
-			
+
 			for _, notWant := range tt.notContains {
 				if strings.Contains(output, notWant) {
 					t.Errorf("Output should not contain %q\nGot: %s", notWant, output)
 				}
 			}
-			
+
 			// Check result count if specified
 			if tt.minResults > 0 {
 				resultCount := strings.Count(output, "[")

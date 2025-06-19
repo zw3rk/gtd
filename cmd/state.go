@@ -60,17 +60,17 @@ func updateTaskState(cmd *cobra.Command, taskIDStr string, newState string) erro
 	if err != nil {
 		return fmt.Errorf("task not found: %w", err)
 	}
-	
+
 	// Update state
 	if err := repo.UpdateState(task.ID, newState); err != nil {
 		return fmt.Errorf("failed to update task state: %w", err)
 	}
-	
+
 	// Output success message
 	stateVerb := getStateVerb(newState)
-	fmt.Fprintf(cmd.OutOrStdout(), "Task %s marked as %s: %s\n", 
+	fmt.Fprintf(cmd.OutOrStdout(), "Task %s marked as %s: %s\n",
 		task.ShortHash(), stateVerb, task.Title)
-	
+
 	return nil
 }
 

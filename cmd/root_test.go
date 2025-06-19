@@ -42,18 +42,18 @@ func TestRootCommand(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
-			
+
 			rootCmd := NewRootCommand()
 			rootCmd.SetOut(&stdout)
 			rootCmd.SetErr(&stderr)
 			rootCmd.SetArgs(tt.args)
-			
+
 			err := rootCmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			output := stdout.String() + stderr.String()
 			for _, want := range tt.contains {
 				if !strings.Contains(output, want) {
@@ -66,7 +66,7 @@ func TestRootCommand(t *testing.T) {
 
 func TestCommandStructure(t *testing.T) {
 	rootCmd := NewRootCommand()
-	
+
 	// Expected commands
 	expectedCommands := []string{
 		"add-bug",
@@ -86,14 +86,14 @@ func TestCommandStructure(t *testing.T) {
 		"summary",
 		"export",
 	}
-	
+
 	// Get all subcommands
 	commands := rootCmd.Commands()
 	commandMap := make(map[string]bool)
 	for _, cmd := range commands {
 		commandMap[cmd.Name()] = true
 	}
-	
+
 	// Check all expected commands exist
 	for _, expected := range expectedCommands {
 		if !commandMap[expected] {

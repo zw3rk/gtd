@@ -9,10 +9,10 @@ import (
 
 // ANSI color codes
 const (
-	colorReset  = "\033[0m"
-	colorBold   = "\033[1m"
-	colorDim    = "\033[2m"
-	
+	colorReset = "\033[0m"
+	colorBold  = "\033[1m"
+	colorDim   = "\033[2m"
+
 	colorRed     = "\033[31m"
 	colorGreen   = "\033[32m"
 	colorYellow  = "\033[33m"
@@ -20,7 +20,7 @@ const (
 	colorMagenta = "\033[35m"
 	colorCyan    = "\033[36m"
 	colorGray    = "\033[90m"
-	
+
 	colorBrightRed    = "\033[91m"
 	colorBrightGreen  = "\033[92m"
 	colorBrightYellow = "\033[93m"
@@ -37,18 +37,18 @@ func isColorTerminal() bool {
 	if !term.IsTerminal(int(os.Stdout.Fd())) {
 		return false
 	}
-	
+
 	// Check TERM environment variable
 	term := os.Getenv("TERM")
 	if term == "dumb" || term == "" {
 		return false
 	}
-	
+
 	// Check NO_COLOR environment variable (https://no-color.org/)
 	if os.Getenv("NO_COLOR") != "" {
 		return false
 	}
-	
+
 	return true
 }
 
@@ -118,7 +118,7 @@ func formatTagsColor(tags string) string {
 	if tags == "" {
 		return ""
 	}
-	
+
 	tagList := strings.Split(tags, ",")
 	coloredTags := make([]string, len(tagList))
 	for i, tag := range tagList {
@@ -142,7 +142,7 @@ func visibleLength(s string) int {
 	// Simple approach: count runes, ignoring ANSI escape sequences
 	visible := 0
 	inEscape := false
-	
+
 	for _, r := range s {
 		if r == '\033' {
 			inEscape = true
@@ -154,6 +154,6 @@ func visibleLength(s string) int {
 			visible++
 		}
 	}
-	
+
 	return visible
 }

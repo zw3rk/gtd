@@ -12,18 +12,18 @@ import (
 func TestAddSubtaskCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create parent tasks
 	parentBug := models.NewTask(models.KindBug, "Parent bug", "")
 	if err := testRepo.Create(parentBug); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	parentFeature := models.NewTask(models.KindFeature, "Parent feature", "")
 	if err := testRepo.Create(parentFeature); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	tests := []struct {
 		name    string
 		args    []string
@@ -116,18 +116,18 @@ func TestAddSubtaskCommand(t *testing.T) {
 			errMsg:  "title cannot be empty",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
 			stdin := strings.NewReader(tt.input)
-			
+
 			cmd := newAddSubtaskCommand()
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
 			cmd.SetIn(stdin)
 			cmd.SetArgs(tt.args)
-			
+
 			// Clear any existing children
 			children, _ := testRepo.GetChildren(parentBug.ID)
 			for _, child := range children {
@@ -137,18 +137,18 @@ func TestAddSubtaskCommand(t *testing.T) {
 			for _, child := range children {
 				testRepo.Delete(child.ID)
 			}
-			
+
 			err := cmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				t.Errorf("stderr: %s", stderr.String())
 				return
 			}
-			
+
 			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
 				t.Errorf("Error = %v, want error containing %q", err, tt.errMsg)
 			}
-			
+
 			if !tt.wantErr && tt.check != nil {
 				tt.check(t)
 			}

@@ -12,7 +12,7 @@ import (
 // newSummaryCommand creates the summary command
 func newSummaryCommand() *cobra.Command {
 	var activeOnly bool
-	
+
 	cmd := &cobra.Command{
 		Use:   "summary",
 		Short: "Show task summary statistics",
@@ -22,25 +22,25 @@ func newSummaryCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Get all tasks
 			opts := models.ListOptions{
-				All: true,
-				ShowDone: true,
+				All:           true,
+				ShowDone:      true,
 				ShowCancelled: true,
 			}
-			
+
 			tasks, err := repo.List(opts)
 			if err != nil {
 				return fmt.Errorf("failed to get tasks: %w", err)
 			}
-			
+
 			// Generate and display summary
 			formatSummary(cmd.OutOrStdout(), tasks, activeOnly)
-			
+
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().BoolVar(&activeOnly, "active", false, "Show only active tasks (exclude DONE and CANCELLED)")
-	
+
 	return cmd
 }
 
@@ -53,7 +53,7 @@ func formatSummary(w io.Writer, tasks []*models.Task, activeOnly bool) {
 	blockedCount := 0
 	parentCount := 0
 	subtaskCount := 0
-	
+
 	// Count tasks
 	activeTasks := 0
 	for _, task := range tasks {
@@ -61,15 +61,15 @@ func formatSummary(w io.Writer, tasks []*models.Task, activeOnly bool) {
 		if activeOnly && (task.State == models.StateDone || task.State == models.StateCancelled) {
 			continue
 		}
-		
+
 		stateCounts[task.State]++
 		typeCounts[formatKind(task.Kind)]++
 		priorityCounts[task.Priority]++
-		
+
 		if task.IsBlocked() {
 			blockedCount++
 		}
-		
+
 		// Count parents and subtasks
 		hasChildren := false
 		for _, other := range tasks {
@@ -84,18 +84,18 @@ func formatSummary(w io.Writer, tasks []*models.Task, activeOnly bool) {
 		if task.Parent != nil {
 			subtaskCount++
 		}
-		
+
 		if task.State == models.StateNew || task.State == models.StateInProgress {
 			activeTasks++
 		}
 	}
-	
+
 	// Calculate total
 	total := 0
 	for _, count := range stateCounts {
 		total += count
 	}
-	
+
 	// Display summary
 	if activeOnly {
 		fmt.Fprintf(w, "Active Tasks: %d\n", activeTasks)
@@ -105,7 +105,7 @@ func formatSummary(w io.Writer, tasks []*models.Task, activeOnly bool) {
 		fmt.Fprintf(w, "Total Tasks: %d\n", total)
 	}
 	fmt.Fprintln(w)
-	
+
 	// By State
 	fmt.Fprintln(w, "By State:")
 	fmt.Fprintf(w, "  %-12s %d\n", "NEW:", stateCounts[models.StateNew])
@@ -114,24 +114,24 @@ func formatSummary(w io.Writer, tasks []*models.Task, activeOnly bool) {
 		fmt.Fprintf(w, "  %-12s %d\n", "DONE:", stateCounts[models.StateDone])
 		fmt.Fprintf(w, "  %-12s %d\n", "CANCELLED:", stateCounts[models.StateCancelled])
 	}
-	
+
 	if !activeOnly {
 		fmt.Fprintln(w)
-		
+
 		// By Type
 		fmt.Fprintln(w, "By Type:")
 		fmt.Fprintf(w, "  %-12s %d\n", "Bug:", typeCounts["Bug"])
 		fmt.Fprintf(w, "  %-12s %d\n", "Feature:", typeCounts["Feature"])
 		fmt.Fprintf(w, "  %-12s %d\n", "Regression:", typeCounts["Regression"])
 		fmt.Fprintln(w)
-		
+
 		// By Priority
 		fmt.Fprintln(w, "By Priority:")
 		fmt.Fprintf(w, "  %-12s %d\n", "High:", priorityCounts[models.PriorityHigh])
 		fmt.Fprintf(w, "  %-12s %d\n", "Medium:", priorityCounts[models.PriorityMedium])
 		fmt.Fprintf(w, "  %-12s %d\n", "Low:", priorityCounts[models.PriorityLow])
 		fmt.Fprintln(w)
-		
+
 		// Special categories
 		fmt.Fprintln(w, "Special:")
 		fmt.Fprintf(w, "  %-13s %d\n", "Blocked:", blockedCount)

@@ -15,15 +15,15 @@ import (
 // newExportCommand creates the export command
 func newExportCommand() *cobra.Command {
 	var (
-		format        string
-		outputFile    string
-		activeOnly    bool
-		stateFilter   string
+		format         string
+		outputFile     string
+		activeOnly     bool
+		stateFilter    string
 		priorityFilter string
-		kindFilter    string
-		tagFilter     string
+		kindFilter     string
+		tagFilter      string
 	)
-	
+
 	cmd := &cobra.Command{
 		Use:   "export",
 		Short: "Export tasks to various formats",
@@ -39,59 +39,59 @@ Tasks can be filtered by state, priority, kind, or tags before export.`,
 			if format != "json" && format != "csv" && format != "markdown" {
 				return fmt.Errorf("unsupported format: %s", format)
 			}
-			
+
 			// Build list options
 			opts := models.ListOptions{
 				All:           true,
 				ShowDone:      true,
 				ShowCancelled: true,
 			}
-			
+
 			if activeOnly {
 				opts.ShowDone = false
 				opts.ShowCancelled = false
 			}
-			
+
 			if stateFilter != "" {
 				state := strings.ToUpper(stateFilter)
 				if state == "IN_PROGRESS" || state == "IN-PROGRESS" {
 					state = models.StateInProgress
 				}
-				if state != models.StateNew && state != models.StateInProgress && 
-				   state != models.StateDone && state != models.StateCancelled {
+				if state != models.StateNew && state != models.StateInProgress &&
+					state != models.StateDone && state != models.StateCancelled {
 					return fmt.Errorf("invalid state: %s", stateFilter)
 				}
 				opts.State = state
 			}
-			
+
 			if priorityFilter != "" {
 				priority := strings.ToLower(priorityFilter)
-				if priority != models.PriorityHigh && priority != models.PriorityMedium && 
-				   priority != models.PriorityLow {
+				if priority != models.PriorityHigh && priority != models.PriorityMedium &&
+					priority != models.PriorityLow {
 					return fmt.Errorf("invalid priority: %s", priorityFilter)
 				}
 				opts.Priority = priority
 			}
-			
+
 			if kindFilter != "" {
 				kind := strings.ToUpper(kindFilter)
-				if kind != models.KindBug && kind != models.KindFeature && 
-				   kind != models.KindRegression {
+				if kind != models.KindBug && kind != models.KindFeature &&
+					kind != models.KindRegression {
 					return fmt.Errorf("invalid kind: %s", kindFilter)
 				}
 				opts.Kind = kind
 			}
-			
+
 			if tagFilter != "" {
 				opts.Tag = tagFilter
 			}
-			
+
 			// Get tasks
 			tasks, err := repo.List(opts)
 			if err != nil {
 				return fmt.Errorf("failed to list tasks: %w", err)
 			}
-			
+
 			// Determine output writer
 			var writer io.Writer
 			if outputFile != "" {
@@ -104,7 +104,7 @@ Tasks can be filtered by state, priority, kind, or tags before export.`,
 			} else {
 				writer = cmd.OutOrStdout()
 			}
-			
+
 			// Export based on format
 			switch format {
 			case "json":
@@ -120,16 +120,16 @@ Tasks can be filtered by state, priority, kind, or tags before export.`,
 					return fmt.Errorf("failed to export Markdown: %w", err)
 				}
 			}
-			
+
 			// Show success message if writing to file
 			if outputFile != "" {
 				fmt.Fprintf(cmd.OutOrStdout(), "Exported %d tasks to %s\n", len(tasks), outputFile)
 			}
-			
+
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().StringVarP(&format, "format", "f", "json", "Export format (json, csv, markdown)")
 	cmd.Flags().StringVarP(&outputFile, "output", "o", "", "Output file (default: stdout)")
 	cmd.Flags().BoolVar(&activeOnly, "active", false, "Export only active tasks (exclude DONE and CANCELLED)")
@@ -137,7 +137,7 @@ Tasks can be filtered by state, priority, kind, or tags before export.`,
 	cmd.Flags().StringVar(&priorityFilter, "priority", "", "Filter by priority (high, medium, low)")
 	cmd.Flags().StringVar(&kindFilter, "kind", "", "Filter by kind (bug, feature, regression)")
 	cmd.Flags().StringVar(&tagFilter, "tag", "", "Filter by tag")
-	
+
 	return cmd
 }
 
@@ -145,7 +145,7 @@ Tasks can be filtered by state, priority, kind, or tags before export.`,
 func exportJSON(w io.Writer, tasks []*models.Task) error {
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "  ")
-	
+
 	// Convert tasks to a format that includes all fields
 	type exportTask struct {
 		ID          string  `json:"id"`
@@ -161,7 +161,7 @@ func exportJSON(w io.Writer, tasks []*models.Task) error {
 		CreatedAt   string  `json:"created_at"`
 		UpdatedAt   string  `json:"updated_at"`
 	}
-	
+
 	exportTasks := make([]exportTask, len(tasks))
 	for i, task := range tasks {
 		exportTasks[i] = exportTask{
@@ -179,7 +179,7 @@ func exportJSON(w io.Writer, tasks []*models.Task) error {
 			UpdatedAt:   task.Updated.Format("2006-01-02 15:04:05"),
 		}
 	}
-	
+
 	return encoder.Encode(exportTasks)
 }
 
@@ -187,25 +187,25 @@ func exportJSON(w io.Writer, tasks []*models.Task) error {
 func exportCSV(w io.Writer, tasks []*models.Task) error {
 	csvWriter := csv.NewWriter(w)
 	defer csvWriter.Flush()
-	
+
 	// Write header
 	header := []string{"ID", "Type", "State", "Priority", "Title", "Tags", "Source", "Parent", "BlockedBy", "Created", "Updated"}
 	if err := csvWriter.Write(header); err != nil {
 		return err
 	}
-	
+
 	// Write data rows
 	for _, task := range tasks {
 		parentStr := ""
 		if task.Parent != nil {
 			parentStr = *task.Parent
 		}
-		
+
 		blockedByStr := ""
 		if task.BlockedBy != nil {
 			blockedByStr = *task.BlockedBy
 		}
-		
+
 		row := []string{
 			task.ID,
 			task.Kind,
@@ -219,12 +219,12 @@ func exportCSV(w io.Writer, tasks []*models.Task) error {
 			task.Created.Format("2006-01-02 15:04:05"),
 			task.Updated.Format("2006-01-02 15:04:05"),
 		}
-		
+
 		if err := csvWriter.Write(row); err != nil {
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
@@ -234,33 +234,33 @@ func exportMarkdown(w io.Writer, tasks []*models.Task) error {
 	fmt.Fprintln(w)
 	fmt.Fprintf(w, "Total tasks: %d\n", len(tasks))
 	fmt.Fprintln(w)
-	
+
 	// Table header
 	fmt.Fprintln(w, "| ID | Type | State | Priority | Title | Tags | Source | Parent | Blocked By |")
 	fmt.Fprintln(w, "|---|---|---|---|---|---|---|---|---|")
-	
+
 	// Table rows
 	for _, task := range tasks {
 		parentStr := "-"
 		if task.Parent != nil {
 			parentStr = fmt.Sprintf("#%d", *task.Parent)
 		}
-		
+
 		blockedByStr := "-"
 		if task.BlockedBy != nil {
 			blockedByStr = fmt.Sprintf("#%d", *task.BlockedBy)
 		}
-		
+
 		tagsStr := "-"
 		if task.Tags != "" {
 			tagsStr = task.Tags
 		}
-		
+
 		sourceStr := "-"
 		if task.Source != "" {
 			sourceStr = task.Source
 		}
-		
+
 		fmt.Fprintf(w, "| %d | %s | %s | %s | %s | %s | %s | %s | %s |\n",
 			task.ID,
 			task.Kind,
@@ -273,45 +273,45 @@ func exportMarkdown(w io.Writer, tasks []*models.Task) error {
 			blockedByStr,
 		)
 	}
-	
+
 	// Add detailed task descriptions
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, "## Task Details")
 	fmt.Fprintln(w)
-	
+
 	for _, task := range tasks {
 		fmt.Fprintf(w, "### #%d: %s\n", task.ID, task.Title)
 		fmt.Fprintln(w)
-		
+
 		if task.Description != "" {
 			fmt.Fprintln(w, task.Description)
 			fmt.Fprintln(w)
 		}
-		
+
 		fmt.Fprintf(w, "- **Type:** %s\n", formatKind(task.Kind))
 		fmt.Fprintf(w, "- **State:** %s %s\n", task.State, getStateEmoji(task.State))
 		fmt.Fprintf(w, "- **Priority:** %s %s\n", task.Priority, getPriorityEmoji(task.Priority))
-		
+
 		if task.Tags != "" {
 			fmt.Fprintf(w, "- **Tags:** %s\n", task.Tags)
 		}
-		
+
 		if task.Source != "" {
 			fmt.Fprintf(w, "- **Source:** %s\n", task.Source)
 		}
-		
+
 		if task.Parent != nil {
 			fmt.Fprintf(w, "- **Parent:** #%d\n", *task.Parent)
 		}
-		
+
 		if task.BlockedBy != nil {
 			fmt.Fprintf(w, "- **Blocked by:** #%d\n", *task.BlockedBy)
 		}
-		
+
 		fmt.Fprintf(w, "- **Created:** %s\n", task.Created.Format("2006-01-02 15:04:05"))
 		fmt.Fprintf(w, "- **Updated:** %s\n", task.Updated.Format("2006-01-02 15:04:05"))
 		fmt.Fprintln(w)
 	}
-	
+
 	return nil
 }

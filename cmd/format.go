@@ -37,7 +37,7 @@ func formatTask(task *models.Task, showDetails bool) string {
 // formatTaskGitStyle formats a task in git log style
 func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 	var b strings.Builder
-	
+
 	// Line 1: task <full-hash>
 	hashLine := fmt.Sprintf("task %s", task.ID)
 	if useColor {
@@ -48,20 +48,20 @@ func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 		b.WriteString(hashLine)
 	}
 	b.WriteString("\n")
-	
+
 	// Line 2: Author: Name <email>
 	b.WriteString("Author: ")
 	b.WriteString(task.Author)
 	b.WriteString("\n")
-	
+
 	// Line 3: Date: timestamp
 	b.WriteString("Date:   ")
 	b.WriteString(task.Created.Format("Mon Jan 2 15:04:05 2006 -0700"))
 	b.WriteString("\n\n")
-	
+
 	// Line 4 (indented): state indicator + kind(priority): title
 	b.WriteString("  ")
-	
+
 	// State indicator
 	if useColor {
 		b.WriteString(formatStateColor(task.State))
@@ -69,15 +69,15 @@ func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 		b.WriteString(getStateEmoji(task.State))
 	}
 	b.WriteString(" ")
-	
-	// Format kind(priority): 
+
+	// Format kind(priority):
 	kindPriority := fmt.Sprintf("%s(%s): ", strings.ToLower(task.Kind), task.Priority)
 	if useColor {
 		b.WriteString(formatKindPriorityColor(task.Kind, task.Priority))
 	} else {
 		b.WriteString(kindPriority)
 	}
-	
+
 	// Title
 	title := task.Title
 	if subtaskStats != nil && subtaskStats.Total > 0 {
@@ -89,7 +89,7 @@ func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 		b.WriteString(title)
 	}
 	b.WriteString("\n")
-	
+
 	// Body (indented with extra indent)
 	if task.Description != "" {
 		b.WriteString("\n")
@@ -99,7 +99,7 @@ func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 			b.WriteString("\n")
 		}
 	}
-	
+
 	// Blocked-by (if applicable)
 	if task.IsBlocked() && task.BlockedBy != nil {
 		b.WriteString("\n    Blocked-by: ")
@@ -110,50 +110,50 @@ func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 		}
 		b.WriteString("\n")
 	}
-	
+
 	return b.String()
 }
 
 // formatTaskCompact formats a task in the new compact single-line format
 func formatTaskCompact(task *models.Task, showDetails bool) string {
 	var b strings.Builder
-	
+
 	// Build the main line: hash state kind(priority): title #tags
 	var mainParts []string
-	
+
 	// Hash at the beginning (like git log)
 	hash := task.ShortHash()
 	if useColor {
 		hash = colorize(hash, colorYellow)
 	}
 	mainParts = append(mainParts, hash)
-	
+
 	// State indicator
 	if useColor {
 		mainParts = append(mainParts, formatStateColor(task.State))
 	} else {
 		mainParts = append(mainParts, getStateEmoji(task.State))
 	}
-	
+
 	// kind(priority): format
 	kindPriority := fmt.Sprintf("%s(%s):", strings.ToLower(task.Kind), task.Priority)
 	if useColor {
 		kindPriority = formatKindPriorityColor(task.Kind, task.Priority)
 	}
 	mainParts = append(mainParts, kindPriority)
-	
+
 	// Title
 	title := task.Title
 	if useColor {
 		title = colorize(title, colorBold)
 	}
 	mainParts = append(mainParts, title)
-	
+
 	// Tags with # prefix
 	if task.Tags != "" {
 		mainParts = append(mainParts, formatTagsColor(task.Tags))
 	}
-	
+
 	// Blocked indicator
 	if task.IsBlocked() {
 		blocked := emojiBlocked
@@ -162,11 +162,11 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 		}
 		mainParts = append(mainParts, blocked)
 	}
-	
+
 	// Build main line
 	mainLine := strings.Join(mainParts, " ")
 	b.WriteString(mainLine)
-	
+
 	if showDetails {
 		// Add description if present, indented
 		if task.Description != "" {
@@ -177,13 +177,13 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 				fmt.Fprintf(&b, "    %s\n", line)
 			}
 		}
-		
+
 		// Add metadata as part of the body if relevant
 		if task.IsBlocked() && task.BlockedBy != nil {
 			fmt.Fprintf(&b, "\n    Blocked by: %s\n", *task.BlockedBy)
 		}
 	}
-	
+
 	return b.String()
 }
 
@@ -196,40 +196,40 @@ func formatTaskOneline(task *models.Task) string {
 func formatSubtask(task *models.Task) string {
 	// Build the main line: hash state kind(priority): title #tags
 	var mainParts []string
-	
+
 	// Hash at the beginning (like git log)
 	hash := task.ShortHash()
 	if useColor {
 		hash = colorize(hash, colorYellow)
 	}
 	mainParts = append(mainParts, hash)
-	
+
 	// State indicator
 	if useColor {
 		mainParts = append(mainParts, formatStateColor(task.State))
 	} else {
 		mainParts = append(mainParts, getStateEmoji(task.State))
 	}
-	
+
 	// kind(priority): format
 	kindPriority := fmt.Sprintf("%s(%s):", strings.ToLower(task.Kind), task.Priority)
 	if useColor {
 		kindPriority = formatKindPriorityColor(task.Kind, task.Priority)
 	}
 	mainParts = append(mainParts, kindPriority)
-	
+
 	// Title
 	title := task.Title
 	if useColor {
 		title = colorize(title, colorBold)
 	}
 	mainParts = append(mainParts, title)
-	
+
 	// Tags with # prefix
 	if task.Tags != "" {
 		mainParts = append(mainParts, formatTagsColor(task.Tags))
 	}
-	
+
 	// Blocked indicator
 	if task.IsBlocked() {
 		blocked := emojiBlocked
@@ -238,7 +238,7 @@ func formatSubtask(task *models.Task) string {
 		}
 		mainParts = append(mainParts, blocked)
 	}
-	
+
 	// Build main line
 	return strings.Join(mainParts, " ")
 }
@@ -318,7 +318,7 @@ func formatKindPriorityColor(kind, priority string) string {
 	default:
 		kindColored = kindLower
 	}
-	
+
 	// Format the priority part
 	var priorityColored string
 	switch priority {
@@ -331,6 +331,6 @@ func formatKindPriorityColor(kind, priority string) string {
 	default:
 		priorityColored = priority
 	}
-	
+
 	return fmt.Sprintf("%s(%s): ", kindColored, priorityColored)
 }

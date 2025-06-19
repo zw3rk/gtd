@@ -18,10 +18,10 @@ func FindGitRoot(startPath string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get absolute path: %w", err)
 	}
-	
+
 	// Start from the given path
 	current := absPath
-	
+
 	// Keep going up until we find .git or reach the root
 	for {
 		// Check if .git exists in current directory
@@ -29,18 +29,18 @@ func FindGitRoot(startPath string) (string, error) {
 		if info, err := os.Stat(gitPath); err == nil && info.IsDir() {
 			return current, nil
 		}
-		
+
 		// Get parent directory
 		parent := filepath.Dir(current)
-		
+
 		// If we've reached the root, stop
 		if parent == current {
 			break
 		}
-		
+
 		current = parent
 	}
-	
+
 	return "", fmt.Errorf("not in a git repository (or any of the parent directories)")
 }
 
@@ -53,7 +53,7 @@ func GetAuthor() (string, error) {
 		return "", fmt.Errorf("failed to get git user.name: %w", err)
 	}
 	name := strings.TrimSpace(string(nameOut))
-	
+
 	// Try to get user.email
 	emailCmd := exec.Command("git", "config", "user.email")
 	emailOut, err := emailCmd.Output()
@@ -61,11 +61,11 @@ func GetAuthor() (string, error) {
 		return "", fmt.Errorf("failed to get git user.email: %w", err)
 	}
 	email := strings.TrimSpace(string(emailOut))
-	
+
 	if name == "" || email == "" {
 		return "", fmt.Errorf("git user.name and user.email must be configured")
 	}
-	
+
 	// Format like git does: Name <email>
 	return fmt.Sprintf("%s <%s>", name, email), nil
 }

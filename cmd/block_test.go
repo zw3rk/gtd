@@ -12,18 +12,18 @@ import (
 func TestBlockCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create test tasks
 	task1 := models.NewTask(models.KindBug, "Task to be blocked", "")
 	if err := testRepo.Create(task1); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	task2 := models.NewTask(models.KindFeature, "Blocking task", "")
 	if err := testRepo.Create(task2); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	tests := []struct {
 		name    string
 		args    []string
@@ -89,29 +89,29 @@ func TestBlockCommand(t *testing.T) {
 			errMsg:  "cannot block a task by itself",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
-			
+
 			cmd := newBlockCommand()
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
 			cmd.SetArgs(tt.args)
-			
+
 			// Clear any existing blocking
 			testRepo.Unblock(task1.ID)
-			
+
 			err := cmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
 				t.Errorf("Error = %v, want error containing %q", err, tt.errMsg)
 			}
-			
+
 			if !tt.wantErr && tt.check != nil {
 				tt.check(t)
 			}
@@ -122,23 +122,23 @@ func TestBlockCommand(t *testing.T) {
 func TestUnblockCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create test tasks
 	blockedTask := models.NewTask(models.KindBug, "Blocked task", "")
 	if err := testRepo.Create(blockedTask); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	blockingTask := models.NewTask(models.KindFeature, "Blocking task", "")
 	if err := testRepo.Create(blockingTask); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	// Block the task
 	if err := testRepo.Block(blockedTask.ID, blockingTask.ID); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	tests := []struct {
 		name    string
 		args    []string
@@ -191,26 +191,26 @@ func TestUnblockCommand(t *testing.T) {
 			},
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
-			
+
 			cmd := newUnblockCommand()
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
 			cmd.SetArgs(tt.args)
-			
+
 			err := cmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
 				t.Errorf("Error = %v, want error containing %q", err, tt.errMsg)
 			}
-			
+
 			if !tt.wantErr && tt.check != nil {
 				tt.check(t)
 			}

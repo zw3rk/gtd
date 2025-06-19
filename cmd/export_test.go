@@ -13,7 +13,7 @@ import (
 func TestExportCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create test tasks
 	task1 := models.NewTask(models.KindBug, "Bug 1", "Description 1")
 	task1.Priority = models.PriorityHigh
@@ -22,14 +22,14 @@ func TestExportCommand(t *testing.T) {
 	if err := testRepo.Create(task1); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	task2 := models.NewTask(models.KindFeature, "Feature 1", "Description 2")
 	task2.Priority = models.PriorityMedium
 	task2.State = models.StateInProgress
 	if err := testRepo.Create(task2); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	// Create parent-child relationship
 	task3 := models.NewTask(models.KindRegression, "Subtask 1", "Subtask description")
 	task3.Parent = &task1.ID
@@ -37,12 +37,12 @@ func TestExportCommand(t *testing.T) {
 	if err := testRepo.Create(task3); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	// Block task2 by task1
 	if err := testRepo.Block(task2.ID, task1.ID); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	tests := []struct {
 		name     string
 		args     []string
@@ -59,11 +59,11 @@ func TestExportCommand(t *testing.T) {
 					t.Errorf("Failed to parse JSON output: %v", err)
 					return
 				}
-				
+
 				if len(tasks) != 3 {
 					t.Errorf("Expected 3 tasks, got %d", len(tasks))
 				}
-				
+
 				// Check that we have the expected tasks
 				foundBug := false
 				for _, task := range tasks {
@@ -87,19 +87,19 @@ func TestExportCommand(t *testing.T) {
 					t.Errorf("Failed to parse CSV output: %v", err)
 					return
 				}
-				
+
 				// Check header
 				if len(records) < 1 {
 					t.Errorf("No records in CSV output")
 					return
 				}
-				
+
 				header := records[0]
 				expectedHeaders := []string{"ID", "Type", "State", "Priority", "Title", "Tags", "Source", "Parent", "BlockedBy", "Created", "Updated"}
 				if len(header) != len(expectedHeaders) {
 					t.Errorf("Expected %d columns, got %d", len(expectedHeaders), len(header))
 				}
-				
+
 				// Check data rows
 				if len(records) != 4 { // header + 3 tasks
 					t.Errorf("Expected 4 rows (header + 3 tasks), got %d", len(records))
@@ -134,12 +134,12 @@ func TestExportCommand(t *testing.T) {
 					t.Errorf("Failed to parse JSON output: %v", err)
 					return
 				}
-				
+
 				// Should only have 2 tasks (exclude DONE task)
 				if len(tasks) != 2 {
 					t.Errorf("Expected 2 active tasks, got %d", len(tasks))
 				}
-				
+
 				// Check no DONE tasks
 				for _, task := range tasks {
 					if task["state"] == "DONE" {
@@ -157,12 +157,12 @@ func TestExportCommand(t *testing.T) {
 					t.Errorf("Failed to parse JSON output: %v", err)
 					return
 				}
-				
+
 				// Should only have 1 task
 				if len(tasks) != 1 {
 					t.Errorf("Expected 1 done task, got %d", len(tasks))
 				}
-				
+
 				if tasks[0]["state"] != "DONE" {
 					t.Errorf("Expected DONE state, got %v", tasks[0]["state"])
 				}
@@ -177,12 +177,12 @@ func TestExportCommand(t *testing.T) {
 					t.Errorf("Failed to parse JSON output: %v", err)
 					return
 				}
-				
+
 				// Should only have bug tasks
 				if len(tasks) != 1 {
 					t.Errorf("Expected 1 bug task, got %d", len(tasks))
 				}
-				
+
 				if tasks[0]["kind"] != "BUG" {
 					t.Errorf("Expected BUG kind, got %v", tasks[0]["kind"])
 				}
@@ -199,10 +199,10 @@ func TestExportCommand(t *testing.T) {
 			},
 		},
 		{
-			name: "invalid format",
-			args: []string{"--format", "xml"},
+			name:    "invalid format",
+			args:    []string{"--format", "xml"},
 			wantErr: true,
-			errMsg: "unsupported format",
+			errMsg:  "unsupported format",
 		},
 		{
 			name: "export to file",
@@ -215,26 +215,26 @@ func TestExportCommand(t *testing.T) {
 			},
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
-			
+
 			cmd := newExportCommand()
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
 			cmd.SetArgs(tt.args)
-			
+
 			err := cmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
 				t.Errorf("Error = %v, want error containing %q", err, tt.errMsg)
 			}
-			
+
 			if tt.validate != nil {
 				tt.validate(t, stdout.String())
 			}

@@ -193,15 +193,15 @@ func (r *TaskRepository) GetChildren(parentID string) ([]*Task, error) {
 
 // ListOptions contains filtering options for listing tasks
 type ListOptions struct {
-	State      string
-	Priority   string
-	Kind       string
-	Tag        string
-	Blocked    bool
-	ShowDone   bool
+	State         string
+	Priority      string
+	Kind          string
+	Tag           string
+	Blocked       bool
+	ShowDone      bool
 	ShowCancelled bool
-	Limit      int
-	All        bool
+	Limit         int
+	All           bool
 }
 
 // List retrieves tasks based on the given options

@@ -11,16 +11,16 @@ import (
 // Supports Git-style commit message format: <title>\n\n<body>
 func readTaskInput(r io.Reader) (title, description string, err error) {
 	scanner := bufio.NewScanner(r)
-	
+
 	// Read title (first line)
 	if scanner.Scan() {
 		title = strings.TrimSpace(scanner.Text())
 	}
-	
+
 	if title == "" {
 		return "", "", fmt.Errorf("title cannot be empty")
 	}
-	
+
 	// Look for blank line separator (Git-style)
 	hasBlankLine := false
 	if scanner.Scan() {
@@ -31,16 +31,16 @@ func readTaskInput(r io.Reader) (title, description string, err error) {
 			// No blank line, this is part of the description
 			var descLines []string
 			descLines = append(descLines, line)
-			
+
 			// Continue reading remaining lines
 			for scanner.Scan() {
 				descLines = append(descLines, scanner.Text())
 			}
-			
+
 			description = strings.TrimSpace(strings.Join(descLines, "\n"))
 		}
 	}
-	
+
 	// If we had a blank line, read the body
 	if hasBlankLine {
 		var descLines []string
@@ -49,11 +49,11 @@ func readTaskInput(r io.Reader) (title, description string, err error) {
 		}
 		description = strings.TrimSpace(strings.Join(descLines, "\n"))
 	}
-	
+
 	if err := scanner.Err(); err != nil {
 		return "", "", fmt.Errorf("error reading input: %w", err)
 	}
-	
+
 	return title, description, nil
 }
 

@@ -15,7 +15,7 @@ import (
 var (
 	// Version is set at build time
 	Version = "dev"
-	
+
 	// Global database and repository instances
 	db   *database.Database
 	repo *models.TaskRepository
@@ -37,28 +37,28 @@ It stores tasks per-project in a claude-tasks.db file at the git repository root
 			if cmd.Parent() != nil && cmd.Parent().Name() == "help" {
 				return nil
 			}
-			
+
 			// Find git root
 			gitRoot, err := git.FindGitRoot(".")
 			if err != nil {
 				return fmt.Errorf("not in a git repository: %w", err)
 			}
-			
+
 			// Open database
 			dbPath := filepath.Join(gitRoot, "claude-tasks.db")
 			db, err = database.New(dbPath)
 			if err != nil {
 				return fmt.Errorf("failed to open database: %w", err)
 			}
-			
+
 			// Create schema if needed
 			if err := db.CreateSchema(); err != nil {
 				return fmt.Errorf("failed to create schema: %w", err)
 			}
-			
+
 			// Create repository
 			repo = models.NewTaskRepository(db)
-			
+
 			return nil
 		},
 		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
@@ -69,7 +69,7 @@ It stores tasks per-project in a claude-tasks.db file at the git repository root
 			return nil
 		},
 	}
-	
+
 	// Add commands
 	rootCmd.AddCommand(
 		newAddBugCommand(),
@@ -89,7 +89,7 @@ It stores tasks per-project in a claude-tasks.db file at the git repository root
 		newSummaryCommand(),
 		newExportCommand(),
 	)
-	
+
 	return rootCmd
 }
 
@@ -99,4 +99,3 @@ func Execute() {
 		os.Exit(1)
 	}
 }
-

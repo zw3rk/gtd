@@ -16,29 +16,29 @@ func setupTestCommand(t *testing.T) (*database.Database, *models.TaskRepository,
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	if err := testDB.CreateSchema(); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	testRepo := models.NewTaskRepository(testDB)
-	
+
 	// Override global variables
 	oldDB, oldRepo := db, repo
 	db, repo = testDB, testRepo
-	
+
 	cleanup := func() {
 		testDB.Close()
 		db, repo = oldDB, oldRepo
 	}
-	
+
 	return testDB, testRepo, cleanup
 }
 
 func TestAddBugCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	tests := []struct {
 		name    string
 		args    []string
@@ -127,31 +127,31 @@ func TestAddBugCommand(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
 			stdin := strings.NewReader(tt.input)
-			
+
 			cmd := newAddBugCommand()
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
 			cmd.SetIn(stdin)
 			cmd.SetArgs(tt.args)
-			
+
 			// Clear any existing tasks
 			tasks, _ := testRepo.List(models.ListOptions{All: true})
 			for _, task := range tasks {
 				testRepo.Delete(task.ID)
 			}
-			
+
 			err := cmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				t.Errorf("stderr: %s", stderr.String())
 				return
 			}
-			
+
 			if !tt.wantErr && tt.check != nil {
 				tasks, err := testRepo.List(models.ListOptions{All: true})
 				if err != nil {
@@ -166,30 +166,30 @@ func TestAddBugCommand(t *testing.T) {
 func TestAddFeatureCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	var stdout, stderr bytes.Buffer
 	stdin := strings.NewReader("Add dark mode\nImplement theme switching")
-	
+
 	cmd := newAddFeatureCommand()
 	cmd.SetOut(&stdout)
 	cmd.SetErr(&stderr)
 	cmd.SetIn(stdin)
 	cmd.SetArgs([]string{"--priority", "high", "--tags", "ui,enhancement"})
-	
+
 	err := cmd.Execute()
 	if err != nil {
 		t.Fatalf("Execute() error = %v", err)
 	}
-	
+
 	tasks, err := testRepo.List(models.ListOptions{All: true})
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	if len(tasks) != 1 {
 		t.Fatalf("Expected 1 task, got %d", len(tasks))
 	}
-	
+
 	task := tasks[0]
 	if task.Kind != models.KindFeature {
 		t.Errorf("Kind = %q, want %q", task.Kind, models.KindFeature)
@@ -211,26 +211,26 @@ func TestAddFeatureCommand(t *testing.T) {
 func TestAddRegressionCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	var stdout, stderr bytes.Buffer
 	stdin := strings.NewReader("Login broken after update\n")
-	
+
 	cmd := newAddRegressionCommand()
 	cmd.SetOut(&stdout)
 	cmd.SetErr(&stderr)
 	cmd.SetIn(stdin)
 	cmd.SetArgs([]string{"--source", "v2.1.0"})
-	
+
 	err := cmd.Execute()
 	if err != nil {
 		t.Fatalf("Execute() error = %v", err)
 	}
-	
+
 	tasks, err := testRepo.List(models.ListOptions{All: true})
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	task := tasks[0]
 	if task.Kind != models.KindRegression {
 		t.Errorf("Kind = %q, want %q", task.Kind, models.KindRegression)

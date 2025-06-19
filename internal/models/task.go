@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
-	
+
 	"github.com/zw3rk/gtd/internal/git"
 )
 
@@ -53,14 +53,14 @@ type Task struct {
 // NewTask creates a new task with default values
 func NewTask(kind, title, description string) *Task {
 	now := time.Now()
-	
+
 	// Get author from git config
 	author, err := git.GetAuthor()
 	if err != nil {
 		// Fallback to a default if git config is not available
 		author = "Unknown <unknown@example.com>"
 	}
-	
+
 	task := &Task{
 		Kind:        kind,
 		Title:       title,

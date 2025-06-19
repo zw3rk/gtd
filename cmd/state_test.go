@@ -12,19 +12,19 @@ import (
 func TestInProgressCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create test tasks
 	newTask := models.NewTask(models.KindBug, "New bug", "")
 	if err := testRepo.Create(newTask); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	doneTask := models.NewTask(models.KindFeature, "Done feature", "")
 	doneTask.State = models.StateDone
 	if err := testRepo.Create(doneTask); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	tests := []struct {
 		name    string
 		args    []string
@@ -76,26 +76,26 @@ func TestInProgressCommand(t *testing.T) {
 			errMsg:  "task not found",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
-			
+
 			cmd := newInProgressCommand()
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
 			cmd.SetArgs(tt.args)
-			
+
 			err := cmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
 				t.Errorf("Error = %v, want error containing %q", err, tt.errMsg)
 			}
-			
+
 			if !tt.wantErr && tt.check != nil {
 				tt.check(t)
 			}
@@ -106,34 +106,34 @@ func TestInProgressCommand(t *testing.T) {
 func TestDoneCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create parent and child tasks
 	parent := models.NewTask(models.KindFeature, "Parent feature", "")
 	parent.State = models.StateInProgress
 	if err := testRepo.Create(parent); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	child1 := models.NewTask(models.KindBug, "Child bug 1", "")
 	child1.Parent = &parent.ID
 	child1.State = models.StateInProgress
 	if err := testRepo.Create(child1); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	child2 := models.NewTask(models.KindBug, "Child bug 2", "")
 	child2.Parent = &parent.ID
 	child2.State = models.StateNew
 	if err := testRepo.Create(child2); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	simpleTask := models.NewTask(models.KindBug, "Simple task", "")
 	simpleTask.State = models.StateInProgress
 	if err := testRepo.Create(simpleTask); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	tests := []struct {
 		name    string
 		args    []string
@@ -186,31 +186,31 @@ func TestDoneCommand(t *testing.T) {
 			errMsg:  "task not found",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.setup != nil {
 				tt.setup()
 			}
-			
+
 			var stdout, stderr bytes.Buffer
-			
+
 			cmd := newDoneCommand()
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
 			cmd.SetArgs(tt.args)
-			
+
 			err := cmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				t.Errorf("stderr: %s", stderr.String())
 				return
 			}
-			
+
 			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
 				t.Errorf("Error = %v, want error containing %q", err, tt.errMsg)
 			}
-			
+
 			if !tt.wantErr && tt.check != nil {
 				tt.check(t)
 			}
@@ -221,14 +221,14 @@ func TestDoneCommand(t *testing.T) {
 func TestCancelCommand(t *testing.T) {
 	_, testRepo, cleanup := setupTestCommand(t)
 	defer cleanup()
-	
+
 	// Create test task
 	task := models.NewTask(models.KindBug, "Bug to cancel", "")
 	task.State = models.StateInProgress
 	if err := testRepo.Create(task); err != nil {
 		t.Fatal(err)
 	}
-	
+
 	tests := []struct {
 		name    string
 		args    []string
@@ -254,22 +254,22 @@ func TestCancelCommand(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
-			
+
 			cmd := newCancelCommand()
 			cmd.SetOut(&stdout)
 			cmd.SetErr(&stderr)
 			cmd.SetArgs(tt.args)
-			
+
 			err := cmd.Execute()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Execute() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			if !tt.wantErr && tt.check != nil {
 				tt.check(t)
 			}

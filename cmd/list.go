@@ -23,7 +23,7 @@ type listFlags struct {
 // newListCommand creates the list command
 func newListCommand() *cobra.Command {
 	var flags listFlags
-	
+
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List tasks",
@@ -40,7 +40,7 @@ By default, shows top 20 tasks (IN_PROGRESS first, then NEW), excluding DONE and
 			if err := validateListFlags(&flags); err != nil {
 				return err
 			}
-			
+
 			// Build list options
 			opts := models.ListOptions{
 				State:         flags.state,
@@ -53,20 +53,20 @@ By default, shows top 20 tasks (IN_PROGRESS first, then NEW), excluding DONE and
 				ShowDone:      flags.all || flags.state == models.StateDone,
 				ShowCancelled: flags.all || flags.state == models.StateCancelled,
 			}
-			
+
 			// List tasks
 			tasks, err := repo.List(opts)
 			if err != nil {
 				return fmt.Errorf("failed to list tasks: %w", err)
 			}
-			
+
 			// Format and output
 			formatTaskList(cmd.OutOrStdout(), tasks, flags.oneline)
-			
+
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().BoolVar(&flags.oneline, "oneline", false, "Show tasks in compact format")
 	cmd.Flags().BoolVar(&flags.all, "all", false, "Show all tasks including DONE and CANCELLED")
 	cmd.Flags().StringVar(&flags.state, "state", "", "Filter by state (NEW, IN_PROGRESS, DONE, CANCELLED)")
@@ -75,14 +75,14 @@ By default, shows top 20 tasks (IN_PROGRESS first, then NEW), excluding DONE and
 	cmd.Flags().StringVar(&flags.tag, "tag", "", "Filter by tag")
 	cmd.Flags().BoolVar(&flags.blocked, "blocked", false, "Show only blocked tasks")
 	cmd.Flags().IntVar(&flags.limit, "limit", 20, "Maximum number of tasks to show")
-	
+
 	return cmd
 }
 
 // newListDoneCommand creates the list-done command
 func newListDoneCommand() *cobra.Command {
 	var oneline bool
-	
+
 	cmd := &cobra.Command{
 		Use:   "list-done",
 		Short: "List completed tasks",
@@ -91,31 +91,31 @@ func newListDoneCommand() *cobra.Command {
   claude-gtd list-done --oneline`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := models.ListOptions{
-				State:      models.StateDone,
-				ShowDone:   true,
-				All:        true,
+				State:    models.StateDone,
+				ShowDone: true,
+				All:      true,
 			}
-			
+
 			tasks, err := repo.List(opts)
 			if err != nil {
 				return fmt.Errorf("failed to list done tasks: %w", err)
 			}
-			
+
 			formatTaskList(cmd.OutOrStdout(), tasks, oneline)
-			
+
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().BoolVar(&oneline, "oneline", false, "Show tasks in compact format")
-	
+
 	return cmd
 }
 
 // newListCancelledCommand creates the list-cancelled command
 func newListCancelledCommand() *cobra.Command {
 	var oneline bool
-	
+
 	cmd := &cobra.Command{
 		Use:   "list-cancelled",
 		Short: "List cancelled tasks",
@@ -128,20 +128,20 @@ func newListCancelledCommand() *cobra.Command {
 				ShowCancelled: true,
 				All:           true,
 			}
-			
+
 			tasks, err := repo.List(opts)
 			if err != nil {
 				return fmt.Errorf("failed to list cancelled tasks: %w", err)
 			}
-			
+
 			formatTaskList(cmd.OutOrStdout(), tasks, oneline)
-			
+
 			return nil
 		},
 	}
-	
+
 	cmd.Flags().BoolVar(&oneline, "oneline", false, "Show tasks in compact format")
-	
+
 	return cmd
 }
 
@@ -156,7 +156,7 @@ func validateListFlags(flags *listFlags) error {
 			return fmt.Errorf("invalid state: %s (must be NEW, IN_PROGRESS, DONE, or CANCELLED)", flags.state)
 		}
 	}
-	
+
 	// Validate priority
 	if flags.priority != "" {
 		switch flags.priority {
@@ -166,7 +166,7 @@ func validateListFlags(flags *listFlags) error {
 			return fmt.Errorf("invalid priority: %s (must be high, medium, or low)", flags.priority)
 		}
 	}
-	
+
 	// Validate kind
 	if flags.kind != "" {
 		switch flags.kind {
@@ -183,7 +183,7 @@ func validateListFlags(flags *listFlags) error {
 			return fmt.Errorf("invalid kind: %s (must be bug, feature, or regression)", flags.kind)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -193,7 +193,7 @@ func formatTaskList(w io.Writer, tasks []*models.Task, oneline bool) {
 		fmt.Fprintln(w, "No tasks found.")
 		return
 	}
-	
+
 	for i, task := range tasks {
 		if oneline {
 			fmt.Fprintln(w, formatTaskOneline(task))
@@ -211,7 +211,7 @@ func formatTaskList(w io.Writer, tasks []*models.Task, oneline bool) {
 					}
 				}
 			}
-			
+
 			// Use git-style format
 			fmt.Fprint(w, formatTaskGitStyle(task, stats))
 			// Add blank line between tasks
@@ -220,7 +220,7 @@ func formatTaskList(w io.Writer, tasks []*models.Task, oneline bool) {
 			}
 		}
 	}
-	
+
 	// Show count at the end
 	fmt.Fprintf(w, "\n%s\n", formatTaskCount(len(tasks), "task"))
 }
