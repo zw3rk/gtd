@@ -50,8 +50,19 @@ func newShowCommand() *cobra.Command {
 
 // formatTaskDetails formats detailed task information
 func formatTaskDetails(w io.Writer, task *models.Task, parent *models.Task, subtasks []*models.Task) {
-	// Use the standard compact format with details
-	fmt.Fprintln(w, formatTaskCompact(task, true))
+	// Calculate subtask stats
+	var stats *SubtaskStats
+	if len(subtasks) > 0 {
+		stats = &SubtaskStats{Total: len(subtasks)}
+		for _, st := range subtasks {
+			if st.State == models.StateDone {
+				stats.Done++
+			}
+		}
+	}
+	
+	// Use git-style format
+	fmt.Fprint(w, formatTaskGitStyle(task, stats))
 	
 	// Parent info if this is a subtask
 	if parent != nil {

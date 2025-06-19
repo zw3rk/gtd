@@ -57,6 +57,7 @@ func (d *Database) CreateSchema() error {
 		kind TEXT CHECK(kind IN ('BUG', 'FEATURE', 'REGRESSION')) NOT NULL,
 		title TEXT NOT NULL,
 		description TEXT,
+		author TEXT NOT NULL,
 		created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		source TEXT,

@@ -25,8 +25,8 @@ func (r *TaskRepository) Create(task *Task) error {
 	}
 
 	query := `
-		INSERT INTO tasks (id, parent, priority, state, kind, title, description, source, blocked_by, tags)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO tasks (id, parent, priority, state, kind, title, description, author, source, blocked_by, tags)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	_, err := r.db.DB.Exec(query,
@@ -37,6 +37,7 @@ func (r *TaskRepository) Create(task *Task) error {
 		task.Kind,
 		task.Title,
 		task.Description,
+		task.Author,
 		task.Source,
 		task.BlockedBy,
 		task.Tags,
@@ -57,7 +58,7 @@ func (r *TaskRepository) Update(task *Task) error {
 	query := `
 		UPDATE tasks
 		SET parent = ?, priority = ?, state = ?, kind = ?, title = ?, 
-		    description = ?, source = ?, blocked_by = ?, tags = ?
+		    description = ?, author = ?, source = ?, blocked_by = ?, tags = ?
 		WHERE id = ?
 	`
 
@@ -68,6 +69,7 @@ func (r *TaskRepository) Update(task *Task) error {
 		task.Kind,
 		task.Title,
 		task.Description,
+		task.Author,
 		task.Source,
 		task.BlockedBy,
 		task.Tags,
@@ -109,7 +111,7 @@ func (r *TaskRepository) GetByID(id string) (*Task, error) {
 func (r *TaskRepository) getByExactID(id string) (*Task, error) {
 	task := &Task{}
 	query := `
-		SELECT id, parent, priority, state, kind, title, description, 
+		SELECT id, parent, priority, state, kind, title, description, author,
 		       created, updated, source, blocked_by, tags
 		FROM tasks
 		WHERE id = ?
@@ -123,6 +125,7 @@ func (r *TaskRepository) getByExactID(id string) (*Task, error) {
 		&task.Kind,
 		&task.Title,
 		&task.Description,
+		&task.Author,
 		&task.Created,
 		&task.Updated,
 		&task.Source,
@@ -142,7 +145,7 @@ func (r *TaskRepository) getByExactID(id string) (*Task, error) {
 // getByHashPrefix retrieves a task by hash prefix (like git)
 func (r *TaskRepository) getByHashPrefix(prefix string) (*Task, error) {
 	query := `
-		SELECT id, parent, priority, state, kind, title, description, 
+		SELECT id, parent, priority, state, kind, title, description, author,
 		       created, updated, source, blocked_by, tags
 		FROM tasks
 		WHERE id LIKE ? || '%'
@@ -172,7 +175,7 @@ func (r *TaskRepository) getByHashPrefix(prefix string) (*Task, error) {
 // GetChildren retrieves all child tasks of a parent
 func (r *TaskRepository) GetChildren(parentID string) ([]*Task, error) {
 	query := `
-		SELECT id, parent, priority, state, kind, title, description, 
+		SELECT id, parent, priority, state, kind, title, description, author,
 		       created, updated, source, blocked_by, tags
 		FROM tasks
 		WHERE parent = ?
@@ -239,7 +242,7 @@ func (r *TaskRepository) List(opts ListOptions) ([]*Task, error) {
 
 	// Build the query with proper ordering
 	query := fmt.Sprintf(`
-		SELECT id, parent, priority, state, kind, title, description, 
+		SELECT id, parent, priority, state, kind, title, description, author,
 		       created, updated, source, blocked_by, tags
 		FROM tasks
 		%s
@@ -274,7 +277,7 @@ func (r *TaskRepository) List(opts ListOptions) ([]*Task, error) {
 // Search finds tasks by searching in title and description
 func (r *TaskRepository) Search(query string) ([]*Task, error) {
 	searchQuery := `
-		SELECT id, parent, priority, state, kind, title, description, 
+		SELECT id, parent, priority, state, kind, title, description, author,
 		       created, updated, source, blocked_by, tags
 		FROM tasks
 		WHERE LOWER(title) LIKE LOWER(?) OR LOWER(description) LIKE LOWER(?)
@@ -369,6 +372,7 @@ func (r *TaskRepository) scanTasks(rows *sql.Rows) ([]*Task, error) {
 			&task.Kind,
 			&task.Title,
 			&task.Description,
+			&task.Author,
 			&task.Created,
 			&task.Updated,
 			&task.Source,
