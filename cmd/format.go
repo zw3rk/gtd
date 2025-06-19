@@ -112,3 +112,17 @@ func formatTaskCount(count int, singular string) string {
 	}
 	return fmt.Sprintf("%d %ss", count, singular)
 }
+
+// formatKind formats a task kind for display
+func formatKind(kind string) string {
+	switch kind {
+	case models.KindBug:
+		return "Bug"
+	case models.KindFeature:
+		return "Feature"
+	case models.KindRegression:
+		return "Regression"
+	default:
+		return kind
+	}
+}

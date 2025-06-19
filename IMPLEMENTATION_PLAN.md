@@ -101,41 +101,41 @@ This document provides a concrete step-by-step plan for implementing the claude-
 - [x] Commit: "Add state management commands (in-progress, done, cancel)"
 
 ### Step 11: Blocking Relationships
-- [ ] Write tests for blocking functionality
+- [x] Write tests for blocking functionality
   - Test block command
   - Test unblock command
   - Test blocked task queries
-- [ ] Implement block command
-- [ ] Implement unblock command
-- [ ] Add blocking validation to state transitions
-- [ ] Test: Blocking relationships work correctly
-- [ ] Commit: "Add task blocking and unblocking functionality"
+- [x] Implement block command
+- [x] Implement unblock command
+- [x] Add blocking validation to state transitions
+- [x] Test: Blocking relationships work correctly
+- [x] Commit: "Add task blocking and unblocking functionality"
 
 ## Phase 4: Query and Display Features (TDD)
 
 ### Step 12: Basic List Command
-- [ ] Write tests for list command
+- [x] Write tests for list command
   - Test default sorting (IN_PROGRESS first, then NEW)
   - Test priority sorting
   - Test pagination (top 20)
-- [ ] Implement list command with formatting
-- [ ] Add --oneline flag support
-- [ ] Add --all flag for no pagination
-- [ ] Test: List command displays tasks correctly
-- [ ] Commit: "Add basic list command with sorting and formatting"
+- [x] Implement list command with formatting
+- [x] Add --oneline flag support
+- [x] Add --all flag for no pagination
+- [x] Test: List command displays tasks correctly
+- [x] Commit: "Add basic list command with sorting and formatting"
 
 ### Step 13: Filtered Listing
-- [ ] Write tests for filtered queries
+- [x] Write tests for filtered queries
   - Test state filtering
   - Test priority filtering
   - Test kind filtering
   - Test tag filtering
   - Test blocked filtering
-- [ ] Implement query builder with filters
-- [ ] Add filter flags to list command
-- [ ] Implement list-done and list-cancelled commands
-- [ ] Test: All filtering options work correctly
-- [ ] Commit: "Add filtered listing with multiple query options"
+- [x] Implement query builder with filters
+- [x] Add filter flags to list command
+- [x] Implement list-done and list-cancelled commands
+- [x] Test: All filtering options work correctly
+- [x] Commit: "Add filtered listing with multiple query options"
 
 ### Step 14: Task Details and Search
 - [ ] Write tests for show command

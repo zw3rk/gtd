@@ -106,25 +106,7 @@ func Execute() {
 
 
 
-func newShowCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "show",
-		Short: "Show task details",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
 
-func newSearchCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "search",
-		Short: "Search tasks",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
 
 func newSummaryCommand() *cobra.Command {
 	return &cobra.Command{
