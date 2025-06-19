@@ -221,31 +221,31 @@ echo -e "Title\nDescription" | claude-gtd add-bug
 
 ## Priority Levels
 
-- **high**: 🔴 Critical tasks
-- **medium**: 🟡 Normal priority (default)
-- **low**: 🟢 Low priority
+- **high**: ● Critical tasks
+- **medium**: ◐ Normal priority (default)
+- **low**: ○ Low priority
 
 ## Task Types
 
-- **BUG**: 🐛 Defects and issues
-- **FEATURE**: ⭐ New functionality
-- **REGRESSION**: 🔄 Previously working features that broke
+- **BUG**: Defects and issues
+- **FEATURE**: New functionality
+- **REGRESSION**: Previously working features that broke
 
 ## Output Formats
 
 ### Standard Format
 ```
-[1] 🔴 IN_PROGRESS Add user authentication
+[1] ● IN_PROGRESS Add user authentication
     Bug • Created: 2024-01-15 • Tags: security, auth
     
-[2] 🟡 NEW Implement dark mode
+[2] ◐ NEW Implement dark mode
     Feature • Created: 2024-01-16
 ```
 
 ### Oneline Format
 ```
-[1] 🔴 IN_PROGRESS Add user authentication
-[2] 🟡 NEW Implement dark mode
+[1] ● IN_PROGRESS Add user authentication
+[2] ◐ NEW Implement dark mode
 ```
 
 ### Export Formats
@@ -255,10 +255,11 @@ echo -e "Title\nDescription" | claude-gtd add-bug
 
 ## Special Indicators
 
-- 🚫 Task is blocked by another task
-- 📋 Task has subtasks
-- 🏷️ Task has tags
-- 📎 Task has source reference
+- ⊘ Task is blocked by another task
+- ◆ NEW state
+- ▶ IN_PROGRESS state
+- ✓ DONE state
+- ✗ CANCELLED state
 
 ## Examples
 

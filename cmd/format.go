@@ -7,20 +7,20 @@ import (
 	"github.com/zw3rk/claude-gtd/internal/models"
 )
 
-// Priority emojis
+// Priority indicators
 const (
-	emojiHigh   = "🔴"
-	emojiMedium = "🟡"
-	emojiLow    = "🟢"
+	emojiHigh   = "●" // U+25CF - Black Circle (was 🔴)
+	emojiMedium = "◐" // U+25D0 - Circle with Left Half Black (was 🟡)
+	emojiLow    = "○" // U+25CB - White Circle (was 🟢)
 )
 
-// State emojis
+// State indicators
 const (
-	emojiNew        = "📋"
-	emojiInProgress = "🔄"
-	emojiDone       = "✅"
-	emojiCancelled  = "❌"
-	emojiBlocked    = "🚫"
+	emojiNew        = "◆" // U+25C6 - Black Diamond (was 📋)
+	emojiInProgress = "▶" // U+25B6 - Black Right-Pointing Triangle (was 🔄)
+	emojiDone       = "✓" // U+2713 - Check Mark (was ✅)
+	emojiCancelled  = "✗" // U+2717 - Ballot X (was ❌)
+	emojiBlocked    = "⊘" // U+2298 - Circled Division Slash (was 🚫)
 )
 
 // formatTask formats a task for standard output
@@ -85,7 +85,7 @@ func getPriorityEmoji(priority string) string {
 	case models.PriorityLow:
 		return emojiLow
 	default:
-		return "⚪"
+		return "◌" // U+25CC - Dotted Circle
 	}
 }
 
@@ -101,7 +101,7 @@ func getStateEmoji(state string) string {
 	case models.StateCancelled:
 		return emojiCancelled
 	default:
-		return "❓"
+		return "?" // Question mark
 	}
 }
 
