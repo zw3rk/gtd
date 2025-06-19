@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/zw3rk/claude-gtd/internal/database"
-	"github.com/zw3rk/claude-gtd/internal/models"
+	"github.com/zw3rk/gtd/internal/database"
+	"github.com/zw3rk/gtd/internal/models"
 )
 
 func setupTestCommand(t *testing.T) (*database.Database, *models.TaskRepository, func()) {

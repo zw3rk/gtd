@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 	
-	"github.com/zw3rk/claude-gtd/internal/git"
+	"github.com/zw3rk/gtd/internal/git"
 )
 
 // Task kinds
@@ -184,18 +184,14 @@ func generateTaskHash(kind, title, description string, created time.Time) string
 	// Create a hash based on content and timestamp to ensure uniqueness
 	h := sha1.New()
 	h.Write([]byte(fmt.Sprintf("%s%s%s%d%d", kind, title, description, created.Unix(), rand.Int63())))
-	hash := fmt.Sprintf("%x", h.Sum(nil))
-	// Return first 8 characters like git short hashes
-	if len(hash) >= 8 {
-		return hash[:8]
-	}
-	return hash
+	// Return full 40-character SHA-1 hash like git
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
-// ShortHash returns the first 8 characters of the hash (like git)
+// ShortHash returns the first 7 characters of the hash (like git)
 func (t *Task) ShortHash() string {
-	if len(t.ID) >= 8 {
-		return t.ID[:8]
+	if len(t.ID) >= 7 {
+		return t.ID[:7]
 	}
 	return t.ID
 }

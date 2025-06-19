@@ -1,4 +1,4 @@
-module github.com/zw3rk/claude-gtd
+module github.com/zw3rk/gtd
 
 go 1.24.3
 

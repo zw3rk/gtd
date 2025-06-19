@@ -1,5 +1,5 @@
 {
-  description = "Claude GTD - A SQLite-driven CLI task management tool";
+  description = "GTD - A SQLite-driven CLI task management tool";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -11,8 +11,8 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         
-        claude-gtd = pkgs.buildGoModule {
-          pname = "claude-gtd";
+        gtd = pkgs.buildGoModule {
+          pname = "gtd";
           version = "0.1.0";
           src = ./.;
           vendorHash = null; # Will be updated when we add dependencies
@@ -44,8 +44,8 @@
       in
       {
         packages = {
-          default = claude-gtd;
-          claude-gtd = claude-gtd;
+          default = gtd;
+          gtd = gtd;
         };
 
         devShells.default = pkgs.mkShell {
@@ -77,7 +77,7 @@
           ];
           
           shellHook = ''
-            echo "Claude GTD Development Environment"
+            echo "GTD Development Environment"
             echo "Go version: $(go version)"
             echo "SQLite version: $(sqlite3 --version | cut -d' ' -f1)"
             echo ""

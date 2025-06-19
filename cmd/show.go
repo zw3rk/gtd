@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/zw3rk/claude-gtd/internal/models"
+	"github.com/zw3rk/gtd/internal/models"
 )
 
 // newShowCommand creates the show command

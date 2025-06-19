@@ -67,7 +67,7 @@ func (d *Database) CreateSchema() error {
 
 	CREATE INDEX IF NOT EXISTS idx_state_priority ON tasks(state, priority);
 	CREATE INDEX IF NOT EXISTS idx_parent ON tasks(parent);
-	CREATE INDEX IF NOT EXISTS idx_id_prefix ON tasks(id);
+	CREATE INDEX IF NOT EXISTS idx_id_prefix ON tasks(substr(id, 1, 7));
 
 	-- Trigger to update the updated timestamp
 	CREATE TRIGGER IF NOT EXISTS update_task_timestamp 

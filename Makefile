@@ -1,11 +1,11 @@
-# claude-gtd Makefile
-# Self-documenting Makefile for the claude-gtd project
+# gtd Makefile
+# Self-documenting Makefile for the gtd project
 
 # Default target
 .DEFAULT_GOAL := help
 
 # Binary name
-BINARY_NAME := claude-gtd
+BINARY_NAME := gtd
 
 # Go parameters
 GOCMD := go
@@ -30,7 +30,7 @@ COLOR_BLUE := \033[34m
 
 .PHONY: help
 help: ## Show this help message
-	@echo "$(COLOR_BOLD)claude-gtd - SQLite-driven CLI task management tool$(COLOR_RESET)"
+	@echo "$(COLOR_BOLD)gtd - SQLite-driven CLI task management tool$(COLOR_RESET)"
 	@echo ""
 	@echo "$(COLOR_BOLD)Usage:$(COLOR_RESET)"
 	@echo "  make $(COLOR_GREEN)<target>$(COLOR_RESET)"

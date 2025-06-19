@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/zw3rk/claude-gtd/internal/models"
+	"github.com/zw3rk/gtd/internal/models"
 )
 
 func TestAddSubtaskCommand(t *testing.T) {

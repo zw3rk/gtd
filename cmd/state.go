@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/zw3rk/claude-gtd/internal/models"
+	"github.com/zw3rk/gtd/internal/models"
 )
 
 // newInProgressCommand creates the in-progress command

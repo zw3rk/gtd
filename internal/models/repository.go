@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/zw3rk/claude-gtd/internal/database"
+	"github.com/zw3rk/gtd/internal/database"
 )
 
 // TaskRepository handles database operations for tasks

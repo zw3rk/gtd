@@ -1,4 +1,4 @@
-// Package cmd implements the CLI commands for claude-gtd
+// Package cmd implements the CLI commands for gtd
 package cmd
 
 import (
@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/zw3rk/claude-gtd/internal/database"
-	"github.com/zw3rk/claude-gtd/internal/git"
-	"github.com/zw3rk/claude-gtd/internal/models"
+	"github.com/zw3rk/gtd/internal/database"
+	"github.com/zw3rk/gtd/internal/git"
+	"github.com/zw3rk/gtd/internal/models"
 )
 
 var (
@@ -24,9 +24,9 @@ var (
 // NewRootCommand creates the root command
 func NewRootCommand() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "claude-gtd",
+		Use:   "gtd",
 		Short: "A SQLite-driven CLI task management tool",
-		Long: `claude-gtd is a task management tool following GTD methodology.
+		Long: `gtd is a task management tool following GTD methodology.
 It stores tasks per-project in a claude-tasks.db file at the git repository root.`,
 		Version: Version,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {

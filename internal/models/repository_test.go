@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/zw3rk/claude-gtd/internal/database"
+	"github.com/zw3rk/gtd/internal/database"
 )
 
 func setupTestDB(t *testing.T) *TaskRepository {

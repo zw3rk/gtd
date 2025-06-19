@@ -17,7 +17,7 @@ func TestRootCommand(t *testing.T) {
 			name:     "no args shows help",
 			args:     []string{},
 			wantErr:  false,
-			contains: []string{"claude-gtd", "task management tool", "Usage"},
+			contains: []string{"gtd", "task management tool", "Usage"},
 		},
 		{
 			name:     "help flag",

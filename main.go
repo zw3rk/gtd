@@ -1,6 +1,6 @@
 package main
 
-import "github.com/zw3rk/claude-gtd/cmd"
+import "github.com/zw3rk/gtd/cmd"
 
 func main() {
 	cmd.Execute()

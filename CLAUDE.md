@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is `claude-gtd`, a SQLite-driven CLI task management tool implemented as a single static binary in Go. The project follows GTD (Getting Things Done) methodology and stores tasks per-project in a `claude-tasks.db` file at the git repository root.
+This is `gtd`, a SQLite-driven CLI task management tool implemented as a single static binary in Go. The project follows GTD (Getting Things Done) methodology and stores tasks per-project in a `claude-tasks.db` file at the git repository root.
 
 ## Development Environment
 
@@ -17,10 +17,10 @@ This is `claude-gtd`, a SQLite-driven CLI task management tool implemented as a 
 ### Build
 ```bash
 # Build the binary
-go build -o claude-gtd
+go build -o gtd
 
 # Build static binary
-CGO_ENABLED=1 go build -ldflags="-s -w" -o claude-gtd
+CGO_ENABLED=1 go build -ldflags="-s -w" -o gtd
 ```
 
 ### Test
