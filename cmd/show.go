@@ -58,27 +58,30 @@ func formatTaskDetails(w io.Writer, task *models.Task, parent *models.Task, subt
 	fmt.Fprintf(w, "Task #%d: %s\n", task.ID, task.Title)
 	fmt.Fprintln(w, strings.Repeat("=", 50))
 	
-	// Basic info
-	fmt.Fprintf(w, "Type:     %s\n", formatKind(task.Kind))
-	fmt.Fprintf(w, "Priority: %s %s\n", strings.ToUpper(task.Priority), getPriorityEmoji(task.Priority))
-	fmt.Fprintf(w, "State:    %s %s\n", task.State, getStateEmoji(task.State))
+	// Condensed metadata line
+	var metadata []string
 	
-	// Timestamps
-	fmt.Fprintf(w, "Created:  %s\n", task.Created.Format("2006-01-02 15:04:05"))
-	fmt.Fprintf(w, "Updated:  %s\n", task.Updated.Format("2006-01-02 15:04:05"))
+	// Add core info
+	metadata = append(metadata, fmt.Sprintf("%s %s", formatKind(task.Kind), getPriorityEmoji(task.Priority)))
+	metadata = append(metadata, fmt.Sprintf("%s %s", task.State, getStateEmoji(task.State)))
+	metadata = append(metadata, strings.ToUpper(task.Priority))
+	metadata = append(metadata, fmt.Sprintf("Created: %s", task.Created.Format("2006-01-02")))
 	
-	// Optional fields
-	if task.Source != "" {
-		fmt.Fprintf(w, "Source:   %s\n", task.Source)
+	// Add optional fields
+	if task.Tags != "" {
+		metadata = append(metadata, fmt.Sprintf("Tags: %s", task.Tags))
 	}
 	
-	if task.Tags != "" {
-		fmt.Fprintf(w, "Tags:     %s\n", task.Tags)
+	if task.Source != "" {
+		metadata = append(metadata, fmt.Sprintf("Source: %s", task.Source))
 	}
 	
 	if task.IsBlocked() && task.BlockedBy != nil {
-		fmt.Fprintf(w, "Blocked by: #%d\n", *task.BlockedBy)
+		metadata = append(metadata, fmt.Sprintf("Blocked by: #%d", *task.BlockedBy))
 	}
+	
+	// Print the condensed line
+	fmt.Fprintf(w, "[ %s ]\n", strings.Join(metadata, " | "))
 	
 	// Parent info if this is a subtask
 	if parent != nil {

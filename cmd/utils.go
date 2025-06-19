@@ -8,6 +8,7 @@ import (
 )
 
 // readTaskInput reads title and optional description from stdin
+// Supports Git-style commit message format: <title>\n\n<body>
 func readTaskInput(r io.Reader) (title, description string, err error) {
 	scanner := bufio.NewScanner(r)
 	
@@ -20,22 +21,38 @@ func readTaskInput(r io.Reader) (title, description string, err error) {
 		return "", "", fmt.Errorf("title cannot be empty")
 	}
 	
-	// Read description (remaining lines)
-	var descLines []string
-	for scanner.Scan() {
+	// Look for blank line separator (Git-style)
+	hasBlankLine := false
+	if scanner.Scan() {
 		line := scanner.Text()
-		// Stop reading if we encounter EOF marker or empty line after content
-		if line == "EOF" || (line == "" && len(descLines) > 0) {
-			break
+		if line == "" {
+			hasBlankLine = true
+		} else {
+			// No blank line, this is part of the description
+			var descLines []string
+			descLines = append(descLines, line)
+			
+			// Continue reading remaining lines
+			for scanner.Scan() {
+				descLines = append(descLines, scanner.Text())
+			}
+			
+			description = strings.TrimSpace(strings.Join(descLines, "\n"))
 		}
-		descLines = append(descLines, line)
+	}
+	
+	// If we had a blank line, read the body
+	if hasBlankLine {
+		var descLines []string
+		for scanner.Scan() {
+			descLines = append(descLines, scanner.Text())
+		}
+		description = strings.TrimSpace(strings.Join(descLines, "\n"))
 	}
 	
 	if err := scanner.Err(); err != nil {
 		return "", "", fmt.Errorf("error reading input: %w", err)
 	}
-	
-	description = strings.TrimSpace(strings.Join(descLines, "\n"))
 	
 	return title, description, nil
 }

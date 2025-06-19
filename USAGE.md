@@ -195,21 +195,27 @@ claude-gtd export --active
 
 ## Input Format
 
-Most commands that create tasks read from stdin using heredoc format:
+Most commands that create tasks read from stdin. The tool supports Git-style commit message format:
 
 ```bash
 # Single line (title only)
 echo "Task title" | claude-gtd add-bug
 
-# Multi-line (title + description)
+# Git-style format (title, blank line, body)
+echo -e "Fix critical security issue\n\nDetailed description of the security vulnerability\nand how to reproduce it." | claude-gtd add-bug
+
+# Multi-line with heredoc
 cat <<EOF | claude-gtd add-feature
-Task title
-Detailed description
-Can span multiple lines
+Implement user preferences
+
+Allow users to customize their experience with:
+- Theme selection
+- Notification settings
+- Default filters
 EOF
 
-# Or using echo with -e
-echo -e "Title\nDescription" | claude-gtd add-bug
+# Legacy format (title + immediate description, no blank line)
+echo -e "Quick fix\nJust a small typo" | claude-gtd add-bug
 ```
 
 ## Task States
