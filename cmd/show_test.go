@@ -57,7 +57,7 @@ func TestShowCommand(t *testing.T) {
 	}{
 		{
 			name: "show parent task with subtasks",
-			args: []string{fmt.Sprintf("%s", parent.ID)},
+			args: []string{parent.ID},
 			contains: []string{
 				"Parent feature",
 				"Feature",
@@ -77,7 +77,7 @@ func TestShowCommand(t *testing.T) {
 		},
 		{
 			name: "show simple task without subtasks",
-			args: []string{fmt.Sprintf("%s", blocker.ID)},
+			args: []string{blocker.ID},
 			contains: []string{
 				"Blocking task",
 				"Bug",

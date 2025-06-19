@@ -98,16 +98,16 @@ func formatSummary(w io.Writer, tasks []*models.Task, activeOnly bool) {
 
 	// Display summary
 	if activeOnly {
-		fmt.Fprintf(w, "Active Tasks: %d\n", activeTasks)
+		_, _ = fmt.Fprintf(w, "Active Tasks: %d\n", activeTasks)
 	} else {
-		fmt.Fprintf(w, "Task Summary\n")
-		fmt.Fprintln(w, strings.Repeat("=", 50))
-		fmt.Fprintf(w, "Total Tasks: %d\n", total)
+		_, _ = fmt.Fprintf(w, "Task Summary\n")
+		_, _ = fmt.Fprintln(w, strings.Repeat("=", 50))
+		_, _ = fmt.Fprintf(w, "Total Tasks: %d\n", total)
 	}
-	fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w)
 
 	// By State
-	fmt.Fprintln(w, "By State:")
+	_, _ = fmt.Fprintln(w, "By State:")
 	fmt.Fprintf(w, "  %-12s %d\n", "NEW:", stateCounts[models.StateNew])
 	fmt.Fprintf(w, "  %-12s %d\n", "IN_PROGRESS:", stateCounts[models.StateInProgress])
 	if !activeOnly {

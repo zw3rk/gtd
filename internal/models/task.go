@@ -183,7 +183,8 @@ func (t *Task) SetTags(tags []string) {
 func generateTaskHash(kind, title, description string, created time.Time) string {
 	// Create a hash based on content and timestamp to ensure uniqueness
 	h := sha1.New()
-	h.Write([]byte(fmt.Sprintf("%s%s%s%d%d", kind, title, description, created.Unix(), rand.Int63())))
+	// sha1.Hash implements io.Writer and never returns an error
+	_, _ = fmt.Fprintf(h, "%s%s%s%d%d", kind, title, description, created.Unix(), rand.Int63())
 	// Return full 40-character SHA-1 hash like git
 	return fmt.Sprintf("%x", h.Sum(nil))
 }

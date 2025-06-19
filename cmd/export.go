@@ -99,7 +99,12 @@ Tasks can be filtered by state, priority, kind, or tags before export.`,
 				if err != nil {
 					return fmt.Errorf("failed to create output file: %w", err)
 				}
-				defer file.Close()
+				defer func() {
+					if err := file.Close(); err != nil {
+						// Log the error but don't fail the export
+						_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "Warning: failed to close file: %v\n", err)
+					}
+				}()
 				writer = file
 			} else {
 				writer = cmd.OutOrStdout()
@@ -123,7 +128,7 @@ Tasks can be filtered by state, priority, kind, or tags before export.`,
 
 			// Show success message if writing to file
 			if outputFile != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "Exported %d tasks to %s\n", len(tasks), outputFile)
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Exported %d tasks to %s\n", len(tasks), outputFile)
 			}
 
 			return nil
@@ -230,14 +235,26 @@ func exportCSV(w io.Writer, tasks []*models.Task) error {
 
 // exportMarkdown exports tasks as Markdown
 func exportMarkdown(w io.Writer, tasks []*models.Task) error {
-	fmt.Fprintln(w, "# Tasks Export")
-	fmt.Fprintln(w)
-	fmt.Fprintf(w, "Total tasks: %d\n", len(tasks))
-	fmt.Fprintln(w)
+	if _, err := fmt.Fprintln(w, "# Tasks Export"); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(w); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(w, "Total tasks: %d\n", len(tasks)); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(w); err != nil {
+		return err
+	}
 
 	// Table header
-	fmt.Fprintln(w, "| ID | Type | State | Priority | Title | Tags | Source | Parent | Blocked By |")
-	fmt.Fprintln(w, "|---|---|---|---|---|---|---|---|---|")
+	if _, err := fmt.Fprintln(w, "| ID | Type | State | Priority | Title | Tags | Source | Parent | Blocked By |"); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(w, "|---|---|---|---|---|---|---|---|---|"); err != nil {
+		return err
+	}
 
 	// Table rows
 	for _, task := range tasks {
@@ -261,7 +278,7 @@ func exportMarkdown(w io.Writer, tasks []*models.Task) error {
 			sourceStr = task.Source
 		}
 
-		fmt.Fprintf(w, "| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+		if _, err := fmt.Fprintf(w, "| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
 			task.ID,
 			task.Kind,
 			task.State,
@@ -271,46 +288,82 @@ func exportMarkdown(w io.Writer, tasks []*models.Task) error {
 			sourceStr,
 			parentStr,
 			blockedByStr,
-		)
+		); err != nil {
+			return err
+		}
 	}
 
 	// Add detailed task descriptions
-	fmt.Fprintln(w)
-	fmt.Fprintln(w, "## Task Details")
-	fmt.Fprintln(w)
+	if _, err := fmt.Fprintln(w); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(w, "## Task Details"); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(w); err != nil {
+		return err
+	}
 
 	for _, task := range tasks {
-		fmt.Fprintf(w, "### #%s: %s\n", task.ID, task.Title)
-		fmt.Fprintln(w)
-
-		if task.Description != "" {
-			fmt.Fprintln(w, task.Description)
-			fmt.Fprintln(w)
+		if _, err := fmt.Fprintf(w, "### #%s: %s\n", task.ID, task.Title); err != nil {
+			return err
+		}
+		if _, err := fmt.Fprintln(w); err != nil {
+			return err
 		}
 
-		fmt.Fprintf(w, "- **Type:** %s\n", formatKind(task.Kind))
-		fmt.Fprintf(w, "- **State:** %s %s\n", task.State, getStateEmoji(task.State))
-		fmt.Fprintf(w, "- **Priority:** %s %s\n", task.Priority, getPriorityEmoji(task.Priority))
+		if task.Description != "" {
+			if _, err := fmt.Fprintln(w, task.Description); err != nil {
+				return err
+			}
+			if _, err := fmt.Fprintln(w); err != nil {
+				return err
+			}
+		}
+
+		if _, err := fmt.Fprintf(w, "- **Type:** %s\n", formatKind(task.Kind)); err != nil {
+			return err
+		}
+		if _, err := fmt.Fprintf(w, "- **State:** %s %s\n", task.State, getStateEmoji(task.State)); err != nil {
+			return err
+		}
+		if _, err := fmt.Fprintf(w, "- **Priority:** %s %s\n", task.Priority, getPriorityEmoji(task.Priority)); err != nil {
+			return err
+		}
 
 		if task.Tags != "" {
-			fmt.Fprintf(w, "- **Tags:** %s\n", task.Tags)
+			if _, err := fmt.Fprintf(w, "- **Tags:** %s\n", task.Tags); err != nil {
+				return err
+			}
 		}
 
 		if task.Source != "" {
-			fmt.Fprintf(w, "- **Source:** %s\n", task.Source)
+			if _, err := fmt.Fprintf(w, "- **Source:** %s\n", task.Source); err != nil {
+				return err
+			}
 		}
 
 		if task.Parent != nil {
-			fmt.Fprintf(w, "- **Parent:** #%s\n", *task.Parent)
+			if _, err := fmt.Fprintf(w, "- **Parent:** #%s\n", *task.Parent); err != nil {
+				return err
+			}
 		}
 
 		if task.BlockedBy != nil {
-			fmt.Fprintf(w, "- **Blocked by:** #%s\n", *task.BlockedBy)
+			if _, err := fmt.Fprintf(w, "- **Blocked by:** #%s\n", *task.BlockedBy); err != nil {
+				return err
+			}
 		}
 
-		fmt.Fprintf(w, "- **Created:** %s\n", task.Created.Format("2006-01-02 15:04:05"))
-		fmt.Fprintf(w, "- **Updated:** %s\n", task.Updated.Format("2006-01-02 15:04:05"))
-		fmt.Fprintln(w)
+		if _, err := fmt.Fprintf(w, "- **Created:** %s\n", task.Created.Format("2006-01-02 15:04:05")); err != nil {
+			return err
+		}
+		if _, err := fmt.Fprintf(w, "- **Updated:** %s\n", task.Updated.Format("2006-01-02 15:04:05")); err != nil {
+			return err
+		}
+		if _, err := fmt.Fprintln(w); err != nil {
+			return err
+		}
 	}
 
 	return nil

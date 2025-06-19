@@ -170,15 +170,12 @@ func validateListFlags(flags *listFlags) error {
 	// Validate kind
 	if flags.kind != "" {
 		switch flags.kind {
-		case "bug", "feature", "regression":
-			// Convert to uppercase for the query
-			if flags.kind == "bug" {
-				flags.kind = models.KindBug
-			} else if flags.kind == "feature" {
-				flags.kind = models.KindFeature
-			} else if flags.kind == "regression" {
-				flags.kind = models.KindRegression
-			}
+		case "bug":
+			flags.kind = models.KindBug
+		case "feature":
+			flags.kind = models.KindFeature
+		case "regression":
+			flags.kind = models.KindRegression
 		default:
 			return fmt.Errorf("invalid kind: %s (must be bug, feature, or regression)", flags.kind)
 		}
@@ -190,13 +187,17 @@ func validateListFlags(flags *listFlags) error {
 // formatTaskList formats and outputs a list of tasks
 func formatTaskList(w io.Writer, tasks []*models.Task, oneline bool) {
 	if len(tasks) == 0 {
-		fmt.Fprintln(w, "No tasks found.")
+		if _, err := fmt.Fprintln(w, "No tasks found."); err != nil {
+			return
+		}
 		return
 	}
 
 	for i, task := range tasks {
 		if oneline {
-			fmt.Fprintln(w, formatTaskOneline(task))
+			if _, err := fmt.Fprintln(w, formatTaskOneline(task)); err != nil {
+				return
+			}
 		} else {
 			// Get subtask stats for the task
 			var stats *SubtaskStats
@@ -213,14 +214,20 @@ func formatTaskList(w io.Writer, tasks []*models.Task, oneline bool) {
 			}
 
 			// Use git-style format
-			fmt.Fprint(w, formatTaskGitStyle(task, stats))
+			if _, err := fmt.Fprint(w, formatTaskGitStyle(task, stats)); err != nil {
+				return
+			}
 			// Add blank line between tasks
 			if i < len(tasks)-1 {
-				fmt.Fprintln(w)
+				if _, err := fmt.Fprintln(w); err != nil {
+					return
+				}
 			}
 		}
 	}
 
 	// Show count at the end
-	fmt.Fprintf(w, "\n%s\n", formatTaskCount(len(tasks), "task"))
+	if _, err := fmt.Fprintf(w, "\n%s\n", formatTaskCount(len(tasks), "task")); err != nil {
+		return
+	}
 }

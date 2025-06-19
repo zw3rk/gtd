@@ -49,16 +49,19 @@ This indicates that the task cannot proceed until the blocking task is completed
 			}
 
 			// Output success message
-			fmt.Fprintf(cmd.OutOrStdout(),
+			if _, err := fmt.Fprintf(cmd.OutOrStdout(),
 				"Task %s is now blocked by task %s\n  %s\n  blocked by: %s\n",
-				task.ShortHash(), blockingTask.ShortHash(), task.Title, blockingTask.Title)
+				task.ShortHash(), blockingTask.ShortHash(), task.Title, blockingTask.Title); err != nil {
+				return err
+			}
 
 			return nil
 		},
 	}
 
 	cmd.Flags().StringVar(&blockingTaskID, "by", "", "ID/hash of the task that is blocking this task")
-	cmd.MarkFlagRequired("by")
+	// MarkFlagRequired panics on error, so we can safely ignore the return value
+	_ = cmd.MarkFlagRequired("by")
 
 	return cmd
 }
@@ -92,13 +95,17 @@ func newUnblockCommand() *cobra.Command {
 
 			// Output success message
 			if wasBlocked {
-				fmt.Fprintf(cmd.OutOrStdout(),
+				if _, err := fmt.Fprintf(cmd.OutOrStdout(),
 					"Task %s is no longer blocked: %s\n",
-					task.ShortHash(), task.Title)
+					task.ShortHash(), task.Title); err != nil {
+					return err
+				}
 			} else {
-				fmt.Fprintf(cmd.OutOrStdout(),
+				if _, err := fmt.Fprintf(cmd.OutOrStdout(),
 					"Task %s was not blocked: %s\n",
-					task.ShortHash(), task.Title)
+					task.ShortHash(), task.Title); err != nil {
+					return err
+				}
 			}
 
 			return nil

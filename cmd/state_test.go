@@ -166,8 +166,12 @@ func TestDoneCommand(t *testing.T) {
 			args: []string{fmt.Sprintf("%s", parent.ID)},
 			setup: func() {
 				// Mark children as done
-				testRepo.UpdateState(child1.ID, models.StateDone)
-				testRepo.UpdateState(child2.ID, models.StateDone)
+				if err := testRepo.UpdateState(child1.ID, models.StateDone); err != nil {
+					t.Errorf("Failed to update child1 state: %v", err)
+				}
+				if err := testRepo.UpdateState(child2.ID, models.StateDone); err != nil {
+					t.Errorf("Failed to update child2 state: %v", err)
+				}
 			},
 			check: func(t *testing.T) {
 				task, err := testRepo.GetByID(parent.ID)

@@ -18,12 +18,17 @@ func setupTestDB(t *testing.T) *TaskRepository {
 		t.Fatal(err)
 	}
 
+	t.Cleanup(func() {
+		if err := db.Close(); err != nil {
+			t.Errorf("failed to close test database: %v", err)
+		}
+	})
+
 	return NewTaskRepository(db)
 }
 
 func TestTaskRepository_Create(t *testing.T) {
 	repo := setupTestDB(t)
-	defer repo.db.Close()
 
 	task := NewTask(KindBug, "Test bug", "Test description")
 	task.Priority = PriorityHigh
@@ -55,7 +60,6 @@ func TestTaskRepository_Create(t *testing.T) {
 
 func TestTaskRepository_CreateWithParent(t *testing.T) {
 	repo := setupTestDB(t)
-	defer repo.db.Close()
 
 	// Create parent task
 	parent := NewTask(KindFeature, "Parent feature", "")
@@ -83,7 +87,6 @@ func TestTaskRepository_CreateWithParent(t *testing.T) {
 
 func TestTaskRepository_Update(t *testing.T) {
 	repo := setupTestDB(t)
-	defer repo.db.Close()
 
 	task := NewTask(KindBug, "Original title", "")
 	if err := repo.Create(task); err != nil {
@@ -118,7 +121,6 @@ func TestTaskRepository_Update(t *testing.T) {
 
 func TestTaskRepository_Delete(t *testing.T) {
 	repo := setupTestDB(t)
-	defer repo.db.Close()
 
 	task := NewTask(KindBug, "To be deleted", "")
 	if err := repo.Create(task); err != nil {
@@ -138,7 +140,6 @@ func TestTaskRepository_Delete(t *testing.T) {
 
 func TestTaskRepository_GetChildren(t *testing.T) {
 	repo := setupTestDB(t)
-	defer repo.db.Close()
 
 	// Create parent
 	parent := NewTask(KindFeature, "Parent", "")
@@ -174,7 +175,6 @@ func TestTaskRepository_GetChildren(t *testing.T) {
 
 func TestTaskRepository_List(t *testing.T) {
 	repo := setupTestDB(t)
-	defer repo.db.Close()
 
 	// Create tasks with different states and priorities
 	tasks := []struct {
@@ -217,7 +217,6 @@ func TestTaskRepository_List(t *testing.T) {
 
 func TestTaskRepository_ListWithFilters(t *testing.T) {
 	repo := setupTestDB(t)
-	defer repo.db.Close()
 
 	// Create test tasks
 	bug := NewTask(KindBug, "Bug task", "")
@@ -266,7 +265,6 @@ func TestTaskRepository_ListWithFilters(t *testing.T) {
 
 func TestTaskRepository_Search(t *testing.T) {
 	repo := setupTestDB(t)
-	defer repo.db.Close()
 
 	// Create tasks with searchable content
 	task1 := NewTask(KindBug, "Database connection error", "Connection pool exhausted")
@@ -307,7 +305,6 @@ func TestTaskRepository_Search(t *testing.T) {
 
 func TestTaskRepository_UpdateState(t *testing.T) {
 	repo := setupTestDB(t)
-	defer repo.db.Close()
 
 	// Create parent and child tasks
 	parent := NewTask(KindFeature, "Parent feature", "")
@@ -351,7 +348,6 @@ func TestTaskRepository_UpdateState(t *testing.T) {
 
 func TestTaskRepository_Block(t *testing.T) {
 	repo := setupTestDB(t)
-	defer repo.db.Close()
 
 	// Create two tasks
 	blocker := NewTask(KindBug, "Blocking task", "")

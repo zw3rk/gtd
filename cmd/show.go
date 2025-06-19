@@ -62,32 +62,46 @@ func formatTaskDetails(w io.Writer, task *models.Task, parent *models.Task, subt
 	}
 
 	// Use git-style format
-	fmt.Fprint(w, formatTaskGitStyle(task, stats))
+	if _, err := fmt.Fprint(w, formatTaskGitStyle(task, stats)); err != nil {
+		return
+	}
 
 	// Parent info if this is a subtask
 	if parent != nil {
-		fmt.Fprintf(w, "\nParent: %s - %s\n", parent.ShortHash(), parent.Title)
+		if _, err := fmt.Fprintf(w, "\nParent: %s - %s\n", parent.ShortHash(), parent.Title); err != nil {
+			return
+		}
 	}
 
 	// Subtasks
 	if len(subtasks) > 0 {
-		fmt.Fprintln(w, "\nSubtasks:")
-		fmt.Fprintln(w, strings.Repeat("-", 30))
+		if _, err := fmt.Fprintln(w, "\nSubtasks:"); err != nil {
+			return
+		}
+		if _, err := fmt.Fprintln(w, strings.Repeat("-", 30)); err != nil {
+			return
+		}
 
 		for _, subtask := range subtasks {
 			// Use the subtask format with metadata on the right
 			subtaskLine := formatSubtask(subtask)
-			fmt.Fprintf(w, "  %s\n", subtaskLine)
+			if _, err := fmt.Fprintf(w, "  %s\n", subtaskLine); err != nil {
+				return
+			}
 
 			if subtask.Description != "" {
 				// Show first line of description, indented
 				lines := strings.Split(subtask.Description, "\n")
-				fmt.Fprintf(w, "      %s\n", lines[0])
+				if _, err := fmt.Fprintf(w, "      %s\n", lines[0]); err != nil {
+					return
+				}
 			}
 		}
 
 		// Summary
-		fmt.Fprintf(w, "\n%s\n", formatSubtaskSummary(subtasks))
+		if _, err := fmt.Fprintf(w, "\n%s\n", formatSubtaskSummary(subtasks)); err != nil {
+			return
+		}
 	}
 }
 

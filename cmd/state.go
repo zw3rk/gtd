@@ -68,7 +68,7 @@ func updateTaskState(cmd *cobra.Command, taskIDStr string, newState string) erro
 
 	// Output success message
 	stateVerb := getStateVerb(newState)
-	fmt.Fprintf(cmd.OutOrStdout(), "Task %s marked as %s: %s\n",
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Task %s marked as %s: %s\n",
 		task.ShortHash(), stateVerb, task.Title)
 
 	return nil

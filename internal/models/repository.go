@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/zw3rk/gtd/internal/database"
@@ -155,7 +156,12 @@ func (r *TaskRepository) getByHashPrefix(prefix string) (*Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to search by prefix: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			// Log error but don't override the main error
+			fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+		}
+	}()
 
 	tasks, err := r.scanTasks(rows)
 	if err != nil {
@@ -186,7 +192,12 @@ func (r *TaskRepository) GetChildren(parentID string) ([]*Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get children: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			// Log error but don't override the main error
+			fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+		}
+	}()
 
 	return r.scanTasks(rows)
 }
@@ -269,7 +280,12 @@ func (r *TaskRepository) List(opts ListOptions) ([]*Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to list tasks: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			// Log error but don't override the main error
+			fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+		}
+	}()
 
 	return r.scanTasks(rows)
 }
@@ -289,7 +305,12 @@ func (r *TaskRepository) Search(query string) ([]*Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to search tasks: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			// Log error but don't override the main error
+			fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+		}
+	}()
 
 	return r.scanTasks(rows)
 }

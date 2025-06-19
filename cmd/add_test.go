@@ -28,7 +28,9 @@ func setupTestCommand(t *testing.T) (*database.Database, *models.TaskRepository,
 	db, repo = testDB, testRepo
 
 	cleanup := func() {
-		testDB.Close()
+		if err := testDB.Close(); err != nil {
+			t.Errorf("failed to close test database: %v", err)
+		}
 		db, repo = oldDB, oldRepo
 	}
 
@@ -142,7 +144,9 @@ func TestAddBugCommand(t *testing.T) {
 			// Clear any existing tasks
 			tasks, _ := testRepo.List(models.ListOptions{All: true})
 			for _, task := range tasks {
-				testRepo.Delete(task.ID)
+				if err := testRepo.Delete(task.ID); err != nil {
+					t.Errorf("Failed to delete task %s: %v", task.ID, err)
+				}
 			}
 
 			err := cmd.Execute()

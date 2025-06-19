@@ -19,9 +19,12 @@ go.work
 
 # Binary
 claude-gtd
+gtd
 
-# Database file
+# Database files
 claude-tasks.db
+claude-tasks.db-shm
+claude-tasks.db-wal
 
 # IDE specific files
 .idea/

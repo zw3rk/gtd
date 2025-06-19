@@ -32,11 +32,11 @@ The search is case-insensitive and matches partial words.`,
 
 			// Format and output
 			if len(tasks) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No tasks found.")
+				_, _ = fmt.Fprintln(cmd.OutOrStdout(), "No tasks found.")
 			} else {
-				fmt.Fprintf(cmd.OutOrStdout(), "Search results for: %q\n", query)
-				fmt.Fprintln(cmd.OutOrStdout(), strings.Repeat("=", 50))
-				fmt.Fprintln(cmd.OutOrStdout())
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Search results for: %q\n", query)
+				_, _ = fmt.Fprintln(cmd.OutOrStdout(), strings.Repeat("=", 50))
+				_, _ = fmt.Fprintln(cmd.OutOrStdout())
 
 				formatTaskList(cmd.OutOrStdout(), tasks, oneline)
 			}

@@ -162,7 +162,9 @@ func addTask(cmd *cobra.Command, kind string, flags *addFlags) error {
 	}
 
 	// Output success message
-	fmt.Fprintln(cmd.OutOrStdout(), formatTaskCreated(task.ID, kind))
+	if _, err := fmt.Fprintln(cmd.OutOrStdout(), formatTaskCreated(task.ID, kind)); err != nil {
+		return err
+	}
 
 	return nil
 }

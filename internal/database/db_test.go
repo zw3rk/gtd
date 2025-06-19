@@ -37,7 +37,9 @@ func TestNew(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				file.Close()
+				if err := file.Close(); err != nil {
+					t.Errorf("failed to close test file: %v", err)
+				}
 			}
 
 			db, err := New(tt.dbPath)
@@ -51,7 +53,11 @@ func TestNew(t *testing.T) {
 					t.Error("New() returned nil database")
 					return
 				}
-				defer db.Close()
+				defer func() {
+					if err := db.Close(); err != nil {
+						t.Errorf("failed to close database: %v", err)
+					}
+				}()
 
 				// Verify we can query the database
 				var result int
@@ -77,7 +83,11 @@ func TestDatabase_CreateSchema(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Errorf("failed to close database: %v", err)
+		}
+	}()
 
 	// Create schema
 	err = db.CreateSchema()
@@ -145,7 +155,11 @@ func TestDatabase_Transaction(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Errorf("failed to close database: %v", err)
+		}
+	}()
 
 	// Create a simple test table
 	_, err = db.DB.Exec("CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)")
@@ -162,7 +176,9 @@ func TestDatabase_Transaction(t *testing.T) {
 
 		_, err = tx.Exec("INSERT INTO test (value) VALUES (?)", "test1")
 		if err != nil {
-			tx.Rollback()
+			if rollbackErr := tx.Rollback(); rollbackErr != nil {
+				t.Errorf("Failed to rollback transaction: %v", rollbackErr)
+			}
 			t.Fatal(err)
 		}
 
@@ -191,7 +207,9 @@ func TestDatabase_Transaction(t *testing.T) {
 
 		_, err = tx.Exec("INSERT INTO test (value) VALUES (?)", "test2")
 		if err != nil {
-			tx.Rollback()
+			if rollbackErr := tx.Rollback(); rollbackErr != nil {
+				t.Errorf("Failed to rollback transaction: %v", rollbackErr)
+			}
 			t.Fatal(err)
 		}
 
@@ -239,7 +257,11 @@ func TestDatabase_WALMode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Errorf("failed to close database: %v", err)
+		}
+	}()
 
 	var journalMode string
 	err = db.DB.QueryRow("PRAGMA journal_mode").Scan(&journalMode)
@@ -258,7 +280,11 @@ func TestDatabase_ForeignKeys(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Errorf("failed to close database: %v", err)
+		}
+	}()
 
 	// Create schema first
 	err = db.CreateSchema()

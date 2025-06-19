@@ -23,13 +23,17 @@ func New(dbPath string) (*Database, error) {
 
 	// Test the connection
 	if err := db.Ping(); err != nil {
-		db.Close()
+		if closeErr := db.Close(); closeErr != nil {
+			return nil, fmt.Errorf("failed to connect to database: %w (also failed to close: %v)", err, closeErr)
+		}
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
 	// Configure for better performance and concurrency
 	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
-		db.Close()
+		if closeErr := db.Close(); closeErr != nil {
+			return nil, fmt.Errorf("failed to set WAL mode: %w (also failed to close: %v)", err, closeErr)
+		}
 		return nil, fmt.Errorf("failed to set WAL mode: %w", err)
 	}
 

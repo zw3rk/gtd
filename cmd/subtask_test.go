@@ -131,11 +131,15 @@ func TestAddSubtaskCommand(t *testing.T) {
 			// Clear any existing children
 			children, _ := testRepo.GetChildren(parentBug.ID)
 			for _, child := range children {
-				testRepo.Delete(child.ID)
+				if err := testRepo.Delete(child.ID); err != nil {
+					t.Errorf("Failed to delete child task: %v", err)
+				}
 			}
 			children, _ = testRepo.GetChildren(parentFeature.ID)
 			for _, child := range children {
-				testRepo.Delete(child.ID)
+				if err := testRepo.Delete(child.ID); err != nil {
+					t.Errorf("Failed to delete child task: %v", err)
+				}
 			}
 
 			err := cmd.Execute()

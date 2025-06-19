@@ -98,7 +98,11 @@ func TestFindGitRoot(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer os.Chdir(oldDir)
+			defer func() {
+				if err := os.Chdir(oldDir); err != nil {
+					t.Errorf("Failed to change back to original directory: %v", err)
+				}
+			}()
 
 			if err := os.Chdir(testDir); err != nil {
 				t.Fatal(err)
@@ -151,7 +155,11 @@ func TestFindGitRootWithSymlink(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldDir)
+	defer func() {
+		if err := os.Chdir(oldDir); err != nil {
+			t.Errorf("Failed to change back to original directory: %v", err)
+		}
+	}()
 
 	if err := os.Chdir(linkDir); err != nil {
 		t.Fatal(err)

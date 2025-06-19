@@ -90,7 +90,7 @@ EOF`,
 			}
 
 			// Output success message
-			fmt.Fprintf(cmd.OutOrStdout(),
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(),
 				"Created %s subtask %s for task %s (%s)\n",
 				flags.kind, task.ShortHash(), parent.ShortHash(), parent.Title)
 
@@ -100,7 +100,8 @@ EOF`,
 
 	cmd.Flags().StringVar(&flags.kind, "kind", "",
 		"Task kind (bug, feature, regression) [required]")
-	cmd.MarkFlagRequired("kind")
+	// MarkFlagRequired panics on error, so we can safely ignore the return value
+	_ = cmd.MarkFlagRequired("kind")
 
 	cmd.Flags().StringVarP(&flags.priority, "priority", "p", "medium",
 		"Task priority (high, medium, low)")
