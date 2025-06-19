@@ -2,7 +2,9 @@
 package models
 
 import (
+	"crypto/sha1"
 	"fmt"
+	"math/rand"
 	"strings"
 	"time"
 )
@@ -31,8 +33,8 @@ const (
 
 // Task represents a task in the system
 type Task struct {
-	ID          int       `json:"id"`
-	Parent      *int      `json:"parent,omitempty"`
+	ID          string    `json:"id"`
+	Parent      *string   `json:"parent,omitempty"`
 	Priority    string    `json:"priority"`
 	State       string    `json:"state"`
 	Kind        string    `json:"kind"`
@@ -41,14 +43,14 @@ type Task struct {
 	Created     time.Time `json:"created"`
 	Updated     time.Time `json:"updated"`
 	Source      string    `json:"source,omitempty"`
-	BlockedBy   *int      `json:"blocked_by,omitempty"`
+	BlockedBy   *string   `json:"blocked_by,omitempty"`
 	Tags        string    `json:"tags,omitempty"`
 }
 
 // NewTask creates a new task with default values
 func NewTask(kind, title, description string) *Task {
 	now := time.Now()
-	return &Task{
+	task := &Task{
 		Kind:        kind,
 		Title:       title,
 		Description: description,
@@ -57,6 +59,9 @@ func NewTask(kind, title, description string) *Task {
 		Created:     now,
 		Updated:     now,
 	}
+	// Generate hash ID based on content and timestamp
+	task.ID = generateTaskHash(kind, title, description, now)
+	return task
 }
 
 // Validate checks if the task has valid field values
@@ -155,4 +160,25 @@ func (t *Task) ParseTags() []string {
 // SetTags sets the tags from a slice of strings
 func (t *Task) SetTags(tags []string) {
 	t.Tags = strings.Join(tags, ",")
+}
+
+// generateTaskHash creates a unique hash for a task based on its content
+func generateTaskHash(kind, title, description string, created time.Time) string {
+	// Create a hash based on content and timestamp to ensure uniqueness
+	h := sha1.New()
+	h.Write([]byte(fmt.Sprintf("%s%s%s%d%d", kind, title, description, created.Unix(), rand.Int63())))
+	hash := fmt.Sprintf("%x", h.Sum(nil))
+	// Return first 8 characters like git short hashes
+	if len(hash) >= 8 {
+		return hash[:8]
+	}
+	return hash
+}
+
+// ShortHash returns the first 8 characters of the hash (like git)
+func (t *Task) ShortHash() string {
+	if len(t.ID) >= 8 {
+		return t.ID[:8]
+	}
+	return t.ID
 }

@@ -50,8 +50,8 @@ func (d *Database) Begin() (*sql.Tx, error) {
 func (d *Database) CreateSchema() error {
 	schema := `
 	CREATE TABLE IF NOT EXISTS tasks (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		parent INTEGER REFERENCES tasks(id),
+		id TEXT PRIMARY KEY,
+		parent TEXT REFERENCES tasks(id),
 		priority TEXT CHECK(priority IN ('high', 'medium', 'low')) DEFAULT 'medium',
 		state TEXT CHECK(state IN ('NEW', 'IN_PROGRESS', 'DONE', 'CANCELLED')) DEFAULT 'NEW',
 		kind TEXT CHECK(kind IN ('BUG', 'FEATURE', 'REGRESSION')) NOT NULL,
@@ -60,12 +60,13 @@ func (d *Database) CreateSchema() error {
 		created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		source TEXT,
-		blocked_by INTEGER REFERENCES tasks(id),
+		blocked_by TEXT REFERENCES tasks(id),
 		tags TEXT
 	);
 
 	CREATE INDEX IF NOT EXISTS idx_state_priority ON tasks(state, priority);
 	CREATE INDEX IF NOT EXISTS idx_parent ON tasks(parent);
+	CREATE INDEX IF NOT EXISTS idx_id_prefix ON tasks(id);
 
 	-- Trigger to update the updated timestamp
 	CREATE TRIGGER IF NOT EXISTS update_task_timestamp 

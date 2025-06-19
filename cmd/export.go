@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -149,7 +148,7 @@ func exportJSON(w io.Writer, tasks []*models.Task) error {
 	
 	// Convert tasks to a format that includes all fields
 	type exportTask struct {
-		ID          int     `json:"id"`
+		ID          string  `json:"id"`
 		Kind        string  `json:"kind"`
 		State       string  `json:"state"`
 		Priority    string  `json:"priority"`
@@ -157,8 +156,8 @@ func exportJSON(w io.Writer, tasks []*models.Task) error {
 		Description string  `json:"description"`
 		Tags        string  `json:"tags"`
 		Source      string  `json:"source"`
-		Parent      *int    `json:"parent,omitempty"`
-		BlockedBy   *int    `json:"blocked_by,omitempty"`
+		Parent      *string `json:"parent,omitempty"`
+		BlockedBy   *string `json:"blocked_by,omitempty"`
 		CreatedAt   string  `json:"created_at"`
 		UpdatedAt   string  `json:"updated_at"`
 	}
@@ -199,16 +198,16 @@ func exportCSV(w io.Writer, tasks []*models.Task) error {
 	for _, task := range tasks {
 		parentStr := ""
 		if task.Parent != nil {
-			parentStr = strconv.Itoa(*task.Parent)
+			parentStr = *task.Parent
 		}
 		
 		blockedByStr := ""
 		if task.BlockedBy != nil {
-			blockedByStr = strconv.Itoa(*task.BlockedBy)
+			blockedByStr = *task.BlockedBy
 		}
 		
 		row := []string{
-			strconv.Itoa(task.ID),
+			task.ID,
 			task.Kind,
 			task.State,
 			task.Priority,

@@ -35,8 +35,15 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 	// Get terminal width for proper padding
 	width := getTerminalWidth()
 	
-	// Build the main line: priority state title #tags [Kind, ID: n]
+	// Build the main line: hash priority state title #tags [Kind]
 	var mainParts []string
+	
+	// Hash at the beginning (like git log)
+	hash := task.ShortHash()
+	if useColor {
+		hash = colorize(hash, colorYellow)
+	}
+	mainParts = append(mainParts, hash)
 	
 	// Priority indicator
 	mainParts = append(mainParts, getPriorityIndicator(task.Priority))
@@ -69,16 +76,16 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 		mainParts = append(mainParts, blocked)
 	}
 	
-	// Kind and ID at the end
+	// Kind at the end
 	kindStr := formatKind(task.Kind)
 	if useColor {
 		kindStr = formatKindColor(kindStr)
 	}
-	idPart := fmt.Sprintf("[%s, ID: %d]", kindStr, task.ID)
+	kindPart := fmt.Sprintf("[%s]", kindStr)
 	if useColor {
-		idPart = colorize(idPart, colorDim) // Use dim color for brackets
+		kindPart = colorize(kindPart, colorDim) // Use dim color for brackets
 	}
-	mainParts = append(mainParts, idPart)
+	mainParts = append(mainParts, kindPart)
 	
 	// Build main line
 	mainLine := strings.Join(mainParts, " ")
@@ -96,7 +103,7 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 		}
 		
 		if task.IsBlocked() && task.BlockedBy != nil {
-			blocked := fmt.Sprintf("Blocked by: #%d", *task.BlockedBy)
+			blocked := fmt.Sprintf("Blocked by: %s", *task.BlockedBy)
 			if useColor {
 				blocked = colorize(blocked, colorRed)
 			}
@@ -146,8 +153,15 @@ func formatSubtask(task *models.Task) string {
 	// Get terminal width for proper padding, account for 2-char indent
 	width := getTerminalWidth() - 2
 	
-	// Build the main line: priority state title #tags [Kind, ID: n]
+	// Build the main line: hash priority state title #tags [Kind]
 	var mainParts []string
+	
+	// Hash at the beginning (like git log)
+	hash := task.ShortHash()
+	if useColor {
+		hash = colorize(hash, colorYellow)
+	}
+	mainParts = append(mainParts, hash)
 	
 	// Priority indicator
 	mainParts = append(mainParts, getPriorityIndicator(task.Priority))
@@ -180,16 +194,16 @@ func formatSubtask(task *models.Task) string {
 		mainParts = append(mainParts, blocked)
 	}
 	
-	// Kind and ID at the end
+	// Kind at the end
 	kindStr := formatKind(task.Kind)
 	if useColor {
 		kindStr = formatKindColor(kindStr)
 	}
-	idPart := fmt.Sprintf("[%s, ID: %d]", kindStr, task.ID)
+	kindPart := fmt.Sprintf("[%s]", kindStr)
 	if useColor {
-		idPart = colorize(idPart, colorDim) // Use dim color for brackets
+		kindPart = colorize(kindPart, colorDim) // Use dim color for brackets
 	}
-	mainParts = append(mainParts, idPart)
+	mainParts = append(mainParts, kindPart)
 	
 	// Build main line
 	mainLine := strings.Join(mainParts, " ")
@@ -201,7 +215,7 @@ func formatSubtask(task *models.Task) string {
 	
 	// Add blocked info if needed
 	if task.IsBlocked() && task.BlockedBy != nil {
-		blocked := fmt.Sprintf("Blocked by: #%d", *task.BlockedBy)
+		blocked := fmt.Sprintf("Blocked by: %s", *task.BlockedBy)
 		if useColor {
 			blocked = colorize(blocked, colorRed)
 		}

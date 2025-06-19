@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/zw3rk/claude-gtd/internal/models"
@@ -22,18 +21,15 @@ func newAddSubtaskCommand() *cobra.Command {
 Input is read from stdin in the format:
   TITLE
   DESCRIPTION (optional, can be multiple lines)`,
-		Example: `  echo "Fix auth module leak" | claude-gtd add-subtask 42 --kind bug
-  claude-gtd add-subtask 10 --kind feature --priority high <<EOF
+		Example: `  echo "Fix auth module leak" | claude-gtd add-subtask abc123 --kind bug
+  claude-gtd add-subtask 1a2b --kind feature --priority high <<EOF
 Implement dark mode toggle
 Add a switch in settings to toggle between light and dark themes
 EOF`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Parse parent ID
-			parentID, err := strconv.Atoi(args[0])
-			if err != nil {
-				return fmt.Errorf("invalid parent ID: %s", args[0])
-			}
+			// Get parent ID (hash or hash prefix)
+			parentID := args[0]
 			
 			// Validate kind is provided
 			if flags.kind == "" {
@@ -67,7 +63,7 @@ EOF`,
 			
 			// Create subtask
 			task := models.NewTask(normalizedKind, title, description)
-			task.Parent = &parentID
+			task.Parent = &parent.ID
 			
 			// Apply priority if specified
 			if flags.priority != "" {
@@ -86,8 +82,8 @@ EOF`,
 			
 			// Output success message
 			fmt.Fprintf(cmd.OutOrStdout(), 
-				"Created %s subtask #%d for task #%d (%s)\n", 
-				flags.kind, task.ID, parent.ID, parent.Title)
+				"Created %s subtask %s for task %s (%s)\n", 
+				flags.kind, task.ShortHash(), parent.ShortHash(), parent.Title)
 			
 			return nil
 		},

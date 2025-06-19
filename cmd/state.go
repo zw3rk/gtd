@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/zw3rk/claude-gtd/internal/models"
@@ -56,27 +55,21 @@ func newCancelCommand() *cobra.Command {
 
 // updateTaskState is a helper function to update task state
 func updateTaskState(cmd *cobra.Command, taskIDStr string, newState string) error {
-	// Parse task ID
-	taskID, err := strconv.Atoi(taskIDStr)
-	if err != nil {
-		return fmt.Errorf("invalid task ID: %s", taskIDStr)
-	}
-	
 	// Get the task first to show info
-	task, err := repo.GetByID(taskID)
+	task, err := repo.GetByID(taskIDStr)
 	if err != nil {
 		return fmt.Errorf("task not found: %w", err)
 	}
 	
 	// Update state
-	if err := repo.UpdateState(taskID, newState); err != nil {
+	if err := repo.UpdateState(task.ID, newState); err != nil {
 		return fmt.Errorf("failed to update task state: %w", err)
 	}
 	
 	// Output success message
 	stateVerb := getStateVerb(newState)
-	fmt.Fprintf(cmd.OutOrStdout(), "Task #%d marked as %s: %s\n", 
-		task.ID, stateVerb, task.Title)
+	fmt.Fprintf(cmd.OutOrStdout(), "Task %s marked as %s: %s\n", 
+		task.ShortHash(), stateVerb, task.Title)
 	
 	return nil
 }

@@ -58,6 +58,6 @@ func readTaskInput(r io.Reader) (title, description string, err error) {
 }
 
 // formatTaskCreated formats the output message for a created task
-func formatTaskCreated(id int, kind string) string {
-	return fmt.Sprintf("Created %s task #%d", strings.ToLower(kind), id)
+func formatTaskCreated(id string, kind string) string {
+	return fmt.Sprintf("Created %s task %s", strings.ToLower(kind), id)
 }

@@ -25,11 +25,12 @@ func (r *TaskRepository) Create(task *Task) error {
 	}
 
 	query := `
-		INSERT INTO tasks (parent, priority, state, kind, title, description, source, blocked_by, tags)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO tasks (id, parent, priority, state, kind, title, description, source, blocked_by, tags)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
-	result, err := r.db.DB.Exec(query,
+	_, err := r.db.DB.Exec(query,
+		task.ID,
 		task.Parent,
 		task.Priority,
 		task.State,
@@ -44,12 +45,6 @@ func (r *TaskRepository) Create(task *Task) error {
 		return fmt.Errorf("failed to create task: %w", err)
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return fmt.Errorf("failed to get task ID: %w", err)
-	}
-
-	task.ID = int(id)
 	return nil
 }
 
@@ -86,7 +81,7 @@ func (r *TaskRepository) Update(task *Task) error {
 }
 
 // Delete removes a task from the database
-func (r *TaskRepository) Delete(id int) error {
+func (r *TaskRepository) Delete(id string) error {
 	_, err := r.db.DB.Exec("DELETE FROM tasks WHERE id = ?", id)
 	if err != nil {
 		return fmt.Errorf("failed to delete task: %w", err)
@@ -94,8 +89,24 @@ func (r *TaskRepository) Delete(id int) error {
 	return nil
 }
 
-// GetByID retrieves a task by its ID
-func (r *TaskRepository) GetByID(id int) (*Task, error) {
+// GetByID retrieves a task by its ID or hash prefix
+func (r *TaskRepository) GetByID(id string) (*Task, error) {
+	// First try exact match
+	task, err := r.getByExactID(id)
+	if err == nil {
+		return task, nil
+	}
+
+	// If not found and input looks like a hash prefix (4+ chars), try prefix match
+	if len(id) >= 4 && len(id) < 40 {
+		return r.getByHashPrefix(id)
+	}
+
+	return nil, fmt.Errorf("task not found")
+}
+
+// getByExactID retrieves a task by its exact ID
+func (r *TaskRepository) getByExactID(id string) (*Task, error) {
 	task := &Task{}
 	query := `
 		SELECT id, parent, priority, state, kind, title, description, 
@@ -128,8 +139,38 @@ func (r *TaskRepository) GetByID(id int) (*Task, error) {
 	return task, nil
 }
 
+// getByHashPrefix retrieves a task by hash prefix (like git)
+func (r *TaskRepository) getByHashPrefix(prefix string) (*Task, error) {
+	query := `
+		SELECT id, parent, priority, state, kind, title, description, 
+		       created, updated, source, blocked_by, tags
+		FROM tasks
+		WHERE id LIKE ? || '%'
+	`
+
+	rows, err := r.db.DB.Query(query, prefix)
+	if err != nil {
+		return nil, fmt.Errorf("failed to search by prefix: %w", err)
+	}
+	defer rows.Close()
+
+	tasks, err := r.scanTasks(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(tasks) == 0 {
+		return nil, fmt.Errorf("task not found")
+	}
+	if len(tasks) > 1 {
+		return nil, fmt.Errorf("ambiguous hash prefix '%s' matches %d tasks", prefix, len(tasks))
+	}
+
+	return tasks[0], nil
+}
+
 // GetChildren retrieves all child tasks of a parent
-func (r *TaskRepository) GetChildren(parentID int) ([]*Task, error) {
+func (r *TaskRepository) GetChildren(parentID string) ([]*Task, error) {
 	query := `
 		SELECT id, parent, priority, state, kind, title, description, 
 		       created, updated, source, blocked_by, tags
@@ -251,7 +292,7 @@ func (r *TaskRepository) Search(query string) ([]*Task, error) {
 }
 
 // UpdateState changes the state of a task
-func (r *TaskRepository) UpdateState(id int, newState string) error {
+func (r *TaskRepository) UpdateState(id string, newState string) error {
 	// Get the task first
 	task, err := r.GetByID(id)
 	if err != nil {
@@ -270,7 +311,7 @@ func (r *TaskRepository) UpdateState(id int, newState string) error {
 		if newState == StateDone && len(children) > 0 {
 			for _, child := range children {
 				if child.State != StateDone && child.State != StateCancelled {
-					return fmt.Errorf("cannot mark parent task as DONE: child task %d is in %s state", child.ID, child.State)
+					return fmt.Errorf("cannot mark parent task as DONE: child task %s is in %s state", child.ID, child.State)
 				}
 			}
 		}
@@ -287,7 +328,7 @@ func (r *TaskRepository) UpdateState(id int, newState string) error {
 }
 
 // Block sets a task as blocked by another task
-func (r *TaskRepository) Block(taskID, blockingTaskID int) error {
+func (r *TaskRepository) Block(taskID, blockingTaskID string) error {
 	// Verify both tasks exist
 	if _, err := r.GetByID(taskID); err != nil {
 		return fmt.Errorf("task to block not found: %w", err)
@@ -305,7 +346,7 @@ func (r *TaskRepository) Block(taskID, blockingTaskID int) error {
 }
 
 // Unblock removes the blocking relationship from a task
-func (r *TaskRepository) Unblock(taskID int) error {
+func (r *TaskRepository) Unblock(taskID string) error {
 	_, err := r.db.DB.Exec("UPDATE tasks SET blocked_by = NULL WHERE id = ?", taskID)
 	if err != nil {
 		return fmt.Errorf("failed to unblock task: %w", err)

@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -20,11 +19,8 @@ func newShowCommand() *cobra.Command {
   claude-gtd show 10`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Parse task ID
-			taskID, err := strconv.Atoi(args[0])
-			if err != nil {
-				return fmt.Errorf("invalid task ID: %s", args[0])
-			}
+			// Get task ID (hash or hash prefix)
+			taskID := args[0]
 			
 			// Get the task
 			task, err := repo.GetByID(taskID)
@@ -39,7 +35,7 @@ func newShowCommand() *cobra.Command {
 			}
 			
 			// Get subtasks
-			subtasks, err := repo.GetChildren(taskID)
+			subtasks, err := repo.GetChildren(task.ID)
 			if err != nil {
 				return fmt.Errorf("failed to get subtasks: %w", err)
 			}
@@ -59,7 +55,7 @@ func formatTaskDetails(w io.Writer, task *models.Task, parent *models.Task, subt
 	
 	// Parent info if this is a subtask
 	if parent != nil {
-		fmt.Fprintf(w, "\nParent: #%d - %s\n", parent.ID, parent.Title)
+		fmt.Fprintf(w, "\nParent: %s - %s\n", parent.ShortHash(), parent.Title)
 	}
 	
 	// Subtasks
