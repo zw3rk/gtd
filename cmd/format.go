@@ -35,15 +35,8 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 	// Get terminal width for proper padding
 	width := getTerminalWidth()
 	
-	// Build the main line: [ID] priority state KIND title #tags
+	// Build the main line: priority state KIND title #tags [ID: n]
 	var mainParts []string
-	
-	// ID with brackets
-	idPart := fmt.Sprintf("[%d]", task.ID)
-	if useColor {
-		idPart = colorize(idPart, colorBold)
-	}
-	mainParts = append(mainParts, idPart)
 	
 	// Priority indicator
 	mainParts = append(mainParts, getPriorityIndicator(task.Priority))
@@ -78,6 +71,13 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 		}
 		mainParts = append(mainParts, blocked)
 	}
+	
+	// ID at the end
+	idPart := fmt.Sprintf("[ID: %d]", task.ID)
+	if useColor {
+		idPart = colorize(idPart, colorDim) // Use dim color for ID
+	}
+	mainParts = append(mainParts, idPart)
 	
 	// Build main line
 	mainLine := strings.Join(mainParts, " ")
@@ -145,15 +145,8 @@ func formatSubtask(task *models.Task) string {
 	// Get terminal width for proper padding
 	width := getTerminalWidth()
 	
-	// Build the main line: [ID] priority state KIND title #tags
+	// Build the main line: priority state KIND title #tags [ID: n]
 	var mainParts []string
-	
-	// ID with brackets
-	idPart := fmt.Sprintf("[%d]", task.ID)
-	if useColor {
-		idPart = colorize(idPart, colorBold)
-	}
-	mainParts = append(mainParts, idPart)
 	
 	// Priority indicator
 	mainParts = append(mainParts, getPriorityIndicator(task.Priority))
@@ -188,6 +181,13 @@ func formatSubtask(task *models.Task) string {
 		}
 		mainParts = append(mainParts, blocked)
 	}
+	
+	// ID at the end
+	idPart := fmt.Sprintf("[ID: %d]", task.ID)
+	if useColor {
+		idPart = colorize(idPart, colorDim) // Use dim color for ID
+	}
+	mainParts = append(mainParts, idPart)
 	
 	// Build main line
 	mainLine := strings.Join(mainParts, " ")
