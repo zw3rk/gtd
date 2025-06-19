@@ -125,7 +125,7 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 			// Split description into lines and indent each
 			descLines := strings.Split(task.Description, "\n")
 			for _, line := range descLines {
-				fmt.Fprintf(&b, "\n        %s", line)
+				fmt.Fprintf(&b, "\n    %s", line)
 			}
 		}
 	} else {

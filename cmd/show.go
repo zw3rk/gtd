@@ -75,7 +75,7 @@ func formatTaskDetails(w io.Writer, task *models.Task, parent *models.Task, subt
 			if subtask.Description != "" {
 				// Show first line of description, indented
 				lines := strings.Split(subtask.Description, "\n")
-				fmt.Fprintf(w, "        %s\n", lines[0])
+				fmt.Fprintf(w, "      %s\n", lines[0])
 			}
 		}
 		
