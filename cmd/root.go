@@ -124,35 +124,6 @@ func newUnblockCommand() *cobra.Command {
 	}
 }
 
-func newListCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "list",
-		Short: "List tasks",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
-
-func newListDoneCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "list-done",
-		Short: "List completed tasks",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
-
-func newListCancelledCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "list-cancelled",
-		Short: "List cancelled tasks",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
 
 func newShowCommand() *cobra.Command {
 	return &cobra.Command{

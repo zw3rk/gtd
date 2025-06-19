@@ -80,25 +80,25 @@ This document provides a concrete step-by-step plan for implementing the claude-
 - [x] Commit: "Add task creation commands (bug, feature, regression)"
 
 ### Step 9: Subtask Management
-- [ ] Write tests for add-subtask command
+- [x] Write tests for add-subtask command
   - Test parent validation
   - Test subtask creation
   - Test hierarchy queries
-- [ ] Implement add-subtask command
-- [ ] Add parent task validation
-- [ ] Test: Subtask creation and hierarchy work correctly
-- [ ] Commit: "Add subtask creation with parent validation"
+- [x] Implement add-subtask command
+- [x] Add parent task validation
+- [x] Test: Subtask creation and hierarchy work correctly
+- [x] Commit: "Add subtask creation with parent validation"
 
 ### Step 10: State Management Commands
-- [ ] Write tests for state transitions
+- [x] Write tests for state transitions
   - Test in-progress command
   - Test done command with subtask validation
   - Test cancel command
-- [ ] Implement in-progress command
-- [ ] Implement done command with subtask checking
-- [ ] Implement cancel command
-- [ ] Test: State transitions work with proper validation
-- [ ] Commit: "Add state management commands (in-progress, done, cancel)"
+- [x] Implement in-progress command
+- [x] Implement done command with subtask checking
+- [x] Implement cancel command
+- [x] Test: State transitions work with proper validation
+- [x] Commit: "Add state management commands (in-progress, done, cancel)"
 
 ### Step 11: Blocking Relationships
 - [ ] Write tests for blocking functionality
