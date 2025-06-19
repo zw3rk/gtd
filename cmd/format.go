@@ -38,12 +38,12 @@ func formatTask(task *models.Task, showDetails bool) string {
 func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 	var b strings.Builder
 	
-	// Line 1: task <full-hash>
-	hashLine := fmt.Sprintf("task %s", task.ID)
+	// Line 1: task <full-hash>...
+	hashLine := fmt.Sprintf("task %s...", task.ID)
 	if useColor {
 		b.WriteString(colorize("task", colorYellow))
 		b.WriteString(" ")
-		b.WriteString(colorize(task.ID, colorYellow))
+		b.WriteString(colorize(task.ID+"...", colorYellow))
 	} else {
 		b.WriteString(hashLine)
 	}
@@ -57,19 +57,18 @@ func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 	// Line 3: Date: timestamp
 	b.WriteString("Date:   ")
 	b.WriteString(task.Created.Format("Mon Jan 2 15:04:05 2006 -0700"))
-	b.WriteString("\n")
+	b.WriteString("\n\n")
 	
-	// Line 4: Status: state
-	b.WriteString("Status: ")
+	// Line 4 (indented): state indicator + kind(priority): title
+	b.WriteString("  ")
+	
+	// State indicator
 	if useColor {
 		b.WriteString(formatStateColor(task.State))
 	} else {
-		b.WriteString(task.State)
+		b.WriteString(getStateEmoji(task.State))
 	}
-	b.WriteString("\n\n")
-	
-	// Line 5 (indented): kind(priority): title
-	b.WriteString("    ")
+	b.WriteString(" ")
 	
 	// Format kind(priority): 
 	kindPriority := fmt.Sprintf("%s(%s): ", strings.ToLower(task.Kind), task.Priority)
@@ -91,7 +90,7 @@ func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 	}
 	b.WriteString("\n")
 	
-	// Body (indented)
+	// Body (indented with extra indent)
 	if task.Description != "" {
 		b.WriteString("\n")
 		for _, line := range strings.Split(task.Description, "\n") {
@@ -119,9 +118,6 @@ func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 func formatTaskCompact(task *models.Task, showDetails bool) string {
 	var b strings.Builder
 	
-	// Get terminal width for proper padding
-	width := getTerminalWidth()
-	
 	// Build the main line: hash state kind(priority): title #tags
 	var mainParts []string
 	
@@ -169,55 +165,23 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 	
 	// Build main line
 	mainLine := strings.Join(mainParts, " ")
+	b.WriteString(mainLine)
 	
 	if showDetails {
-		// Build the metadata part: [ STATE | PRIORITY | Created: date ]
-		var metaParts []string
-		metaParts = append(metaParts, task.State)
-		metaParts = append(metaParts, strings.ToUpper(task.Priority))
-		metaParts = append(metaParts, fmt.Sprintf("Created: %s", task.Created.Format("2006-01-02")))
-		
-		// Add optional metadata
-		if task.Source != "" {
-			metaParts = append(metaParts, fmt.Sprintf("Source: %s", task.Source))
-		}
-		
-		if task.IsBlocked() && task.BlockedBy != nil {
-			blocked := fmt.Sprintf("Blocked by: %s", *task.BlockedBy)
-			if useColor {
-				blocked = colorize(blocked, colorRed)
-			}
-			metaParts = append(metaParts, blocked)
-		}
-		
-		// Format the line with padding
-		metaLine := fmt.Sprintf("[ %s ]", strings.Join(metaParts, " | "))
-		
-		// Calculate padding
-		mainLen := visibleLength(mainLine)
-		metaLen := visibleLength(metaLine)
-		totalLen := mainLen + metaLen
-		
-		if totalLen < width-1 {
-			// Add padding between main and meta
-			padding := width - totalLen - 1
-			fmt.Fprintf(&b, "%s%s%s", mainLine, strings.Repeat(" ", padding), metaLine)
-		} else {
-			// Too long, put metadata on next line
-			fmt.Fprintf(&b, "%s\n%s%s", mainLine, strings.Repeat(" ", 4), metaLine)
-		}
-		
 		// Add description if present, indented
 		if task.Description != "" {
+			b.WriteString("\n")
 			// Split description into lines and indent each
 			descLines := strings.Split(task.Description, "\n")
 			for _, line := range descLines {
-				fmt.Fprintf(&b, "\n    %s", line)
+				fmt.Fprintf(&b, "    %s\n", line)
 			}
 		}
-	} else {
-		// Just the main line for oneline format
-		b.WriteString(mainLine)
+		
+		// Add metadata as part of the body if relevant
+		if task.IsBlocked() && task.BlockedBy != nil {
+			fmt.Fprintf(&b, "\n    Blocked by: %s\n", *task.BlockedBy)
+		}
 	}
 	
 	return b.String()
@@ -228,11 +192,8 @@ func formatTaskOneline(task *models.Task) string {
 	return formatTaskCompact(task, false)
 }
 
-// formatSubtask formats a subtask with metadata on the right side
+// formatSubtask formats a subtask
 func formatSubtask(task *models.Task) string {
-	// Get terminal width for proper padding, account for 2-char indent
-	width := getTerminalWidth() - 2
-	
 	// Build the main line: hash state kind(priority): title #tags
 	var mainParts []string
 	
@@ -279,41 +240,7 @@ func formatSubtask(task *models.Task) string {
 	}
 	
 	// Build main line
-	mainLine := strings.Join(mainParts, " ")
-	
-	// Build the metadata part: [ STATE | PRIORITY ]
-	var metaParts []string
-	metaParts = append(metaParts, task.State)
-	metaParts = append(metaParts, strings.ToUpper(task.Priority))
-	
-	// Add blocked info if needed
-	if task.IsBlocked() && task.BlockedBy != nil {
-		blocked := fmt.Sprintf("Blocked by: %s", *task.BlockedBy)
-		if useColor {
-			blocked = colorize(blocked, colorRed)
-		}
-		metaParts = append(metaParts, blocked)
-	}
-	
-	// Format the line with padding
-	metaLine := fmt.Sprintf("[ %s ]", strings.Join(metaParts, " | "))
-	
-	// Calculate padding
-	mainLen := visibleLength(mainLine)
-	metaLen := visibleLength(metaLine)
-	totalLen := mainLen + metaLen
-	
-	var result strings.Builder
-	if totalLen < width-1 {
-		// Add padding between main and meta
-		padding := width - totalLen - 1
-		fmt.Fprintf(&result, "%s%s%s", mainLine, strings.Repeat(" ", padding), metaLine)
-	} else {
-		// Too long, put metadata on next line
-		fmt.Fprintf(&result, "%s\n%s%s", mainLine, strings.Repeat(" ", 6), metaLine)
-	}
-	
-	return result.String()
+	return strings.Join(mainParts, " ")
 }
 
 // getPriorityEmoji returns the emoji for a priority level
