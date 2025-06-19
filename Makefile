@@ -30,27 +30,27 @@ COLOR_BLUE := \033[34m
 
 .PHONY: help
 help: ## Show this help message
-	@echo "$(COLOR_BOLD)gtd - SQLite-driven CLI task management tool$(COLOR_RESET)"
-	@echo ""
-	@echo "$(COLOR_BOLD)Usage:$(COLOR_RESET)"
-	@echo "  make $(COLOR_GREEN)<target>$(COLOR_RESET)"
-	@echo ""
-	@echo "$(COLOR_BOLD)Targets:$(COLOR_RESET)"
+	@printf "$(COLOR_BOLD)gtd - SQLite-driven CLI task management tool$(COLOR_RESET)\n"
+	@printf "\n"
+	@printf "$(COLOR_BOLD)Usage:$(COLOR_RESET)\n"
+	@printf "  make $(COLOR_GREEN)<target>$(COLOR_RESET)\n"
+	@printf "\n"
+	@printf "$(COLOR_BOLD)Targets:$(COLOR_RESET)\n"
 	@awk 'BEGIN {FS = ":.*##"; printf ""} /^[a-zA-Z_-]+:.*?##/ { printf "  $(COLOR_GREEN)%-15s$(COLOR_RESET) %s\n", $$1, $$2 } /^##@/ { printf "\n$(COLOR_BOLD)%s$(COLOR_RESET)\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 ##@ Development
 
 .PHONY: build
 build: ## Build the binary
-	@echo "$(COLOR_BLUE)Building $(BINARY_NAME)...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Building $(BINARY_NAME)...$(COLOR_RESET)\n"
 	$(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) .
-	@echo "$(COLOR_GREEN)✓ Binary built: $(BUILD_DIR)/$(BINARY_NAME)$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Binary built: $(BUILD_DIR)/$(BINARY_NAME)$(COLOR_RESET)\n"
 
 .PHONY: build-static
 build-static: ## Build a static binary
-	@echo "$(COLOR_BLUE)Building static binary...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Building static binary...$(COLOR_RESET)\n"
 	CGO_ENABLED=1 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) .
-	@echo "$(COLOR_GREEN)✓ Static binary built: $(BUILD_DIR)/$(BINARY_NAME)$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Static binary built: $(BUILD_DIR)/$(BINARY_NAME)$(COLOR_RESET)\n"
 
 .PHONY: run
 run: ## Run the application
@@ -58,15 +58,15 @@ run: ## Run the application
 
 .PHONY: install
 install: build ## Install the binary to $GOPATH/bin
-	@echo "$(COLOR_BLUE)Installing $(BINARY_NAME)...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Installing $(BINARY_NAME)...$(COLOR_RESET)\n"
 	@cp $(BUILD_DIR)/$(BINARY_NAME) $(GOPATH)/bin/
-	@echo "$(COLOR_GREEN)✓ Installed to $(GOPATH)/bin/$(BINARY_NAME)$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Installed to $(GOPATH)/bin/$(BINARY_NAME)$(COLOR_RESET)\n"
 
 ##@ Testing
 
 .PHONY: test
 test: ## Run all tests
-	@echo "$(COLOR_BLUE)Running tests...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Running tests...$(COLOR_RESET)\n"
 	$(GOTEST) -v ./...
 
 .PHONY: test-short
@@ -75,20 +75,20 @@ test-short: ## Run tests in short mode
 
 .PHONY: test-coverage
 test-coverage: ## Run tests with coverage report
-	@echo "$(COLOR_BLUE)Running tests with coverage...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Running tests with coverage...$(COLOR_RESET)\n"
 	$(GOTEST) -cover -coverprofile=coverage.out ./...
-	@echo "$(COLOR_GREEN)✓ Coverage report saved to coverage.out$(COLOR_RESET)"
-	@echo "$(COLOR_YELLOW)Run 'make coverage-html' to view HTML report$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Coverage report saved to coverage.out$(COLOR_RESET)\n"
+	@printf "$(COLOR_YELLOW)Run 'make coverage-html' to view HTML report$(COLOR_RESET)\n"
 
 .PHONY: coverage-html
 coverage-html: test-coverage ## Generate HTML coverage report
-	@echo "$(COLOR_BLUE)Generating HTML coverage report...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Generating HTML coverage report...$(COLOR_RESET)\n"
 	$(GOCMD) tool cover -html=coverage.out -o coverage.html
-	@echo "$(COLOR_GREEN)✓ HTML report saved to coverage.html$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ HTML report saved to coverage.html$(COLOR_RESET)\n"
 
 .PHONY: test-race
 test-race: ## Run tests with race detector
-	@echo "$(COLOR_BLUE)Running tests with race detector...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Running tests with race detector...$(COLOR_RESET)\n"
 	$(GOTEST) -race ./...
 
 .PHONY: benchmark
@@ -99,45 +99,45 @@ benchmark: ## Run benchmarks
 
 .PHONY: fmt
 fmt: ## Format code
-	@echo "$(COLOR_BLUE)Formatting code...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Formatting code...$(COLOR_RESET)\n"
 	$(GOFMT) ./...
-	@echo "$(COLOR_GREEN)✓ Code formatted$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Code formatted$(COLOR_RESET)\n"
 
 .PHONY: vet
 vet: ## Run go vet
-	@echo "$(COLOR_BLUE)Running go vet...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Running go vet...$(COLOR_RESET)\n"
 	$(GOVET) ./...
-	@echo "$(COLOR_GREEN)✓ No issues found$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ No issues found$(COLOR_RESET)\n"
 
 .PHONY: lint
 lint: ## Run golangci-lint
-	@echo "$(COLOR_BLUE)Running linter...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Running linter...$(COLOR_RESET)\n"
 	@if command -v golangci-lint > /dev/null; then \
 		golangci-lint run; \
-		echo "$(COLOR_GREEN)✓ Linting complete$(COLOR_RESET)"; \
+		printf "$(COLOR_GREEN)✓ Linting complete$(COLOR_RESET)\n"; \
 	else \
-		echo "$(COLOR_YELLOW)⚠ golangci-lint not installed. Install with:$(COLOR_RESET)"; \
-		echo "  nix run nixpkgs#golangci-lint"; \
+		printf "$(COLOR_YELLOW)⚠ golangci-lint not installed. Install with:$(COLOR_RESET)\n"; \
+		printf "  nix run nixpkgs#golangci-lint\n"; \
 	fi
 
 .PHONY: check
 check: fmt vet test ## Run all checks (format, vet, test)
-	@echo "$(COLOR_GREEN)✓ All checks passed$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ All checks passed$(COLOR_RESET)\n"
 
 ##@ Dependencies
 
 .PHONY: deps
 deps: ## Download dependencies
-	@echo "$(COLOR_BLUE)Downloading dependencies...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Downloading dependencies...$(COLOR_RESET)\n"
 	$(GOMOD) download
-	@echo "$(COLOR_GREEN)✓ Dependencies downloaded$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Dependencies downloaded$(COLOR_RESET)\n"
 
 .PHONY: deps-update
 deps-update: ## Update dependencies
-	@echo "$(COLOR_BLUE)Updating dependencies...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Updating dependencies...$(COLOR_RESET)\n"
 	$(GOGET) -u ./...
 	$(GOMOD) tidy
-	@echo "$(COLOR_GREEN)✓ Dependencies updated$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Dependencies updated$(COLOR_RESET)\n"
 
 .PHONY: deps-verify
 deps-verify: ## Verify dependencies
@@ -147,44 +147,44 @@ deps-verify: ## Verify dependencies
 
 .PHONY: clean
 clean: ## Clean build artifacts
-	@echo "$(COLOR_BLUE)Cleaning...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Cleaning...$(COLOR_RESET)\n"
 	$(GOCLEAN)
 	@rm -f $(BINARY_NAME)
 	@rm -f coverage.out coverage.html
-	@echo "$(COLOR_GREEN)✓ Cleaned$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Cleaned$(COLOR_RESET)\n"
 
 .PHONY: clean-db
 clean-db: ## Remove the database file
-	@echo "$(COLOR_YELLOW)⚠ Removing claude-tasks.db...$(COLOR_RESET)"
+	@printf "$(COLOR_YELLOW)⚠ Removing claude-tasks.db...$(COLOR_RESET)\n"
 	@rm -f claude-tasks.db
-	@echo "$(COLOR_GREEN)✓ Database removed$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Database removed$(COLOR_RESET)\n"
 
 ##@ Development Helpers
 
 .PHONY: todo
 todo: ## Show TODO/FIXME comments in code
-	@echo "$(COLOR_BOLD)TODO/FIXME items:$(COLOR_RESET)"
-	@grep -rn "TODO\|FIXME" --include="*.go" . || echo "$(COLOR_GREEN)✓ No TODO/FIXME items found$(COLOR_RESET)"
+	@printf "$(COLOR_BOLD)TODO/FIXME items:$(COLOR_RESET)\n"
+	@grep -rn "TODO\|FIXME" --include="*.go" . || printf "$(COLOR_GREEN)✓ No TODO/FIXME items found$(COLOR_RESET)\n"
 
 .PHONY: size
 size: build ## Show binary size
-	@echo "$(COLOR_BOLD)Binary size:$(COLOR_RESET)"
+	@printf "$(COLOR_BOLD)Binary size:$(COLOR_RESET)\n"
 	@ls -lh $(BINARY_NAME) | awk '{print $$5 " " $$9}'
 
 .PHONY: loc
 loc: ## Count lines of code
-	@echo "$(COLOR_BOLD)Lines of code:$(COLOR_RESET)"
+	@printf "$(COLOR_BOLD)Lines of code:$(COLOR_RESET)\n"
 	@find . -name "*.go" -not -path "./vendor/*" | xargs wc -l | tail -n 1
 
 ##@ Git Hooks
 
 .PHONY: pre-commit
 pre-commit: check ## Run pre-commit checks
-	@echo "$(COLOR_GREEN)✓ Pre-commit checks passed$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Pre-commit checks passed$(COLOR_RESET)\n"
 
 .PHONY: setup-hooks
 setup-hooks: ## Setup git hooks
-	@echo "$(COLOR_BLUE)Setting up git hooks...$(COLOR_RESET)"
+	@printf "$(COLOR_BLUE)Setting up git hooks...$(COLOR_RESET)\n"
 	@echo "#!/bin/sh\nmake pre-commit" > .git/hooks/pre-commit
 	@chmod +x .git/hooks/pre-commit
-	@echo "$(COLOR_GREEN)✓ Git hooks installed$(COLOR_RESET)"
+	@printf "$(COLOR_GREEN)✓ Git hooks installed$(COLOR_RESET)\n"
