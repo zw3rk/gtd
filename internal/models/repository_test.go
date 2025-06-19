@@ -35,7 +35,7 @@ func TestTaskRepository_Create(t *testing.T) {
 		t.Fatalf("Create() error = %v", err)
 	}
 
-	if task.ID == 0 {
+	if task.ID == "" {
 		t.Error("Create() did not set task ID")
 	}
 

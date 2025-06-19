@@ -57,7 +57,7 @@ func TestShowCommand(t *testing.T) {
 	}{
 		{
 			name: "show parent task with subtasks",
-			args: []string{fmt.Sprintf("%d", parent.ID)},
+			args: []string{fmt.Sprintf("%s", parent.ID)},
 			contains: []string{
 				"Parent feature",
 				"Feature",
@@ -67,7 +67,7 @@ func TestShowCommand(t *testing.T) {
 				"with multiple lines",
 				"GitHub:issue/123",
 				"#backend #important",
-				fmt.Sprintf("Blocked by: #%d", blocker.ID),
+				fmt.Sprintf("Blocked by: #%s", blocker.ID),
 				"Subtasks:",
 				"First subtask",
 				"✓", // DONE symbol
@@ -77,7 +77,7 @@ func TestShowCommand(t *testing.T) {
 		},
 		{
 			name: "show simple task without subtasks",
-			args: []string{fmt.Sprintf("%d", blocker.ID)},
+			args: []string{fmt.Sprintf("%s", blocker.ID)},
 			contains: []string{
 				"Blocking task",
 				"Bug",
@@ -88,11 +88,11 @@ func TestShowCommand(t *testing.T) {
 		},
 		{
 			name: "show subtask with parent info",
-			args: []string{fmt.Sprintf("%d", subtask1.ID)},
+			args: []string{fmt.Sprintf("%s", subtask1.ID)},
 			contains: []string{
 				"First subtask",
 				"Fix the bug",
-				fmt.Sprintf("Parent: #%d", parent.ID),
+				fmt.Sprintf("Parent: #%s", parent.ID),
 				"Parent feature",
 			},
 		},

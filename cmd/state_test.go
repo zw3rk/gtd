@@ -34,7 +34,7 @@ func TestInProgressCommand(t *testing.T) {
 	}{
 		{
 			name: "mark new task as in progress",
-			args: []string{fmt.Sprintf("%d", newTask.ID)},
+			args: []string{fmt.Sprintf("%s", newTask.ID)},
 			check: func(t *testing.T) {
 				task, err := testRepo.GetByID(newTask.ID)
 				if err != nil {
@@ -47,7 +47,7 @@ func TestInProgressCommand(t *testing.T) {
 		},
 		{
 			name: "mark done task as in progress",
-			args: []string{fmt.Sprintf("%d", doneTask.ID)},
+			args: []string{fmt.Sprintf("%s", doneTask.ID)},
 			check: func(t *testing.T) {
 				task, err := testRepo.GetByID(doneTask.ID)
 				if err != nil {
@@ -144,7 +144,7 @@ func TestDoneCommand(t *testing.T) {
 	}{
 		{
 			name: "mark simple task as done",
-			args: []string{fmt.Sprintf("%d", simpleTask.ID)},
+			args: []string{fmt.Sprintf("%s", simpleTask.ID)},
 			check: func(t *testing.T) {
 				task, err := testRepo.GetByID(simpleTask.ID)
 				if err != nil {
@@ -157,13 +157,13 @@ func TestDoneCommand(t *testing.T) {
 		},
 		{
 			name:    "cannot mark parent as done with incomplete children",
-			args:    []string{fmt.Sprintf("%d", parent.ID)},
+			args:    []string{fmt.Sprintf("%s", parent.ID)},
 			wantErr: true,
 			errMsg:  "child task",
 		},
 		{
 			name: "mark parent as done after children are complete",
-			args: []string{fmt.Sprintf("%d", parent.ID)},
+			args: []string{fmt.Sprintf("%s", parent.ID)},
 			setup: func() {
 				// Mark children as done
 				testRepo.UpdateState(child1.ID, models.StateDone)
@@ -237,7 +237,7 @@ func TestCancelCommand(t *testing.T) {
 	}{
 		{
 			name: "cancel in-progress task",
-			args: []string{fmt.Sprintf("%d", task.ID)},
+			args: []string{fmt.Sprintf("%s", task.ID)},
 			check: func(t *testing.T) {
 				updated, err := testRepo.GetByID(task.ID)
 				if err != nil {

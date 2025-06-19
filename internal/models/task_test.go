@@ -236,7 +236,7 @@ func TestTaskIsBlocked(t *testing.T) {
 		},
 		{
 			name:    "blocked",
-			task:    Task{BlockedBy: intPtr(42)},
+			task:    Task{BlockedBy: stringPtr("abc123def456")},
 			blocked: true,
 		},
 	}
@@ -337,8 +337,8 @@ func TestTaskSetTags(t *testing.T) {
 }
 
 // Helper function for tests
-func intPtr(i int) *int {
-	return &i
+func stringPtr(s string) *string {
+	return &s
 }
 
 func TestNewTask(t *testing.T) {

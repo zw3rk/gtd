@@ -243,12 +243,12 @@ func exportMarkdown(w io.Writer, tasks []*models.Task) error {
 	for _, task := range tasks {
 		parentStr := "-"
 		if task.Parent != nil {
-			parentStr = fmt.Sprintf("#%d", *task.Parent)
+			parentStr = fmt.Sprintf("#%s", *task.Parent)
 		}
 
 		blockedByStr := "-"
 		if task.BlockedBy != nil {
-			blockedByStr = fmt.Sprintf("#%d", *task.BlockedBy)
+			blockedByStr = fmt.Sprintf("#%s", *task.BlockedBy)
 		}
 
 		tagsStr := "-"
@@ -261,7 +261,7 @@ func exportMarkdown(w io.Writer, tasks []*models.Task) error {
 			sourceStr = task.Source
 		}
 
-		fmt.Fprintf(w, "| %d | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+		fmt.Fprintf(w, "| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
 			task.ID,
 			task.Kind,
 			task.State,
@@ -280,7 +280,7 @@ func exportMarkdown(w io.Writer, tasks []*models.Task) error {
 	fmt.Fprintln(w)
 
 	for _, task := range tasks {
-		fmt.Fprintf(w, "### #%d: %s\n", task.ID, task.Title)
+		fmt.Fprintf(w, "### #%s: %s\n", task.ID, task.Title)
 		fmt.Fprintln(w)
 
 		if task.Description != "" {
@@ -301,11 +301,11 @@ func exportMarkdown(w io.Writer, tasks []*models.Task) error {
 		}
 
 		if task.Parent != nil {
-			fmt.Fprintf(w, "- **Parent:** #%d\n", *task.Parent)
+			fmt.Fprintf(w, "- **Parent:** #%s\n", *task.Parent)
 		}
 
 		if task.BlockedBy != nil {
-			fmt.Fprintf(w, "- **Blocked by:** #%d\n", *task.BlockedBy)
+			fmt.Fprintf(w, "- **Blocked by:** #%s\n", *task.BlockedBy)
 		}
 
 		fmt.Fprintf(w, "- **Created:** %s\n", task.Created.Format("2006-01-02 15:04:05"))

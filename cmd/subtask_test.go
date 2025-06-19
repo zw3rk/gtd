@@ -34,7 +34,7 @@ func TestAddSubtaskCommand(t *testing.T) {
 	}{
 		{
 			name:  "create bug subtask",
-			args:  []string{fmt.Sprintf("%d", parentBug.ID), "--kind", "bug"},
+			args:  []string{fmt.Sprintf("%s", parentBug.ID), "--kind", "bug"},
 			input: "Fix memory leak in auth module\n",
 			check: func(t *testing.T) {
 				children, err := testRepo.GetChildren(parentBug.ID)
@@ -58,7 +58,7 @@ func TestAddSubtaskCommand(t *testing.T) {
 		},
 		{
 			name:  "create feature subtask with priority",
-			args:  []string{fmt.Sprintf("%d", parentFeature.ID), "--kind", "feature", "--priority", "high"},
+			args:  []string{fmt.Sprintf("%s", parentFeature.ID), "--kind", "feature", "--priority", "high"},
 			input: "Add theme switcher\nImplement UI for theme selection",
 			check: func(t *testing.T) {
 				children, err := testRepo.GetChildren(parentFeature.ID)
@@ -96,21 +96,21 @@ func TestAddSubtaskCommand(t *testing.T) {
 		},
 		{
 			name:    "missing kind flag",
-			args:    []string{fmt.Sprintf("%d", parentBug.ID)},
+			args:    []string{fmt.Sprintf("%s", parentBug.ID)},
 			input:   "Test\n",
 			wantErr: true,
 			errMsg:  "required flag",
 		},
 		{
 			name:    "invalid kind",
-			args:    []string{fmt.Sprintf("%d", parentBug.ID), "--kind", "invalid"},
+			args:    []string{fmt.Sprintf("%s", parentBug.ID), "--kind", "invalid"},
 			input:   "Test\n",
 			wantErr: true,
 			errMsg:  "invalid kind",
 		},
 		{
 			name:    "empty input",
-			args:    []string{fmt.Sprintf("%d", parentBug.ID), "--kind", "bug"},
+			args:    []string{fmt.Sprintf("%s", parentBug.ID), "--kind", "bug"},
 			input:   "\n",
 			wantErr: true,
 			errMsg:  "title cannot be empty",

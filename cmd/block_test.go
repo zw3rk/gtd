@@ -33,7 +33,7 @@ func TestBlockCommand(t *testing.T) {
 	}{
 		{
 			name: "block task successfully",
-			args: []string{fmt.Sprintf("%d", task1.ID), "--by", fmt.Sprintf("%d", task2.ID)},
+			args: []string{fmt.Sprintf("%s", task1.ID), "--by", fmt.Sprintf("%s", task2.ID)},
 			check: func(t *testing.T) {
 				updated, err := testRepo.GetByID(task1.ID)
 				if err != nil {
@@ -43,7 +43,7 @@ func TestBlockCommand(t *testing.T) {
 					t.Error("Task should be blocked")
 				}
 				if updated.BlockedBy == nil || *updated.BlockedBy != task2.ID {
-					t.Errorf("BlockedBy = %v, want %d", updated.BlockedBy, task2.ID)
+					t.Errorf("BlockedBy = %v, want %s", updated.BlockedBy, task2.ID)
 				}
 			},
 		},
@@ -54,7 +54,7 @@ func TestBlockCommand(t *testing.T) {
 		},
 		{
 			name:    "missing --by flag",
-			args:    []string{fmt.Sprintf("%d", task1.ID)},
+			args:    []string{fmt.Sprintf("%s", task1.ID)},
 			wantErr: true,
 			errMsg:  "required flag",
 		},
@@ -72,19 +72,19 @@ func TestBlockCommand(t *testing.T) {
 		},
 		{
 			name:    "non-existent task",
-			args:    []string{"999", "--by", fmt.Sprintf("%d", task2.ID)},
+			args:    []string{"999", "--by", fmt.Sprintf("%s", task2.ID)},
 			wantErr: true,
 			errMsg:  "task not found",
 		},
 		{
 			name:    "non-existent blocking task",
-			args:    []string{fmt.Sprintf("%d", task1.ID), "--by", "999"},
+			args:    []string{fmt.Sprintf("%s", task1.ID), "--by", "999"},
 			wantErr: true,
 			errMsg:  "blocking task not found",
 		},
 		{
 			name:    "block by itself",
-			args:    []string{fmt.Sprintf("%d", task1.ID), "--by", fmt.Sprintf("%d", task1.ID)},
+			args:    []string{fmt.Sprintf("%s", task1.ID), "--by", fmt.Sprintf("%s", task1.ID)},
 			wantErr: true,
 			errMsg:  "cannot block a task by itself",
 		},
@@ -148,7 +148,7 @@ func TestUnblockCommand(t *testing.T) {
 	}{
 		{
 			name: "unblock task successfully",
-			args: []string{fmt.Sprintf("%d", blockedTask.ID)},
+			args: []string{fmt.Sprintf("%s", blockedTask.ID)},
 			check: func(t *testing.T) {
 				updated, err := testRepo.GetByID(blockedTask.ID)
 				if err != nil {
@@ -178,7 +178,7 @@ func TestUnblockCommand(t *testing.T) {
 		},
 		{
 			name: "unblock already unblocked task",
-			args: []string{fmt.Sprintf("%d", blockingTask.ID)},
+			args: []string{fmt.Sprintf("%s", blockingTask.ID)},
 			check: func(t *testing.T) {
 				// Should succeed without error
 				updated, err := testRepo.GetByID(blockingTask.ID)

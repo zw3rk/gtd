@@ -20,7 +20,7 @@ func TestListCommand(t *testing.T) {
 		priority  string
 		source    string
 		tags      string
-		blockedBy *int
+		blockedBy *string
 	}{
 		{models.KindBug, "High priority bug in progress", models.StateInProgress, models.PriorityHigh, "app.go:42", "backend,urgent", nil},
 		{models.KindFeature, "Medium priority feature", models.StateNew, models.PriorityMedium, "", "ui", nil},
