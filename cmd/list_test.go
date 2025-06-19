@@ -78,7 +78,7 @@ func TestListCommand(t *testing.T) {
 			args: []string{"--oneline"},
 			contains: []string{
 				"High priority bug in progress",
-				"IN_PROGRESS",
+				"▶", // IN_PROGRESS symbol
 			},
 			notContains: []string{
 				"Source:",

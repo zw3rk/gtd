@@ -70,9 +70,9 @@ func TestShowCommand(t *testing.T) {
 				fmt.Sprintf("Blocked by: #%d", blocker.ID),
 				"Subtasks:",
 				"First subtask",
-				"DONE",
+				"✓", // DONE symbol
 				"Second subtask",
-				"NEW",
+				"◆", // NEW symbol
 			},
 		},
 		{

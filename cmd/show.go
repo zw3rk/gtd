@@ -144,11 +144,9 @@ func formatTaskDetails(w io.Writer, task *models.Task, parent *models.Task, subt
 		fmt.Fprintln(w, strings.Repeat("-", 30))
 		
 		for _, subtask := range subtasks {
-			emoji := getStateEmoji(subtask.State)
-			priorityEmoji := getPriorityEmoji(subtask.Priority)
-			
-			fmt.Fprintf(w, "  [%d] %s %s %s - %s\n", 
-				subtask.ID, priorityEmoji, emoji, subtask.State, subtask.Title)
+			// Use the compact format for subtasks, indented
+			subtaskLine := formatTaskCompact(subtask, false)
+			fmt.Fprintf(w, "  %s\n", subtaskLine)
 			
 			if subtask.Description != "" {
 				// Show first line of description
