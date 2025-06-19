@@ -88,7 +88,7 @@ func TestShowCommand(t *testing.T) {
 		},
 		{
 			name: "show subtask with parent info",
-			args: []string{fmt.Sprintf("%s", subtask1.ID)},
+			args: []string{subtask1.ID},
 			contains: []string{
 				"First subtask",
 				"Fix the bug",

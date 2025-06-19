@@ -108,34 +108,34 @@ func formatSummary(w io.Writer, tasks []*models.Task, activeOnly bool) {
 
 	// By State
 	_, _ = fmt.Fprintln(w, "By State:")
-	fmt.Fprintf(w, "  %-12s %d\n", "NEW:", stateCounts[models.StateNew])
-	fmt.Fprintf(w, "  %-12s %d\n", "IN_PROGRESS:", stateCounts[models.StateInProgress])
+	_, _ = fmt.Fprintf(w, "  %-12s %d\n", "NEW:", stateCounts[models.StateNew])
+	_, _ = fmt.Fprintf(w, "  %-12s %d\n", "IN_PROGRESS:", stateCounts[models.StateInProgress])
 	if !activeOnly {
-		fmt.Fprintf(w, "  %-12s %d\n", "DONE:", stateCounts[models.StateDone])
-		fmt.Fprintf(w, "  %-12s %d\n", "CANCELLED:", stateCounts[models.StateCancelled])
+		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "DONE:", stateCounts[models.StateDone])
+		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "CANCELLED:", stateCounts[models.StateCancelled])
 	}
 
 	if !activeOnly {
-		fmt.Fprintln(w)
+		_, _ = fmt.Fprintln(w)
 
 		// By Type
-		fmt.Fprintln(w, "By Type:")
-		fmt.Fprintf(w, "  %-12s %d\n", "Bug:", typeCounts["Bug"])
-		fmt.Fprintf(w, "  %-12s %d\n", "Feature:", typeCounts["Feature"])
-		fmt.Fprintf(w, "  %-12s %d\n", "Regression:", typeCounts["Regression"])
-		fmt.Fprintln(w)
+		_, _ = fmt.Fprintln(w, "By Type:")
+		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "Bug:", typeCounts["Bug"])
+		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "Feature:", typeCounts["Feature"])
+		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "Regression:", typeCounts["Regression"])
+		_, _ = fmt.Fprintln(w)
 
 		// By Priority
-		fmt.Fprintln(w, "By Priority:")
-		fmt.Fprintf(w, "  %-12s %d\n", "High:", priorityCounts[models.PriorityHigh])
-		fmt.Fprintf(w, "  %-12s %d\n", "Medium:", priorityCounts[models.PriorityMedium])
-		fmt.Fprintf(w, "  %-12s %d\n", "Low:", priorityCounts[models.PriorityLow])
-		fmt.Fprintln(w)
+		_, _ = fmt.Fprintln(w, "By Priority:")
+		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "High:", priorityCounts[models.PriorityHigh])
+		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "Medium:", priorityCounts[models.PriorityMedium])
+		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "Low:", priorityCounts[models.PriorityLow])
+		_, _ = fmt.Fprintln(w)
 
 		// Special categories
-		fmt.Fprintln(w, "Special:")
-		fmt.Fprintf(w, "  %-13s %d\n", "Blocked:", blockedCount)
-		fmt.Fprintf(w, "  %-13s %d\n", "Parent tasks:", parentCount)
-		fmt.Fprintf(w, "  %-13s %d\n", "Subtasks:", subtaskCount)
+		_, _ = fmt.Fprintln(w, "Special:")
+		_, _ = fmt.Fprintf(w, "  %-13s %d\n", "Blocked:", blockedCount)
+		_, _ = fmt.Fprintf(w, "  %-13s %d\n", "Parent tasks:", parentCount)
+		_, _ = fmt.Fprintf(w, "  %-13s %d\n", "Subtasks:", subtaskCount)
 	}
 }
