@@ -102,15 +102,6 @@ func Execute() {
 
 // Placeholder commands - to be implemented
 
-func newAddSubtaskCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "add-subtask",
-		Short: "Add a subtask to an existing task",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return fmt.Errorf("not implemented yet")
-		},
-	}
-}
 
 func newInProgressCommand() *cobra.Command {
 	return &cobra.Command{

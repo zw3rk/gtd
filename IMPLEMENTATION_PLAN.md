@@ -62,22 +62,22 @@ This document provides a concrete step-by-step plan for implementing the claude-
 ## Phase 3: CLI Command Implementation (TDD)
 
 ### Step 7: CLI Framework Setup
-- [ ] Write tests for CLI command structure
-- [ ] Implement basic CLI with cobra or similar
-- [ ] Add command routing and help system
-- [ ] Test: CLI help and version commands work
-- [ ] Commit: "Add CLI framework with command routing"
+- [x] Write tests for CLI command structure
+- [x] Implement basic CLI with cobra or similar
+- [x] Add command routing and help system
+- [x] Test: CLI help and version commands work
+- [x] Commit: "Add CLI framework with command routing"
 
 ### Step 8: Task Creation Commands
-- [ ] Write integration tests for add-bug, add-feature, add-regression
+- [x] Write integration tests for add-bug, add-feature, add-regression
   - Test reading from stdin
   - Test flag parsing (priority, source, tags)
   - Test database persistence
-- [ ] Implement add-bug command
-- [ ] Implement add-feature command
-- [ ] Implement add-regression command
-- [ ] Test: All creation commands work with various inputs
-- [ ] Commit: "Add task creation commands (bug, feature, regression)"
+- [x] Implement add-bug command
+- [x] Implement add-feature command
+- [x] Implement add-regression command
+- [x] Test: All creation commands work with various inputs
+- [x] Commit: "Add task creation commands (bug, feature, regression)"
 
 ### Step 9: Subtask Management
 - [ ] Write tests for add-subtask command
