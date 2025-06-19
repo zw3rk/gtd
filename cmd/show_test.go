@@ -66,7 +66,7 @@ func TestShowCommand(t *testing.T) {
 				"This is a detailed description",
 				"with multiple lines",
 				"GitHub:issue/123",
-				"backend,important",
+				"#backend #important",
 				fmt.Sprintf("Blocked by: #%d", blocker.ID),
 				"Subtasks:",
 				"First subtask",

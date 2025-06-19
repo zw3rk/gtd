@@ -64,15 +64,44 @@ func formatTask(task *models.Task, showDetails bool) string {
 
 // formatTaskOneline formats a task for oneline output
 func formatTaskOneline(task *models.Task) string {
-	priorityEmoji := getPriorityEmoji(task.Priority)
+	var parts []string
 	
-	blocked := ""
+	// ID with brackets
+	idPart := fmt.Sprintf("[%d]", task.ID)
+	if useColor {
+		idPart = colorize(idPart, colorBold)
+	}
+	parts = append(parts, idPart)
+	
+	// Priority with color
+	parts = append(parts, getPriorityIndicator(task.Priority))
+	
+	// State
+	state := task.State
+	if useColor {
+		state = formatStateColor(task.State)
+	} else {
+		state = fmt.Sprintf("%s %s", state, getStateEmoji(task.State))
+	}
+	parts = append(parts, state)
+	
+	// Title
+	title := task.Title
+	if useColor {
+		title = colorize(title, colorBold)
+	}
+	parts = append(parts, title)
+	
+	// Blocked indicator
 	if task.IsBlocked() {
-		blocked = " " + emojiBlocked
+		blocked := emojiBlocked
+		if useColor {
+			blocked = colorize(blocked, colorRed)
+		}
+		parts = append(parts, blocked)
 	}
 	
-	return fmt.Sprintf("[%d] %s %s %s%s", 
-		task.ID, priorityEmoji, task.State, task.Title, blocked)
+	return strings.Join(parts, " ")
 }
 
 // getPriorityEmoji returns the emoji for a priority level
@@ -87,6 +116,14 @@ func getPriorityEmoji(priority string) string {
 	default:
 		return "." // Period for unknown/default priority
 	}
+}
+
+// getPriorityIndicator returns the priority indicator (with color if enabled)
+func getPriorityIndicator(priority string) string {
+	if useColor {
+		return formatPriorityColor(priority)
+	}
+	return getPriorityEmoji(priority)
 }
 
 // getStateEmoji returns the emoji for a state
