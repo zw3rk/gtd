@@ -52,35 +52,12 @@ func isColorTerminal() bool {
 	return true
 }
 
-// getTerminalWidth returns the terminal width or a default
-func getTerminalWidth() int {
-	width, _, err := term.GetSize(int(os.Stdout.Fd()))
-	if err != nil || width < 40 {
-		return 80 // default width
-	}
-	return width
-}
-
 // colorize applies color to text if colors are enabled
 func colorize(text, color string) string {
 	if !useColor {
 		return text
 	}
 	return color + text + colorReset
-}
-
-// formatPriorityColor returns colored priority indicator
-func formatPriorityColor(priority string) string {
-	switch priority {
-	case "high":
-		return colorize("!", colorBrightRed)
-	case "medium":
-		return colorize("=", colorYellow)
-	case "low":
-		return colorize("-", colorGreen)
-	default:
-		return "."
-	}
 }
 
 // formatStateColor returns colored state indicator
@@ -99,20 +76,6 @@ func formatStateColor(state string) string {
 	}
 }
 
-// formatKindColor returns colored task kind
-func formatKindColor(kind string) string {
-	switch kind {
-	case "BUG":
-		return colorize("BUG", colorRed)
-	case "FEATURE":
-		return colorize("FEATURE", colorGreen)
-	case "REGRESSION":
-		return colorize("REGRESSION", colorYellow)
-	default:
-		return kind
-	}
-}
-
 // formatTagsColor returns colored tags with # prefix
 func formatTagsColor(tags string) string {
 	if tags == "" {
@@ -125,35 +88,4 @@ func formatTagsColor(tags string) string {
 		coloredTags[i] = colorize("#"+strings.TrimSpace(tag), colorBlue)
 	}
 	return strings.Join(coloredTags, " ")
-}
-
-// padRight pads string to the right with spaces
-func padRight(s string, length int) string {
-	// Account for ANSI color codes when calculating visible length
-	visibleLen := visibleLength(s)
-	if visibleLen >= length {
-		return s
-	}
-	return s + strings.Repeat(" ", length-visibleLen)
-}
-
-// visibleLength returns the visible length of a string (excluding ANSI codes)
-func visibleLength(s string) int {
-	// Simple approach: count runes, ignoring ANSI escape sequences
-	visible := 0
-	inEscape := false
-
-	for _, r := range s {
-		if r == '\033' {
-			inEscape = true
-		} else if inEscape {
-			if r == 'm' {
-				inEscape = false
-			}
-		} else {
-			visible++
-		}
-	}
-
-	return visible
 }

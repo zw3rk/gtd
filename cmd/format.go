@@ -29,11 +29,6 @@ const (
 	emojiBlocked    = "⊘" // U+2298 - Circled Division Slash (was 🚫)
 )
 
-// formatTask formats a task using the new single-line compact format
-func formatTask(task *models.Task, showDetails bool) string {
-	return formatTaskCompact(task, showDetails)
-}
-
 // formatTaskGitStyle formats a task in git log style
 func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
 	var b strings.Builder
@@ -255,14 +250,6 @@ func getPriorityEmoji(priority string) string {
 	default:
 		return "." // Period for unknown/default priority
 	}
-}
-
-// getPriorityIndicator returns the priority indicator (with color if enabled)
-func getPriorityIndicator(priority string) string {
-	if useColor {
-		return formatPriorityColor(priority)
-	}
-	return getPriorityEmoji(priority)
 }
 
 // getStateEmoji returns the emoji for a state
