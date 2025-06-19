@@ -119,10 +119,13 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 			fmt.Fprintf(&b, "%s\n%s%s", mainLine, strings.Repeat(" ", 4), metaLine)
 		}
 		
-		// Add description if present
+		// Add description if present, indented
 		if task.Description != "" {
-			fmt.Fprintf(&b, "\n\nDescription:\n%s\n%s",
-				strings.Repeat("-", 30), task.Description)
+			// Split description into lines and indent each
+			descLines := strings.Split(task.Description, "\n")
+			for _, line := range descLines {
+				fmt.Fprintf(&b, "\n        %s", line)
+			}
 		}
 	} else {
 		// Just the main line for oneline format
@@ -135,6 +138,93 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 // formatTaskOneline formats a task for oneline output using compact format
 func formatTaskOneline(task *models.Task) string {
 	return formatTaskCompact(task, false)
+}
+
+// formatSubtask formats a subtask with metadata on the right side
+func formatSubtask(task *models.Task) string {
+	// Get terminal width for proper padding
+	width := getTerminalWidth()
+	
+	// Build the main line: [ID] priority state KIND title #tags
+	var mainParts []string
+	
+	// ID with brackets
+	idPart := fmt.Sprintf("[%d]", task.ID)
+	if useColor {
+		idPart = colorize(idPart, colorBold)
+	}
+	mainParts = append(mainParts, idPart)
+	
+	// Priority indicator
+	mainParts = append(mainParts, getPriorityIndicator(task.Priority))
+	
+	// State indicator
+	if useColor {
+		mainParts = append(mainParts, formatStateColor(task.State))
+	} else {
+		mainParts = append(mainParts, getStateEmoji(task.State))
+	}
+	
+	// Task kind
+	mainParts = append(mainParts, formatKindColor(formatKind(task.Kind)))
+	
+	// Title
+	title := task.Title
+	if useColor {
+		title = colorize(title, colorBold)
+	}
+	mainParts = append(mainParts, title)
+	
+	// Tags with # prefix
+	if task.Tags != "" {
+		mainParts = append(mainParts, formatTagsColor(task.Tags))
+	}
+	
+	// Blocked indicator
+	if task.IsBlocked() {
+		blocked := emojiBlocked
+		if useColor {
+			blocked = colorize(blocked, colorRed)
+		}
+		mainParts = append(mainParts, blocked)
+	}
+	
+	// Build main line
+	mainLine := strings.Join(mainParts, " ")
+	
+	// Build the metadata part: [ STATE | PRIORITY ]
+	var metaParts []string
+	metaParts = append(metaParts, task.State)
+	metaParts = append(metaParts, strings.ToUpper(task.Priority))
+	
+	// Add blocked info if needed
+	if task.IsBlocked() && task.BlockedBy != nil {
+		blocked := fmt.Sprintf("Blocked by: #%d", *task.BlockedBy)
+		if useColor {
+			blocked = colorize(blocked, colorRed)
+		}
+		metaParts = append(metaParts, blocked)
+	}
+	
+	// Format the line with padding
+	metaLine := fmt.Sprintf("[ %s ]", strings.Join(metaParts, " | "))
+	
+	// Calculate padding
+	mainLen := visibleLength(mainLine)
+	metaLen := visibleLength(metaLine)
+	totalLen := mainLen + metaLen
+	
+	var result strings.Builder
+	if totalLen < width-1 {
+		// Add padding between main and meta
+		padding := width - totalLen - 1
+		fmt.Fprintf(&result, "%s%s%s", mainLine, strings.Repeat(" ", padding), metaLine)
+	} else {
+		// Too long, put metadata on next line
+		fmt.Fprintf(&result, "%s\n%s%s", mainLine, strings.Repeat(" ", 6), metaLine)
+	}
+	
+	return result.String()
 }
 
 // getPriorityEmoji returns the emoji for a priority level

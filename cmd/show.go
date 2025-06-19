@@ -54,88 +54,12 @@ func newShowCommand() *cobra.Command {
 
 // formatTaskDetails formats detailed task information
 func formatTaskDetails(w io.Writer, task *models.Task, parent *models.Task, subtasks []*models.Task) {
-	// Get terminal width for proper padding
-	width := getTerminalWidth()
-	
-	// Build the main line: [ID] priority state KIND title #tags
-	var mainParts []string
-	
-	// ID with brackets
-	idPart := fmt.Sprintf("[%d]", task.ID)
-	if useColor {
-		idPart = colorize(idPart, colorBold)
-	}
-	mainParts = append(mainParts, idPart)
-	
-	// Priority indicator
-	mainParts = append(mainParts, formatPriorityColor(task.Priority))
-	
-	// State indicator
-	mainParts = append(mainParts, formatStateColor(task.State))
-	
-	// Task kind
-	mainParts = append(mainParts, formatKindColor(formatKind(task.Kind)))
-	
-	// Title
-	title := task.Title
-	if useColor {
-		title = colorize(title, colorBold)
-	}
-	mainParts = append(mainParts, title)
-	
-	// Tags with # prefix
-	if task.Tags != "" {
-		mainParts = append(mainParts, formatTagsColor(task.Tags))
-	}
-	
-	// Build the metadata part: [ STATE | PRIORITY | Created: date ]
-	var metaParts []string
-	metaParts = append(metaParts, task.State)
-	metaParts = append(metaParts, strings.ToUpper(task.Priority))
-	metaParts = append(metaParts, fmt.Sprintf("Created: %s", task.Created.Format("2006-01-02")))
-	
-	// Add optional metadata
-	if task.Source != "" {
-		metaParts = append(metaParts, fmt.Sprintf("Source: %s", task.Source))
-	}
-	
-	if task.IsBlocked() && task.BlockedBy != nil {
-		blocked := fmt.Sprintf("Blocked by: #%d", *task.BlockedBy)
-		if useColor {
-			blocked = colorize(blocked, colorRed)
-		}
-		metaParts = append(metaParts, blocked)
-	}
-	
-	// Format the line with padding
-	mainLine := strings.Join(mainParts, " ")
-	metaLine := fmt.Sprintf("[ %s ]", strings.Join(metaParts, " | "))
-	
-	// Calculate padding
-	mainLen := visibleLength(mainLine)
-	metaLen := visibleLength(metaLine)
-	totalLen := mainLen + metaLen
-	
-	if totalLen < width-1 {
-		// Add padding between main and meta
-		padding := width - totalLen - 1
-		fmt.Fprintf(w, "%s%s%s\n", mainLine, strings.Repeat(" ", padding), metaLine)
-	} else {
-		// Too long, put metadata on next line
-		fmt.Fprintln(w, mainLine)
-		fmt.Fprintf(w, "%s%s\n", strings.Repeat(" ", 4), metaLine)
-	}
+	// Use the standard compact format with details
+	fmt.Fprintln(w, formatTaskCompact(task, true))
 	
 	// Parent info if this is a subtask
 	if parent != nil {
 		fmt.Fprintf(w, "\nParent: #%d - %s\n", parent.ID, parent.Title)
-	}
-	
-	// Description
-	if task.Description != "" {
-		fmt.Fprintln(w, "\nDescription:")
-		fmt.Fprintln(w, strings.Repeat("-", 30))
-		fmt.Fprintln(w, task.Description)
 	}
 	
 	// Subtasks
@@ -144,14 +68,14 @@ func formatTaskDetails(w io.Writer, task *models.Task, parent *models.Task, subt
 		fmt.Fprintln(w, strings.Repeat("-", 30))
 		
 		for _, subtask := range subtasks {
-			// Use the compact format for subtasks, indented
-			subtaskLine := formatTaskCompact(subtask, false)
+			// Use the subtask format with metadata on the right
+			subtaskLine := formatSubtask(subtask)
 			fmt.Fprintf(w, "  %s\n", subtaskLine)
 			
 			if subtask.Description != "" {
-				// Show first line of description
+				// Show first line of description, indented
 				lines := strings.Split(subtask.Description, "\n")
-				fmt.Fprintf(w, "      %s\n", lines[0])
+				fmt.Fprintf(w, "        %s\n", lines[0])
 			}
 		}
 		
