@@ -35,7 +35,7 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 	// Get terminal width for proper padding
 	width := getTerminalWidth()
 	
-	// Build the main line: priority state KIND title #tags [ID: n]
+	// Build the main line: priority state title #tags [Kind, ID: n]
 	var mainParts []string
 	
 	// Priority indicator
@@ -47,9 +47,6 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 	} else {
 		mainParts = append(mainParts, getStateEmoji(task.State))
 	}
-	
-	// Task kind
-	mainParts = append(mainParts, formatKindColor(formatKind(task.Kind)))
 	
 	// Title
 	title := task.Title
@@ -72,10 +69,14 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 		mainParts = append(mainParts, blocked)
 	}
 	
-	// ID at the end
-	idPart := fmt.Sprintf("[ID: %d]", task.ID)
+	// Kind and ID at the end
+	kindStr := formatKind(task.Kind)
 	if useColor {
-		idPart = colorize(idPart, colorDim) // Use dim color for ID
+		kindStr = formatKindColor(kindStr)
+	}
+	idPart := fmt.Sprintf("[%s, ID: %d]", kindStr, task.ID)
+	if useColor {
+		idPart = colorize(idPart, colorDim) // Use dim color for brackets
 	}
 	mainParts = append(mainParts, idPart)
 	
@@ -142,10 +143,10 @@ func formatTaskOneline(task *models.Task) string {
 
 // formatSubtask formats a subtask with metadata on the right side
 func formatSubtask(task *models.Task) string {
-	// Get terminal width for proper padding
-	width := getTerminalWidth()
+	// Get terminal width for proper padding, account for 2-char indent
+	width := getTerminalWidth() - 2
 	
-	// Build the main line: priority state KIND title #tags [ID: n]
+	// Build the main line: priority state title #tags [Kind, ID: n]
 	var mainParts []string
 	
 	// Priority indicator
@@ -157,9 +158,6 @@ func formatSubtask(task *models.Task) string {
 	} else {
 		mainParts = append(mainParts, getStateEmoji(task.State))
 	}
-	
-	// Task kind
-	mainParts = append(mainParts, formatKindColor(formatKind(task.Kind)))
 	
 	// Title
 	title := task.Title
@@ -182,10 +180,14 @@ func formatSubtask(task *models.Task) string {
 		mainParts = append(mainParts, blocked)
 	}
 	
-	// ID at the end
-	idPart := fmt.Sprintf("[ID: %d]", task.ID)
+	// Kind and ID at the end
+	kindStr := formatKind(task.Kind)
 	if useColor {
-		idPart = colorize(idPart, colorDim) // Use dim color for ID
+		kindStr = formatKindColor(kindStr)
+	}
+	idPart := fmt.Sprintf("[%s, ID: %d]", kindStr, task.ID)
+	if useColor {
+		idPart = colorize(idPart, colorDim) // Use dim color for brackets
 	}
 	mainParts = append(mainParts, idPart)
 	
