@@ -139,26 +139,12 @@ gtd done abc1234
 
 ## Task States & Transitions
 
-```mermaid
-stateDiagram-v2
-    [*] --> INBOX : add-bug<br/>add-feature<br/>add-regression
-    
-    INBOX --> NEW : accept
-    INBOX --> INVALID : reject
-    
-    NEW --> IN_PROGRESS : in-progress
-    NEW --> DONE : done
-    NEW --> CANCELLED : cancel
-    
-    IN_PROGRESS --> DONE : done
-    IN_PROGRESS --> CANCELLED : cancel
-    
-    DONE --> IN_PROGRESS : in-progress
-    CANCELLED --> NEW : in-progress
-    CANCELLED --> IN_PROGRESS : in-progress
-    
-    INVALID --> [*]
-    DONE --> [*]
+```
+                     ┌─ accept ──→ NEW ─────┬─ in-progress ──→ IN_PROGRESS ─┐
+                     │                     │                               │
+INBOX (new tasks) ───┤                     └─────── done ──────────────────┼─→ DONE
+                     │                     │                               │
+                     └─ reject ──→ INVALID └───── cancel ─────→ CANCELLED ──┘
 ```
 
 ## Database Storage
