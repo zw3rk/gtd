@@ -16,7 +16,7 @@ func TestShowCommand(t *testing.T) {
 	parent := models.NewTask(models.KindFeature, "Parent feature", "This is a detailed description\nwith multiple lines")
 	parent.Priority = models.PriorityHigh
 	parent.State = models.StateInProgress
-	parent.Source = "GitHub:issue/123"
+	parent.Source = "GitHub:issue/abc123"
 	parent.Tags = "backend,important"
 	if err := testRepo.Create(parent); err != nil {
 		t.Fatal(err)

@@ -13,8 +13,8 @@ func newInProgressCommand() *cobra.Command {
 		Use:   "in-progress TASK_ID",
 		Short: "Mark a task as in progress",
 		Long:  `Mark a task as in progress. This changes the task state to IN_PROGRESS.`,
-		Example: `  claude-gtd in-progress 42
-  claude-gtd in-progress 10`,
+		Example: `  claude-gtd in-progress abc123
+  claude-gtd in-progress 1a2b3c4`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return updateTaskState(cmd, args[0], models.StateInProgress)
@@ -29,8 +29,8 @@ func newDoneCommand() *cobra.Command {
 		Short: "Mark a task as done",
 		Long: `Mark a task as done. This changes the task state to DONE.
 Parent tasks can only be marked as done when all their subtasks are either DONE or CANCELLED.`,
-		Example: `  claude-gtd done 42
-  claude-gtd done 10`,
+		Example: `  claude-gtd done abc123
+  claude-gtd done 1a2b3c4`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return updateTaskState(cmd, args[0], models.StateDone)
@@ -44,8 +44,8 @@ func newCancelCommand() *cobra.Command {
 		Use:   "cancel TASK_ID",
 		Short: "Cancel a task",
 		Long:  `Cancel a task. This changes the task state to CANCELLED.`,
-		Example: `  claude-gtd cancel 42
-  claude-gtd cancel 10`,
+		Example: `  claude-gtd cancel abc123
+  claude-gtd cancel 1a2b3c4`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return updateTaskState(cmd, args[0], models.StateCancelled)

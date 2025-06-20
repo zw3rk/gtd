@@ -2,16 +2,15 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/zw3rk/gtd/internal/models"
+	"github.com/zw3rk/gtd/internal/output"
 )
 
-// SubtaskStats holds subtask completion statistics
-type SubtaskStats struct {
-	Total int
-	Done  int
-}
+// SubtaskStats is re-exported from output package for compatibility
+type SubtaskStats = output.SubtaskStats
 
 // Priority indicators
 const (
@@ -29,8 +28,14 @@ const (
 	emojiBlocked    = "⊘" // U+2298 - Circled Division Slash (was 🚫)
 )
 
-// formatTaskGitStyle formats a task in git log style
+// formatTaskGitStyle formats a task in git log style - wrapper for compatibility
 func formatTaskGitStyle(task *models.Task, subtaskStats *SubtaskStats) string {
+	// Use the centralized formatter if colors are disabled
+	if !useColor {
+		return output.FormatTaskGitStyle(task, subtaskStats)
+	}
+
+	// Keep the colored version here for now
 	var b strings.Builder
 
 	// Line 1: task <full-hash>
@@ -184,11 +189,19 @@ func formatTaskCompact(task *models.Task, showDetails bool) string {
 
 // formatTaskOneline formats a task for oneline output using compact format
 func formatTaskOneline(task *models.Task) string {
+	if !useColor {
+		return output.FormatTaskOneline(task)
+	}
 	return formatTaskCompact(task, false)
 }
 
-// formatSubtask formats a subtask
+// formatSubtask formats a subtask - wrapper for compatibility
 func formatSubtask(task *models.Task) string {
+	if !useColor {
+		return output.FormatSubtask(task)
+	}
+
+	// Keep the colored version here for now
 	// Build the main line: hash state kind(priority): title #tags
 	var mainParts []string
 
@@ -287,6 +300,15 @@ func formatKind(kind string) string {
 		return "Regression"
 	default:
 		return kind
+	}
+}
+
+// formatTaskList formats a list of tasks for output
+func formatTaskList(w io.Writer, tasks []*models.Task, oneline bool) {
+	formatter := output.NewFormatter(w)
+	if err := formatter.FormatTaskList(tasks, oneline); err != nil {
+		// Ignore write errors for now
+		return
 	}
 }
 

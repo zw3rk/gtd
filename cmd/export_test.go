@@ -18,7 +18,7 @@ func TestExportCommand(t *testing.T) {
 	task1 := models.NewTask(models.KindBug, "Bug 1", "Description 1")
 	task1.Priority = models.PriorityHigh
 	task1.Tags = "tag1,tag2"
-	task1.Source = "GitHub:issue/123"
+	task1.Source = "GitHub:issue/abc123"
 	if err := testRepo.Create(task1); err != nil {
 		t.Fatal(err)
 	}

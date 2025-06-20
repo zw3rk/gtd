@@ -43,7 +43,8 @@ func TestRootCommand(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var stdout, stderr bytes.Buffer
 
-			rootCmd := NewRootCommand()
+			app := NewApp()
+			rootCmd := NewRootCommand(app)
 			rootCmd.SetOut(&stdout)
 			rootCmd.SetErr(&stderr)
 			rootCmd.SetArgs(tt.args)
@@ -65,13 +66,12 @@ func TestRootCommand(t *testing.T) {
 }
 
 func TestCommandStructure(t *testing.T) {
-	rootCmd := NewRootCommand()
+	app := NewApp()
+	rootCmd := NewRootCommand(app)
 
 	// Expected commands
 	expectedCommands := []string{
-		"add-bug",
-		"add-feature",
-		"add-regression",
+		"add",
 		"add-subtask",
 		"in-progress",
 		"done",
@@ -85,6 +85,10 @@ func TestCommandStructure(t *testing.T) {
 		"search",
 		"summary",
 		"export",
+		"review",
+		"accept",
+		"reject",
+		"reopen",
 	}
 
 	// Get all subcommands

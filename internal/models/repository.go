@@ -385,7 +385,23 @@ func (r *TaskRepository) UpdateState(id string, newState string) error {
 				}
 			}
 		}
-		return fmt.Errorf("cannot transition from %s to %s", task.State, newState)
+		// Provide helpful guidance on valid transitions
+		var helpMsg string
+		switch task.State {
+		case StateInbox:
+			helpMsg = "use 'gtd accept' to accept the task or 'gtd reject' to mark as invalid"
+		case StateNew:
+			helpMsg = "use 'gtd in-progress' to start work, 'gtd done' to complete, or 'gtd cancel' to cancel"
+		case StateInProgress:
+			helpMsg = "use 'gtd done' to complete or 'gtd cancel' to cancel"
+		case StateDone:
+			helpMsg = "use 'gtd in-progress' to reopen the task"
+		case StateCancelled:
+			helpMsg = "use 'gtd reopen' to move back to NEW or 'gtd in-progress' to start work"
+		case StateInvalid:
+			helpMsg = "invalid tasks cannot be transitioned to other states"
+		}
+		return fmt.Errorf("cannot transition from %s to %s (%s)", task.State, newState, helpMsg)
 	}
 
 	// Update the state

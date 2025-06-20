@@ -15,8 +15,8 @@ func newShowCommand() *cobra.Command {
 		Use:   "show TASK_ID",
 		Short: "Show task details",
 		Long:  `Show detailed information about a task, including description, metadata, and subtasks.`,
-		Example: `  claude-gtd show 42
-  claude-gtd show 10`,
+		Example: `  claude-gtd show abc123
+  claude-gtd show 1a2b3c4`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Get task ID (hash or hash prefix)

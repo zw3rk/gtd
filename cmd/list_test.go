@@ -22,7 +22,7 @@ func TestListCommand(t *testing.T) {
 		tags      string
 		blockedBy *string
 	}{
-		{models.KindBug, "High priority bug in progress", models.StateInProgress, models.PriorityHigh, "app.go:42", "backend,urgent", nil},
+		{models.KindBug, "High priority bug in progress", models.StateInProgress, models.PriorityHigh, "app.go:abc123", "backend,urgent", nil},
 		{models.KindFeature, "Medium priority feature", models.StateNew, models.PriorityMedium, "", "ui", nil},
 		{models.KindBug, "Low priority bug", models.StateNew, models.PriorityLow, "", "", nil},
 		{models.KindRegression, "Done regression", models.StateDone, models.PriorityHigh, "", "", nil},

@@ -1,0 +1,4 @@
+Test without EOF suffix
+
+This should not have EOF in the description
+DELIMITER < /dev/null

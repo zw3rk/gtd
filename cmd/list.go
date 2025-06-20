@@ -61,7 +61,7 @@ By default, shows top 20 tasks (IN_PROGRESS first, then NEW), excluding DONE and
 			}
 
 			// Format and output
-			formatTaskList(cmd.OutOrStdout(), tasks, flags.oneline)
+			formatTaskListWithStats(cmd.OutOrStdout(), tasks, flags.oneline)
 
 			return nil
 		},
@@ -101,7 +101,7 @@ func newListDoneCommand() *cobra.Command {
 				return fmt.Errorf("failed to list done tasks: %w", err)
 			}
 
-			formatTaskList(cmd.OutOrStdout(), tasks, oneline)
+			formatTaskListWithStats(cmd.OutOrStdout(), tasks, oneline)
 
 			return nil
 		},
@@ -134,7 +134,7 @@ func newListCancelledCommand() *cobra.Command {
 				return fmt.Errorf("failed to list cancelled tasks: %w", err)
 			}
 
-			formatTaskList(cmd.OutOrStdout(), tasks, oneline)
+			formatTaskListWithStats(cmd.OutOrStdout(), tasks, oneline)
 
 			return nil
 		},
@@ -184,8 +184,8 @@ func validateListFlags(flags *listFlags) error {
 	return nil
 }
 
-// formatTaskList formats and outputs a list of tasks
-func formatTaskList(w io.Writer, tasks []*models.Task, oneline bool) {
+// formatTaskListWithStats formats and outputs a list of tasks with subtask stats
+func formatTaskListWithStats(w io.Writer, tasks []*models.Task, oneline bool) {
 	if len(tasks) == 0 {
 		if _, err := fmt.Fprintln(w, "No tasks found."); err != nil {
 			return

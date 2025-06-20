@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 )
 
@@ -52,6 +53,26 @@ func readTaskInput(r io.Reader) (title, description string, err error) {
 
 	if err := scanner.Err(); err != nil {
 		return "", "", fmt.Errorf("error reading input: %w", err)
+	}
+
+	// Work around ZSH heredoc issue - detect and strip "EOF < /dev/null" suffix
+	if shell := os.Getenv("SHELL"); strings.Contains(shell, "zsh") {
+		// Check if description ends with common heredoc patterns
+		patterns := []string{
+			"EOF < /dev/null",
+			"EOL < /dev/null",
+			"END < /dev/null",
+			"DONE < /dev/null",
+		}
+		
+		for _, pattern := range patterns {
+			if strings.HasSuffix(description, pattern) {
+				// Strip the pattern from the end
+				description = strings.TrimSuffix(description, pattern)
+				description = strings.TrimSpace(description)
+				break
+			}
+		}
 	}
 
 	return title, description, nil

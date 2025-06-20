@@ -2,13 +2,10 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/zw3rk/gtd/internal/database"
-	"github.com/zw3rk/gtd/internal/git"
 	"github.com/zw3rk/gtd/internal/models"
 )
 
@@ -16,13 +13,13 @@ var (
 	// Version is set at build time
 	Version = "dev"
 
-	// Global database and repository instances
+	// Global database and repository instances - DEPRECATED: use App instead
 	db   *database.Database
 	repo *models.TaskRepository
 )
 
-// NewRootCommand creates the root command
-func NewRootCommand() *cobra.Command {
+// NewRootCommand creates the root command with the provided app instance
+func NewRootCommand(app *App) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "gtd",
 		Short: "A SQLite-driven CLI task management tool",
@@ -38,43 +35,26 @@ It stores tasks per-project in a claude-tasks.db file at the git repository root
 				return nil
 			}
 
-			// Find git root
-			gitRoot, err := git.FindGitRoot(".")
-			if err != nil {
-				return fmt.Errorf("not in a git repository: %w", err)
+			// Initialize the app
+			if err := app.Initialize(); err != nil {
+				return err
 			}
 
-			// Open database
-			dbPath := filepath.Join(gitRoot, "claude-tasks.db")
-			db, err = database.New(dbPath)
-			if err != nil {
-				return fmt.Errorf("failed to open database: %w", err)
-			}
-
-			// Create schema if needed
-			if err := db.CreateSchema(); err != nil {
-				return fmt.Errorf("failed to create schema: %w", err)
-			}
-
-			// Create repository
-			repo = models.NewTaskRepository(db)
+			// Set global variables for backward compatibility
+			// TODO: Remove these once all commands are refactored
+			db = app.db
+			repo = app.repo
 
 			return nil
 		},
 		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
-			// Close database if it was opened
-			if db != nil {
-				return db.Close()
-			}
-			return nil
+			return app.Close()
 		},
 	}
 
 	// Add commands
 	rootCmd.AddCommand(
-		newAddBugCommand(),
-		newAddFeatureCommand(),
-		newAddRegressionCommand(),
+		newAddCommand(),
 		newAddSubtaskCommand(),
 		newInProgressCommand(),
 		newDoneCommand(),
@@ -91,6 +71,7 @@ It stores tasks per-project in a claude-tasks.db file at the git repository root
 		newReviewCommand(),
 		newAcceptCommand(),
 		newRejectCommand(),
+		newReopenCommand(),
 	)
 
 	return rootCmd
@@ -98,7 +79,8 @@ It stores tasks per-project in a claude-tasks.db file at the git repository root
 
 // Execute runs the root command
 func Execute() {
-	if err := NewRootCommand().Execute(); err != nil {
+	app := NewApp()
+	if err := NewRootCommand(app).Execute(); err != nil {
 		os.Exit(1)
 	}
 }
