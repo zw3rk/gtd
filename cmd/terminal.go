@@ -27,7 +27,7 @@ const (
 )
 
 var (
-	// Check if we should use colors
+	// Check if we should use colors - will be set by configuration
 	useColor = isColorTerminal()
 )
 
@@ -58,6 +58,11 @@ func colorize(text, color string) string {
 		return text
 	}
 	return color + text + colorReset
+}
+
+// SetColorEnabled updates the color setting
+func SetColorEnabled(enabled bool) {
+	useColor = enabled && isColorTerminal()
 }
 
 // formatStateColor returns colored state indicator

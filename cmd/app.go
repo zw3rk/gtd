@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"path/filepath"
 
+	"github.com/zw3rk/gtd/internal/config"
 	"github.com/zw3rk/gtd/internal/database"
 	"github.com/zw3rk/gtd/internal/git"
 	"github.com/zw3rk/gtd/internal/models"
@@ -12,6 +12,7 @@ import (
 
 // App encapsulates all application dependencies
 type App struct {
+	config  *config.Config
 	db      *database.Database
 	repo    *models.TaskRepository
 	service services.TaskService
@@ -19,19 +20,27 @@ type App struct {
 
 // NewApp creates a new application instance
 func NewApp() *App {
-	return &App{}
+	return &App{
+		config: config.NewConfig(),
+	}
 }
 
 // Initialize sets up the application dependencies
 func (a *App) Initialize() error {
+	// Load configuration from environment
+	if err := a.config.Load(); err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
 	// Find git root
 	gitRoot, err := git.FindGitRoot(".")
 	if err != nil {
 		return fmt.Errorf("not in a git repository: %w", err)
 	}
+	a.config.GitRoot = gitRoot
 
 	// Open database
-	dbPath := filepath.Join(gitRoot, "claude-tasks.db")
+	dbPath := a.config.GetDatabasePath()
 	a.db, err = database.New(dbPath)
 	if err != nil {
 		return fmt.Errorf("failed to open database: %w", err)
@@ -67,4 +76,9 @@ func (a *App) Repository() *models.TaskRepository {
 // Service returns the task service
 func (a *App) Service() services.TaskService {
 	return a.service
+}
+
+// Config returns the application configuration
+func (a *App) Config() *config.Config {
+	return a.config
 }

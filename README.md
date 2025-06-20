@@ -243,9 +243,22 @@ gtd/
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
+## Configuration
+
+GTD can be configured through environment variables. See [Configuration Guide](CONFIGURATION.md) for details.
+
+Common configurations:
+```bash
+export GTD_COLOR="false"          # Disable colors
+export GTD_PAGE_SIZE="50"         # Show more tasks
+export GTD_DEFAULT_PRIORITY="high" # Default to high priority
+```
+
 ## Support
 
 - 📖 [User Guide](USAGE.md) - Detailed usage examples
+- ⚙️ [Configuration Guide](CONFIGURATION.md) - Environment variables and settings
+- 📝 [Command Reference](COMMANDS.md) - Complete command documentation
 - 🤖 [AI Agent Guide](LLM_AGENT_USAGE.md) - Guide for AI assistants
 - 🐛 [Issues](../../issues) - Bug reports and feature requests
 

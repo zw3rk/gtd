@@ -40,6 +40,9 @@ It stores tasks per-project in a claude-tasks.db file at the git repository root
 				return err
 			}
 
+			// Apply configuration
+			SetColorEnabled(app.Config().ColorEnabled)
+
 			// Set global variables for backward compatibility
 			// TODO: Remove these once all commands are refactored
 			db = app.db
