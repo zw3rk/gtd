@@ -48,6 +48,20 @@
           ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             musl
           ];
+          
+          # Fixup phase for macOS to use system libraries instead of Nix store paths
+          postFixup = pkgs.lib.optionalString pkgs.stdenv.isDarwin ''
+            echo "Fixing up macOS dependencies..."
+            
+            # Fix libresolv to use system library
+            install_name_tool -change \
+              ${pkgs.darwin.libresolv}/lib/libresolv.9.dylib \
+              /usr/lib/libresolv.9.dylib \
+              $out/bin/gtd
+            
+            echo "macOS dependency fixup complete"
+            otool -L $out/bin/gtd
+          '';
         };
       in
       {
