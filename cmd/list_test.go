@@ -31,7 +31,7 @@ func TestListCommand(t *testing.T) {
 
 	createdTasks := make([]*models.Task, 0, len(tasks))
 	for _, tt := range tasks {
-		task := models.NewTask(tt.kind, tt.title, "")
+		task := models.NewTask(tt.kind, tt.title, "Description for "+tt.title)
 		task.State = tt.state
 		task.Priority = tt.priority
 		task.Source = tt.source
@@ -44,7 +44,7 @@ func TestListCommand(t *testing.T) {
 	}
 
 	// Create blocked task
-	blockedTask := models.NewTask(models.KindFeature, "Blocked feature", "")
+	blockedTask := models.NewTask(models.KindFeature, "Blocked feature", "This feature is blocked by another task")
 	blockedTask.State = models.StateNew
 	blockedTask.Priority = models.PriorityHigh
 	blockedTask.BlockedBy = &createdTasks[0].ID
@@ -144,7 +144,7 @@ func TestListCommand(t *testing.T) {
 			args: []string{"--blocked"},
 			contains: []string{
 				"Blocked feature",
-				"Blocked by:",
+				"Blocked-by:",
 			},
 			notContains: []string{
 				"High priority bug in progress",
@@ -204,20 +204,20 @@ func TestListDoneCommand(t *testing.T) {
 	defer cleanup()
 
 	// Create tasks
-	doneTask1 := models.NewTask(models.KindBug, "Fixed bug", "")
+	doneTask1 := models.NewTask(models.KindBug, "Fixed bug", "This bug has been fixed")
 	doneTask1.State = models.StateDone
 	if err := testRepo.Create(doneTask1); err != nil {
 		t.Fatal(err)
 	}
 
-	doneTask2 := models.NewTask(models.KindFeature, "Completed feature", "")
+	doneTask2 := models.NewTask(models.KindFeature, "Completed feature", "This feature has been completed")
 	doneTask2.State = models.StateDone
 	doneTask2.Priority = models.PriorityHigh
 	if err := testRepo.Create(doneTask2); err != nil {
 		t.Fatal(err)
 	}
 
-	activeTask := models.NewTask(models.KindBug, "Active bug", "")
+	activeTask := models.NewTask(models.KindBug, "Active bug", "This bug is currently active")
 	if err := testRepo.Create(activeTask); err != nil {
 		t.Fatal(err)
 	}
@@ -251,13 +251,13 @@ func TestListCancelledCommand(t *testing.T) {
 	defer cleanup()
 
 	// Create tasks
-	cancelledTask := models.NewTask(models.KindBug, "Cancelled bug", "")
+	cancelledTask := models.NewTask(models.KindBug, "Cancelled bug", "This bug was cancelled")
 	cancelledTask.State = models.StateCancelled
 	if err := testRepo.Create(cancelledTask); err != nil {
 		t.Fatal(err)
 	}
 
-	activeTask := models.NewTask(models.KindBug, "Active bug", "")
+	activeTask := models.NewTask(models.KindBug, "Active bug", "This bug is currently active")
 	if err := testRepo.Create(activeTask); err != nil {
 		t.Fatal(err)
 	}

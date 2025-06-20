@@ -69,7 +69,7 @@ func NewTask(kind, title, description string) *Task {
 		Description: description,
 		Author:      author,
 		Priority:    PriorityMedium,
-		State:       StateNew,
+		State:       StateInbox,
 		Created:     now,
 		Updated:     now,
 	}
@@ -108,7 +108,7 @@ func (t *Task) Validate() error {
 
 	// Validate state
 	switch t.State {
-	case StateNew, StateInProgress, StateDone, StateCancelled:
+	case StateInbox, StateNew, StateInProgress, StateDone, StateCancelled, StateInvalid:
 		// valid
 	default:
 		return fmt.Errorf("invalid state: %s", t.State)
@@ -131,24 +131,24 @@ func (t *Task) CanTransitionTo(newState string, children []*Task) bool {
 
 	// Check basic state transitions
 	switch t.State {
+	case StateInbox:
+		// Can only transition to NEW (accept) or INVALID (reject)
+		return newState == StateNew || newState == StateInvalid
 	case StateNew:
-		// Can transition to any state from NEW (after parent check above)
-		return true
+		// Can transition to IN_PROGRESS, DONE, or CANCELLED from NEW
+		return newState == StateInProgress || newState == StateDone || newState == StateCancelled
 	case StateInProgress:
 		// Can transition to DONE or CANCELLED
-		if newState == StateNew {
-			return false
-		}
+		return newState == StateDone || newState == StateCancelled
 	case StateDone:
 		// Can only transition back to IN_PROGRESS
-		if newState != StateInProgress {
-			return false
-		}
+		return newState == StateInProgress
 	case StateCancelled:
 		// Can transition to NEW or IN_PROGRESS
-		if newState == StateDone {
-			return false
-		}
+		return newState == StateNew || newState == StateInProgress
+	case StateInvalid:
+		// Invalid tasks cannot transition to other states
+		return false
 	}
 
 	return true

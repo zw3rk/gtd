@@ -120,8 +120,14 @@ func TestExportCommand(t *testing.T) {
 				if !strings.Contains(output, "|---|---|---|---|---|") {
 					t.Error("Missing table separator")
 				}
-				if !strings.Contains(output, "| 1 | BUG | NEW | high | Bug 1 |") {
-					t.Error("Missing task row")
+				// Check that the table contains task data (not specific row numbers)
+				if !strings.Contains(output, "| BUG | INBOX | high | Bug 1 |") {
+					t.Error("Missing Bug 1 row")
+					// Log actual output for debugging
+					t.Logf("Markdown output:\n%s", output)
+				}
+				if !strings.Contains(output, "| FEATURE | IN_PROGRESS | medium | Feature 1 |") {
+					t.Error("Missing Feature 1 row")
 				}
 			},
 		},
@@ -135,9 +141,9 @@ func TestExportCommand(t *testing.T) {
 					return
 				}
 
-				// Should only have 2 tasks (exclude DONE task)
-				if len(tasks) != 2 {
-					t.Errorf("Expected 2 active tasks, got %d", len(tasks))
+				// Should only have 1 task (exclude DONE and INBOX tasks)
+				if len(tasks) != 1 {
+					t.Errorf("Expected 1 active task, got %d", len(tasks))
 				}
 
 				// Check no DONE tasks

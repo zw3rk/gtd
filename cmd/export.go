@@ -42,9 +42,9 @@ Tasks can be filtered by state, priority, kind, or tags before export.`,
 
 			// Build list options
 			opts := models.ListOptions{
-				All:           true,
-				ShowDone:      true,
-				ShowCancelled: true,
+				All:           !activeOnly, // When activeOnly is true, don't include all tasks
+				ShowDone:      !activeOnly, // Only show done if not filtering active
+				ShowCancelled: !activeOnly, // Only show cancelled if not filtering active
 			}
 
 			if activeOnly {
@@ -257,15 +257,15 @@ func exportMarkdown(w io.Writer, tasks []*models.Task) error {
 	}
 
 	// Table rows
-	for _, task := range tasks {
+	for i, task := range tasks {
 		parentStr := "-"
 		if task.Parent != nil {
-			parentStr = fmt.Sprintf("#%s", *task.Parent)
+			parentStr = fmt.Sprintf("#%s", (*task.Parent)[:7])
 		}
 
 		blockedByStr := "-"
 		if task.BlockedBy != nil {
-			blockedByStr = fmt.Sprintf("#%s", *task.BlockedBy)
+			blockedByStr = fmt.Sprintf("#%s", (*task.BlockedBy)[:7])
 		}
 
 		tagsStr := "-"
@@ -278,8 +278,8 @@ func exportMarkdown(w io.Writer, tasks []*models.Task) error {
 			sourceStr = task.Source
 		}
 
-		if _, err := fmt.Fprintf(w, "| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
-			task.ID,
+		if _, err := fmt.Fprintf(w, "| %d | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+			i+1,
 			task.Kind,
 			task.State,
 			task.Priority,

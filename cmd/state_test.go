@@ -13,12 +13,16 @@ func TestInProgressCommand(t *testing.T) {
 	defer cleanup()
 
 	// Create test tasks
-	newTask := models.NewTask(models.KindBug, "New bug", "")
+	newTask := models.NewTask(models.KindBug, "New bug", "A newly discovered bug that needs attention")
 	if err := testRepo.Create(newTask); err != nil {
 		t.Fatal(err)
 	}
+	// Move it from INBOX to NEW so it can be marked as IN_PROGRESS
+	if err := testRepo.UpdateState(newTask.ID, models.StateNew); err != nil {
+		t.Fatal(err)
+	}
 
-	doneTask := models.NewTask(models.KindFeature, "Done feature", "")
+	doneTask := models.NewTask(models.KindFeature, "Done feature", "A feature that was already completed")
 	doneTask.State = models.StateDone
 	if err := testRepo.Create(doneTask); err != nil {
 		t.Fatal(err)
@@ -66,7 +70,7 @@ func TestInProgressCommand(t *testing.T) {
 			name:    "invalid task ID",
 			args:    []string{"abc"},
 			wantErr: true,
-			errMsg:  "invalid task ID",
+			errMsg:  "task not found",
 		},
 		{
 			name:    "non-existent task",
@@ -107,27 +111,27 @@ func TestDoneCommand(t *testing.T) {
 	defer cleanup()
 
 	// Create parent and child tasks
-	parent := models.NewTask(models.KindFeature, "Parent feature", "")
+	parent := models.NewTask(models.KindFeature, "Parent feature", "Parent feature containing subtasks")
 	parent.State = models.StateInProgress
 	if err := testRepo.Create(parent); err != nil {
 		t.Fatal(err)
 	}
 
-	child1 := models.NewTask(models.KindBug, "Child bug 1", "")
+	child1 := models.NewTask(models.KindBug, "Child bug 1", "First bug that needs to be fixed")
 	child1.Parent = &parent.ID
 	child1.State = models.StateInProgress
 	if err := testRepo.Create(child1); err != nil {
 		t.Fatal(err)
 	}
 
-	child2 := models.NewTask(models.KindBug, "Child bug 2", "")
+	child2 := models.NewTask(models.KindBug, "Child bug 2", "Second bug that needs to be fixed")
 	child2.Parent = &parent.ID
 	child2.State = models.StateNew
 	if err := testRepo.Create(child2); err != nil {
 		t.Fatal(err)
 	}
 
-	simpleTask := models.NewTask(models.KindBug, "Simple task", "")
+	simpleTask := models.NewTask(models.KindBug, "Simple task", "A standalone bug without dependencies")
 	simpleTask.State = models.StateInProgress
 	if err := testRepo.Create(simpleTask); err != nil {
 		t.Fatal(err)
@@ -226,7 +230,7 @@ func TestCancelCommand(t *testing.T) {
 	defer cleanup()
 
 	// Create test task
-	task := models.NewTask(models.KindBug, "Bug to cancel", "")
+	task := models.NewTask(models.KindBug, "Bug to cancel", "This bug will be cancelled")
 	task.State = models.StateInProgress
 	if err := testRepo.Create(task); err != nil {
 		t.Fatal(err)

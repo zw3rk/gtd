@@ -16,10 +16,11 @@ func TestTaskValidate(t *testing.T) {
 		{
 			name: "valid bug task",
 			task: Task{
-				Kind:     KindBug,
-				Title:    "Fix memory leak",
-				Priority: PriorityMedium,
-				State:    StateNew,
+				Kind:        KindBug,
+				Title:       "Fix memory leak",
+				Description: "Memory usage grows over time",
+				Priority:    PriorityMedium,
+				State:       StateInbox,
 			},
 			wantErr: false,
 		},
@@ -58,10 +59,11 @@ func TestTaskValidate(t *testing.T) {
 		{
 			name: "invalid kind",
 			task: Task{
-				Kind:     "INVALID",
-				Title:    "Test task",
-				Priority: PriorityMedium,
-				State:    StateNew,
+				Kind:        "INVALID",
+				Title:       "Test task",
+				Description: "Test description",
+				Priority:    PriorityMedium,
+				State:       StateInbox,
 			},
 			wantErr: true,
 			errMsg:  "invalid kind",
@@ -69,10 +71,11 @@ func TestTaskValidate(t *testing.T) {
 		{
 			name: "invalid priority",
 			task: Task{
-				Kind:     KindBug,
-				Title:    "Test task",
-				Priority: "urgent",
-				State:    StateNew,
+				Kind:        KindBug,
+				Title:       "Test task",
+				Description: "Test description",
+				Priority:    "urgent",
+				State:       StateInbox,
 			},
 			wantErr: true,
 			errMsg:  "invalid priority",
@@ -80,10 +83,11 @@ func TestTaskValidate(t *testing.T) {
 		{
 			name: "invalid state",
 			task: Task{
-				Kind:     KindBug,
-				Title:    "Test task",
-				Priority: PriorityMedium,
-				State:    "PENDING",
+				Kind:        KindBug,
+				Title:       "Test task",
+				Description: "Test description",
+				Priority:    PriorityMedium,
+				State:       "PENDING",
 			},
 			wantErr: true,
 			errMsg:  "invalid state",
@@ -113,6 +117,31 @@ func TestTaskCanTransitionTo(t *testing.T) {
 		hasChild   bool
 		childState string
 	}{
+		// INBOX state transitions
+		{
+			name:    "INBOX to NEW",
+			from:    StateInbox,
+			to:      StateNew,
+			canMove: true,
+		},
+		{
+			name:    "INBOX to INVALID",
+			from:    StateInbox,
+			to:      StateInvalid,
+			canMove: true,
+		},
+		{
+			name:    "INBOX to IN_PROGRESS not allowed",
+			from:    StateInbox,
+			to:      StateInProgress,
+			canMove: false,
+		},
+		{
+			name:    "INBOX to DONE not allowed",
+			from:    StateInbox,
+			to:      StateDone,
+			canMove: false,
+		},
 		// NEW state transitions
 		{
 			name:    "NEW to IN_PROGRESS",
@@ -176,6 +205,19 @@ func TestTaskCanTransitionTo(t *testing.T) {
 			from:    StateCancelled,
 			to:      StateInProgress,
 			canMove: true,
+		},
+		// INVALID state transitions
+		{
+			name:    "INVALID to NEW not allowed",
+			from:    StateInvalid,
+			to:      StateNew,
+			canMove: false,
+		},
+		{
+			name:    "INVALID to IN_PROGRESS not allowed",
+			from:    StateInvalid,
+			to:      StateInProgress,
+			canMove: false,
 		},
 		// Parent with children
 		{
@@ -357,8 +399,8 @@ func TestNewTask(t *testing.T) {
 	if task.Priority != PriorityMedium {
 		t.Errorf("NewTask() Priority = %v, want %v", task.Priority, PriorityMedium)
 	}
-	if task.State != StateNew {
-		t.Errorf("NewTask() State = %v, want %v", task.State, StateNew)
+	if task.State != StateInbox {
+		t.Errorf("NewTask() State = %v, want %v", task.State, StateInbox)
 	}
 	if task.Created.Before(now) || task.Created.After(now.Add(time.Second)) {
 		t.Errorf("NewTask() Created time not within expected range")

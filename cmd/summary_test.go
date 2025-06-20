@@ -41,7 +41,7 @@ func TestSummaryCommand(t *testing.T) {
 
 	var blocker *models.Task
 	for i, tt := range tasks {
-		task := models.NewTask(tt.kind, fmt.Sprintf("Task %d", i+1), "")
+		task := models.NewTask(tt.kind, fmt.Sprintf("Task %d", i+1), fmt.Sprintf("Description for task %d", i+1))
 		task.State = tt.state
 		task.Priority = tt.priority
 		if err := testRepo.Create(task); err != nil {
@@ -59,12 +59,12 @@ func TestSummaryCommand(t *testing.T) {
 	}
 
 	// Create parent-child relationship
-	parent := models.NewTask(models.KindFeature, "Parent task", "")
+	parent := models.NewTask(models.KindFeature, "Parent task", "Parent task with subtasks")
 	if err := testRepo.Create(parent); err != nil {
 		t.Fatal(err)
 	}
 
-	child := models.NewTask(models.KindBug, "Child task", "")
+	child := models.NewTask(models.KindBug, "Child task", "Child task of parent")
 	child.Parent = &parent.ID
 	if err := testRepo.Create(child); err != nil {
 		t.Fatal(err)
@@ -84,7 +84,8 @@ func TestSummaryCommand(t *testing.T) {
 
 				// By State
 				"By State:",
-				"NEW:         6",
+				"INBOX:       2",
+				"NEW:         4",
 				"IN_PROGRESS: 4",
 				"DONE:        3",
 				"CANCELLED:   1",
@@ -112,8 +113,8 @@ func TestSummaryCommand(t *testing.T) {
 			name: "show active tasks summary",
 			args: []string{"--active"},
 			contains: []string{
-				"Active Tasks: 10",
-				"NEW:         6",
+				"Active Tasks: 8",
+				"NEW:         4",
 				"IN_PROGRESS: 4",
 			},
 		},

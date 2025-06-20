@@ -25,6 +25,7 @@ func newSummaryCommand() *cobra.Command {
 				All:           true,
 				ShowDone:      true,
 				ShowCancelled: true,
+				State:         "", // Include all states
 			}
 
 			tasks, err := repo.List(opts)
@@ -108,11 +109,15 @@ func formatSummary(w io.Writer, tasks []*models.Task, activeOnly bool) {
 
 	// By State
 	_, _ = fmt.Fprintln(w, "By State:")
+	if !activeOnly {
+		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "INBOX:", stateCounts[models.StateInbox])
+	}
 	_, _ = fmt.Fprintf(w, "  %-12s %d\n", "NEW:", stateCounts[models.StateNew])
 	_, _ = fmt.Fprintf(w, "  %-12s %d\n", "IN_PROGRESS:", stateCounts[models.StateInProgress])
 	if !activeOnly {
 		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "DONE:", stateCounts[models.StateDone])
 		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "CANCELLED:", stateCounts[models.StateCancelled])
+		_, _ = fmt.Fprintf(w, "  %-12s %d\n", "INVALID:", stateCounts[models.StateInvalid])
 	}
 
 	if !activeOnly {

@@ -50,9 +50,9 @@ func TestAddBugCommand(t *testing.T) {
 		check   func(t *testing.T, tasks []*models.Task)
 	}{
 		{
-			name:  "create bug with title only",
+			name:  "create bug with title and default description",
 			args:  []string{},
-			input: "Fix memory leak\n",
+			input: "Fix memory leak\n\nMemory usage increases over time",
 			check: func(t *testing.T, tasks []*models.Task) {
 				if len(tasks) != 1 {
 					t.Fatalf("Expected 1 task, got %d", len(tasks))
@@ -66,6 +66,9 @@ func TestAddBugCommand(t *testing.T) {
 				}
 				if task.Priority != models.PriorityMedium {
 					t.Errorf("Priority = %q, want %q", task.Priority, models.PriorityMedium)
+				}
+				if task.State != models.StateInbox {
+					t.Errorf("State = %q, want %q", task.State, models.StateInbox)
 				}
 			},
 		},
@@ -86,7 +89,7 @@ func TestAddBugCommand(t *testing.T) {
 		{
 			name:  "create bug with high priority",
 			args:  []string{"--priority", "high"},
-			input: "Critical security bug\n",
+			input: "Critical security bug\n\nThis bug needs immediate attention due to security implications",
 			check: func(t *testing.T, tasks []*models.Task) {
 				task := tasks[0]
 				if task.Priority != models.PriorityHigh {
@@ -97,7 +100,7 @@ func TestAddBugCommand(t *testing.T) {
 		{
 			name:  "create bug with source",
 			args:  []string{"--source", "auth.go:42"},
-			input: "Fix auth bypass\n",
+			input: "Fix auth bypass\n\nUsers can bypass authentication in the login flow",
 			check: func(t *testing.T, tasks []*models.Task) {
 				task := tasks[0]
 				if task.Source != "auth.go:42" {
@@ -108,7 +111,7 @@ func TestAddBugCommand(t *testing.T) {
 		{
 			name:  "create bug with tags",
 			args:  []string{"--tags", "security,urgent"},
-			input: "Security issue\n",
+			input: "Security issue\n\nA security vulnerability was discovered in the system",
 			check: func(t *testing.T, tasks []*models.Task) {
 				task := tasks[0]
 				if task.Tags != "security,urgent" {
@@ -125,7 +128,7 @@ func TestAddBugCommand(t *testing.T) {
 		{
 			name:    "invalid priority",
 			args:    []string{"--priority", "urgent"},
-			input:   "Test\n",
+			input:   "Test\n\nTest description",
 			wantErr: true,
 		},
 	}
@@ -217,7 +220,7 @@ func TestAddRegressionCommand(t *testing.T) {
 	defer cleanup()
 
 	var stdout, stderr bytes.Buffer
-	stdin := strings.NewReader("Login broken after update\n")
+	stdin := strings.NewReader("Login broken after update\n\nLogin functionality stopped working after updating to v2.1.0")
 
 	cmd := newAddRegressionCommand()
 	cmd.SetOut(&stdout)

@@ -23,7 +23,7 @@ func TestRootCommand(t *testing.T) {
 			name:     "help flag",
 			args:     []string{"--help"},
 			wantErr:  false,
-			contains: []string{"claude-gtd", "task management tool", "Available Commands"},
+			contains: []string{"gtd", "task management tool", "Available Commands"},
 		},
 		{
 			name:     "invalid command",
@@ -35,7 +35,7 @@ func TestRootCommand(t *testing.T) {
 			name:     "version flag",
 			args:     []string{"--version"},
 			wantErr:  false,
-			contains: []string{"claude-gtd version"},
+			contains: []string{"gtd version"},
 		},
 	}
 

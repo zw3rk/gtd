@@ -221,16 +221,26 @@ func (r *TaskRepository) List(opts ListOptions) ([]*Task, error) {
 	var args []interface{}
 
 	// Default: exclude INBOX, DONE, CANCELLED, and INVALID unless specifically requested
-	if !opts.All && opts.State == "" {
+	if opts.State == "" {
 		excludeStates := []string{}
-		if !opts.ShowDone {
-			excludeStates = append(excludeStates, "'DONE'")
+		if !opts.All {
+			if !opts.ShowDone {
+				excludeStates = append(excludeStates, "'DONE'")
+			}
+			if !opts.ShowCancelled {
+				excludeStates = append(excludeStates, "'CANCELLED'")
+			}
+			// Always exclude INBOX and INVALID unless explicitly requested
+			excludeStates = append(excludeStates, "'INBOX'", "'INVALID'")
+		} else {
+			// When All is true, only exclude based on ShowDone and ShowCancelled
+			if !opts.ShowDone {
+				excludeStates = append(excludeStates, "'DONE'")
+			}
+			if !opts.ShowCancelled {
+				excludeStates = append(excludeStates, "'CANCELLED'")
+			}
 		}
-		if !opts.ShowCancelled {
-			excludeStates = append(excludeStates, "'CANCELLED'")
-		}
-		// Always exclude INBOX and INVALID unless explicitly requested
-		excludeStates = append(excludeStates, "'INBOX'", "'INVALID'")
 
 		if len(excludeStates) > 0 {
 			conditions = append(conditions, fmt.Sprintf("state NOT IN (%s)", strings.Join(excludeStates, ", ")))

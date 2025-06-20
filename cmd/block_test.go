@@ -13,12 +13,12 @@ func TestBlockCommand(t *testing.T) {
 	defer cleanup()
 
 	// Create test tasks
-	task1 := models.NewTask(models.KindBug, "Task to be blocked", "")
+	task1 := models.NewTask(models.KindBug, "Task to be blocked", "This task will be blocked by another task")
 	if err := testRepo.Create(task1); err != nil {
 		t.Fatal(err)
 	}
 
-	task2 := models.NewTask(models.KindFeature, "Blocking task", "")
+	task2 := models.NewTask(models.KindFeature, "Blocking task", "This task blocks other tasks")
 	if err := testRepo.Create(task2); err != nil {
 		t.Fatal(err)
 	}
@@ -61,13 +61,13 @@ func TestBlockCommand(t *testing.T) {
 			name:    "invalid task ID",
 			args:    []string{"abc", "--by", "1"},
 			wantErr: true,
-			errMsg:  "invalid task ID",
+			errMsg:  "task not found",
 		},
 		{
 			name:    "invalid blocking task ID",
 			args:    []string{"1", "--by", "xyz"},
 			wantErr: true,
-			errMsg:  "invalid syntax",
+			errMsg:  "task not found",
 		},
 		{
 			name:    "non-existent task",
@@ -125,12 +125,12 @@ func TestUnblockCommand(t *testing.T) {
 	defer cleanup()
 
 	// Create test tasks
-	blockedTask := models.NewTask(models.KindBug, "Blocked task", "")
+	blockedTask := models.NewTask(models.KindBug, "Blocked task", "This task is blocked by another task")
 	if err := testRepo.Create(blockedTask); err != nil {
 		t.Fatal(err)
 	}
 
-	blockingTask := models.NewTask(models.KindFeature, "Blocking task", "")
+	blockingTask := models.NewTask(models.KindFeature, "Blocking task", "This task blocks other tasks")
 	if err := testRepo.Create(blockingTask); err != nil {
 		t.Fatal(err)
 	}
@@ -169,7 +169,7 @@ func TestUnblockCommand(t *testing.T) {
 			name:    "invalid task ID",
 			args:    []string{"abc"},
 			wantErr: true,
-			errMsg:  "invalid task ID",
+			errMsg:  "task not found",
 		},
 		{
 			name:    "non-existent task",

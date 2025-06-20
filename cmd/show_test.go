@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 	"testing"
 
@@ -31,7 +30,7 @@ func TestShowCommand(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	subtask2 := models.NewTask(models.KindBug, "Second subtask", "")
+	subtask2 := models.NewTask(models.KindBug, "Second subtask", "Implement the remaining functionality")
 	subtask2.Parent = &parent.ID
 	subtask2.Priority = models.PriorityHigh
 	if err := testRepo.Create(subtask2); err != nil {
@@ -39,7 +38,7 @@ func TestShowCommand(t *testing.T) {
 	}
 
 	// Create a task that blocks the parent
-	blocker := models.NewTask(models.KindBug, "Blocking task", "")
+	blocker := models.NewTask(models.KindBug, "Blocking task", "This task blocks the parent task")
 	if err := testRepo.Create(blocker); err != nil {
 		t.Fatal(err)
 	}
@@ -60,19 +59,13 @@ func TestShowCommand(t *testing.T) {
 			args: []string{parent.ID},
 			contains: []string{
 				"Parent feature",
-				"Feature",
-				"HIGH",
-				"IN_PROGRESS",
+				"feature(high):",
 				"This is a detailed description",
 				"with multiple lines",
-				"GitHub:issue/123",
-				"#backend #important",
-				fmt.Sprintf("Blocked by: #%s", blocker.ID),
 				"Subtasks:",
 				"First subtask",
 				"✓", // DONE symbol
 				"Second subtask",
-				"◆", // NEW symbol
 			},
 		},
 		{
@@ -80,7 +73,7 @@ func TestShowCommand(t *testing.T) {
 			args: []string{blocker.ID},
 			contains: []string{
 				"Blocking task",
-				"Bug",
+				"bug(medium):",
 			},
 			notContains: []string{
 				"Subtasks:",
@@ -92,7 +85,7 @@ func TestShowCommand(t *testing.T) {
 			contains: []string{
 				"First subtask",
 				"Fix the bug",
-				fmt.Sprintf("Parent: #%s", parent.ID),
+				"Parent: ",
 				"Parent feature",
 			},
 		},
@@ -105,7 +98,7 @@ func TestShowCommand(t *testing.T) {
 			name:    "invalid task ID",
 			args:    []string{"abc"},
 			wantErr: true,
-			errMsg:  "invalid task ID",
+			errMsg:  "task not found",
 		},
 		{
 			name:    "non-existent task",

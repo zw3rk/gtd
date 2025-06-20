@@ -13,12 +13,12 @@ func TestAddSubtaskCommand(t *testing.T) {
 	defer cleanup()
 
 	// Create parent tasks
-	parentBug := models.NewTask(models.KindBug, "Parent bug", "")
+	parentBug := models.NewTask(models.KindBug, "Parent bug", "A bug that contains subtasks")
 	if err := testRepo.Create(parentBug); err != nil {
 		t.Fatal(err)
 	}
 
-	parentFeature := models.NewTask(models.KindFeature, "Parent feature", "")
+	parentFeature := models.NewTask(models.KindFeature, "Parent feature", "A feature that contains subtasks")
 	if err := testRepo.Create(parentFeature); err != nil {
 		t.Fatal(err)
 	}
@@ -34,7 +34,7 @@ func TestAddSubtaskCommand(t *testing.T) {
 		{
 			name:  "create bug subtask",
 			args:  []string{parentBug.ID, "--kind", "bug"},
-			input: "Fix memory leak in auth module\n",
+			input: "Fix memory leak in auth module\nInvestigate and fix the memory leak detected in authentication",
 			check: func(t *testing.T) {
 				children, err := testRepo.GetChildren(parentBug.ID)
 				if err != nil {
@@ -76,34 +76,34 @@ func TestAddSubtaskCommand(t *testing.T) {
 		{
 			name:    "missing parent ID",
 			args:    []string{"--kind", "bug"},
-			input:   "Test\n",
+			input:   "Test\nTest description",
 			wantErr: true,
 		},
 		{
 			name:    "invalid parent ID",
 			args:    []string{"abc", "--kind", "bug"},
-			input:   "Test\n",
+			input:   "Test\nTest description",
 			wantErr: true,
-			errMsg:  "invalid parent ID",
+			errMsg:  "parent task not found",
 		},
 		{
 			name:    "non-existent parent",
 			args:    []string{"999", "--kind", "bug"},
-			input:   "Test\n",
+			input:   "Test\nTest description",
 			wantErr: true,
 			errMsg:  "parent task not found",
 		},
 		{
 			name:    "missing kind flag",
 			args:    []string{parentBug.ID},
-			input:   "Test\n",
+			input:   "Test\nTest description",
 			wantErr: true,
 			errMsg:  "required flag",
 		},
 		{
 			name:    "invalid kind",
 			args:    []string{parentBug.ID, "--kind", "invalid"},
-			input:   "Test\n",
+			input:   "Test\nTest description",
 			wantErr: true,
 			errMsg:  "invalid kind",
 		},

@@ -62,13 +62,13 @@ func TestTaskRepository_CreateWithParent(t *testing.T) {
 	repo := setupTestDB(t)
 
 	// Create parent task
-	parent := NewTask(KindFeature, "Parent feature", "")
+	parent := NewTask(KindFeature, "Parent feature", "A feature containing subtasks")
 	if err := repo.Create(parent); err != nil {
 		t.Fatal(err)
 	}
 
 	// Create child task
-	child := NewTask(KindBug, "Child bug", "")
+	child := NewTask(KindBug, "Child bug", "A bug that is part of parent feature")
 	child.Parent = &parent.ID
 	if err := repo.Create(child); err != nil {
 		t.Fatal(err)
@@ -88,7 +88,7 @@ func TestTaskRepository_CreateWithParent(t *testing.T) {
 func TestTaskRepository_Update(t *testing.T) {
 	repo := setupTestDB(t)
 
-	task := NewTask(KindBug, "Original title", "")
+	task := NewTask(KindBug, "Original title", "Bug for testing update operations")
 	if err := repo.Create(task); err != nil {
 		t.Fatal(err)
 	}
@@ -122,7 +122,7 @@ func TestTaskRepository_Update(t *testing.T) {
 func TestTaskRepository_Delete(t *testing.T) {
 	repo := setupTestDB(t)
 
-	task := NewTask(KindBug, "To be deleted", "")
+	task := NewTask(KindBug, "To be deleted", "Task for testing deletion functionality")
 	if err := repo.Create(task); err != nil {
 		t.Fatal(err)
 	}
@@ -142,14 +142,14 @@ func TestTaskRepository_GetChildren(t *testing.T) {
 	repo := setupTestDB(t)
 
 	// Create parent
-	parent := NewTask(KindFeature, "Parent", "")
+	parent := NewTask(KindFeature, "Parent", "Feature task with multiple children")
 	if err := repo.Create(parent); err != nil {
 		t.Fatal(err)
 	}
 
 	// Create children
 	for i := 0; i < 3; i++ {
-		child := NewTask(KindBug, "Child task", "")
+		child := NewTask(KindBug, "Child task", "One of multiple child bugs under parent")
 		child.Parent = &parent.ID
 		if err := repo.Create(child); err != nil {
 			t.Fatal(err)
@@ -190,7 +190,7 @@ func TestTaskRepository_List(t *testing.T) {
 	}
 
 	for _, tt := range tasks {
-		task := NewTask(KindBug, tt.title, "")
+		task := NewTask(KindBug, tt.title, "Task for testing list filtering and ordering")
 		task.State = tt.state
 		task.Priority = tt.priority
 		if err := repo.Create(task); err != nil {
@@ -219,47 +219,47 @@ func TestTaskRepository_ListWithFilters(t *testing.T) {
 	repo := setupTestDB(t)
 
 	// Create test tasks
-	bug := NewTask(KindBug, "Bug task", "")
+	bug := NewTask(KindBug, "Bug task", "Backend bug marked as urgent")
 	bug.Tags = "backend,urgent"
 	if err := repo.Create(bug); err != nil {
 		t.Fatal(err)
 	}
 
-	feature := NewTask(KindFeature, "Feature task", "")
+	feature := NewTask(KindFeature, "Feature task", "High priority frontend feature")
 	feature.Priority = PriorityHigh
 	feature.Tags = "frontend"
 	if err := repo.Create(feature); err != nil {
 		t.Fatal(err)
 	}
 
-	// Test kind filter
-	opts := ListOptions{Kind: KindBug}
+	// Test kind filter (need to specify state since INBOX is excluded by default)
+	opts := ListOptions{Kind: KindBug, State: StateInbox}
 	result, err := repo.List(opts)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(result) != 1 || result[0].Kind != KindBug {
-		t.Error("Kind filter not working correctly")
+		t.Errorf("Kind filter not working correctly, got %d tasks", len(result))
 	}
 
 	// Test priority filter
-	opts = ListOptions{Priority: PriorityHigh}
+	opts = ListOptions{Priority: PriorityHigh, State: StateInbox}
 	result, err = repo.List(opts)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(result) != 1 || result[0].Priority != PriorityHigh {
-		t.Error("Priority filter not working correctly")
+		t.Errorf("Priority filter not working correctly, got %d tasks", len(result))
 	}
 
 	// Test tag filter
-	opts = ListOptions{Tag: "backend"}
+	opts = ListOptions{Tag: "backend", State: StateInbox}
 	result, err = repo.List(opts)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(result) != 1 || !strings.Contains(result[0].Tags, "backend") {
-		t.Error("Tag filter not working correctly")
+		t.Errorf("Tag filter not working correctly, got %d tasks", len(result))
 	}
 }
 
@@ -290,6 +290,11 @@ func TestTaskRepository_Search(t *testing.T) {
 
 	if len(results) != 2 {
 		t.Errorf("Search() returned %d results, want 2", len(results))
+		// Debug output
+		t.Logf("Search results for 'connection':")
+		for _, task := range results {
+			t.Logf("  - %s: %s", task.ID[:7], task.Title)
+		}
 	}
 
 	// Verify both matching tasks are returned
@@ -307,18 +312,28 @@ func TestTaskRepository_UpdateState(t *testing.T) {
 	repo := setupTestDB(t)
 
 	// Create parent and child tasks
-	parent := NewTask(KindFeature, "Parent feature", "")
+	parent := NewTask(KindFeature, "Parent feature", "Feature that cannot be done until children are complete")
 	if err := repo.Create(parent); err != nil {
 		t.Fatal(err)
 	}
 
-	child := NewTask(KindBug, "Child bug", "")
+	child := NewTask(KindBug, "Child bug", "Bug that must be fixed before parent can be done")
 	child.Parent = &parent.ID
 	if err := repo.Create(child); err != nil {
 		t.Fatal(err)
 	}
 
-	// Try to mark parent as DONE (should fail)
+	// First move parent from INBOX to NEW (accept it)
+	if err := repo.UpdateState(parent.ID, StateNew); err != nil {
+		t.Fatalf("UpdateState() error = %v", err)
+	}
+
+	// Move child from INBOX to NEW
+	if err := repo.UpdateState(child.ID, StateNew); err != nil {
+		t.Fatalf("UpdateState() error = %v", err)
+	}
+
+	// Try to mark parent as DONE (should fail because child is not done)
 	err := repo.UpdateState(parent.ID, StateDone)
 	if err == nil {
 		t.Error("Expected error marking parent DONE with incomplete children")
@@ -326,11 +341,6 @@ func TestTaskRepository_UpdateState(t *testing.T) {
 
 	// Mark child as DONE
 	if err := repo.UpdateState(child.ID, StateDone); err != nil {
-		t.Fatalf("UpdateState() error = %v", err)
-	}
-
-	// First move parent to IN_PROGRESS
-	if err := repo.UpdateState(parent.ID, StateInProgress); err != nil {
 		t.Fatalf("UpdateState() error = %v", err)
 	}
 
@@ -350,12 +360,12 @@ func TestTaskRepository_Block(t *testing.T) {
 	repo := setupTestDB(t)
 
 	// Create two tasks
-	blocker := NewTask(KindBug, "Blocking task", "")
+	blocker := NewTask(KindBug, "Blocking task", "Bug that blocks other tasks")
 	if err := repo.Create(blocker); err != nil {
 		t.Fatal(err)
 	}
 
-	blocked := NewTask(KindFeature, "Blocked task", "")
+	blocked := NewTask(KindFeature, "Blocked task", "Feature that depends on blocker task")
 	if err := repo.Create(blocked); err != nil {
 		t.Fatal(err)
 	}
