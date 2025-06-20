@@ -114,8 +114,8 @@
       }) // {
         # Hydra CI job configuration
         hydraJobs = {
-          # Build on key CI platforms
-          build = nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" ] (system:
+          # Build on all supported platforms
+          build = nixpkgs.lib.genAttrs supportedSystems (system:
             let pkgs = nixpkgs.legacyPackages.${system}; in
             pkgs.buildGoModule {
               pname = "gtd";
@@ -133,6 +133,7 @@
               ldflags = [
                 "-s"
                 "-w"
+              ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
                 "-linkmode external"
                 "-extldflags '-static'"
               ];
@@ -140,13 +141,29 @@
               # Ensure we have static libraries for SQLite
               buildInputs = with pkgs; [
                 sqlite.dev
+              ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
                 musl
               ];
               
               nativeBuildInputs = with pkgs; [
                 pkg-config
+              ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
                 musl
               ];
+              
+              # Fixup phase for macOS to use system libraries instead of Nix store paths
+              postFixup = pkgs.lib.optionalString pkgs.stdenv.isDarwin ''
+                echo "Fixing up macOS dependencies..."
+                
+                # Fix libresolv to use system library
+                install_name_tool -change \
+                  ${pkgs.darwin.libresolv}/lib/libresolv.9.dylib \
+                  /usr/lib/libresolv.9.dylib \
+                  $out/bin/gtd
+                
+                echo "macOS dependency fixup complete"
+                otool -L $out/bin/gtd
+              '';
             }
           );
         };
