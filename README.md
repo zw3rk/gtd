@@ -139,14 +139,26 @@ gtd done abc1234
 
 ## Task States & Transitions
 
-```
-INBOX ─┬─ accept ──→ NEW ─────┬─ in-progress ──→ IN_PROGRESS ─┬─ done ──→ DONE
-       │                     │                               │
-       │                     └─ done ────────────────────────┘
-       │                     │
-       │                     └─ cancel ──→ CANCELLED
-       │
-       └─ reject ──→ INVALID
+```mermaid
+stateDiagram-v2
+    [*] --> INBOX : add-bug<br/>add-feature<br/>add-regression
+    
+    INBOX --> NEW : accept
+    INBOX --> INVALID : reject
+    
+    NEW --> IN_PROGRESS : in-progress
+    NEW --> DONE : done
+    NEW --> CANCELLED : cancel
+    
+    IN_PROGRESS --> DONE : done
+    IN_PROGRESS --> CANCELLED : cancel
+    
+    DONE --> IN_PROGRESS : in-progress
+    CANCELLED --> NEW : in-progress
+    CANCELLED --> IN_PROGRESS : in-progress
+    
+    INVALID --> [*]
+    DONE --> [*]
 ```
 
 ## Database Storage
@@ -237,7 +249,6 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - 📖 [User Guide](USAGE.md) - Detailed usage examples
 - 🤖 [AI Agent Guide](LLM_AGENT_USAGE.md) - Guide for AI assistants
 - 🐛 [Issues](../../issues) - Bug reports and feature requests
-- 💬 [Discussions](../../discussions) - Community support
 
 ## Acknowledgments
 
