@@ -88,7 +88,7 @@ gtd review
 # Accept important tasks (INBOX → NEW)
 gtd accept abc1234
 
-# Reject irrelevant tasks (INBOX → INVALID)  
+# Reject irrelevant tasks (INBOX → INVALID)
 gtd reject def5678
 ```
 
@@ -109,7 +109,7 @@ gtd done abc1234
 
 ### Task Creation
 - `gtd add-bug` - Add a bug report
-- `gtd add-feature` - Add a feature request  
+- `gtd add-feature` - Add a feature request
 - `gtd add-regression` - Add a regression report
 - `gtd add-subtask <parent-id>` - Add a subtask to existing task
 
@@ -140,11 +140,10 @@ gtd done abc1234
 ## Task States & Transitions
 
 ```
-                     ┌─ accept ──→ NEW ─────┬─ in-progress ──→ IN_PROGRESS ─┐
-                     │                     │                               │
-INBOX (new tasks) ───┤                     └─────── done ──────────────────┼─→ DONE
-                     │                     │                               │
-                     └─ reject ──→ INVALID └───── cancel ─────→ CANCELLED ──┘
+📥 INBOX ─[accept]→ 🆕 NEW ─[in-progress]→ 🔄 IN_PROGRESS ─[done]→ ✅ DONE
+    │                   │                         └─[cancel]→ ❌ CANCELLED
+    │                   └─[cancel]→ ❌ CANCELLED
+    └─[reject]→ ⛔ INVALID
 ```
 
 ## Database Storage
