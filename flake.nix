@@ -19,9 +19,6 @@
           src = ./.;
           vendorHash = "sha256-aJY9i1dmcoMvuQXyCwxH7k0LfjnKi+AtD0IpZzj0Rb8=";
           
-          # Enable CGO for SQLite support
-          env.CGO_ENABLED = "1";
-          
           # Skip tests temporarily due to file permission issues in nix sandbox
           doCheck = false;
           
