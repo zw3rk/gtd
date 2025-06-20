@@ -6,11 +6,18 @@ A SQLite-driven CLI task management tool following GTD (Getting Things Done) met
 
 ```bash
 # Add a bug (goes to INBOX for review)
-echo "Fix login validation
-Users can bypass login with empty password" | gtd add-bug
+gtd add bug <<EOF
+Fix login validation
+
+Users can bypass login with empty password
+EOF
 
 # Add a feature (also goes to INBOX)
-echo "Add dark mode toggle" | gtd add-feature --priority high
+gtd add feature --priority high <<EOF
+Add dark mode toggle
+
+Implement user preference for dark/light theme
+EOF
 
 # Complete current active work first
 gtd list  # Check your current commitments
@@ -48,30 +55,53 @@ go run .
 #### Add a Bug
 ```bash
 # Basic bug (goes to INBOX for review)
-echo "Fix memory leak" | gtd add-bug
+gtd add bug <<EOF
+Memory leak in parser
+
+Parser doesn't free allocated memory after processing
+EOF
+gtd add bug <<EOF
+Fix memory leak
+
+Memory is not freed after processing large files
+EOF
 
 # With priority and tags
 echo "Critical security issue
-SQL injection in user search" | gtd add-bug --priority high --tags "security,critical"
+SQL injection in user search
+EOF
 
 # With source reference
-echo "Null pointer exception" | gtd add-bug --source "sentry:12345"
+gtd add bug --source "sentry:12345" <<EOF
+Null pointer exception
+
+Crash when user profile is missing data
+EOF
 ```
 
 #### Add a Feature
 ```bash
 # Simple feature
-echo "Add user preferences" | claude-gtd add-feature
+gtd add feature <<EOF
+Add user preferences
+
+Allow users to customize their experience
+EOF
 
 # With full details
 echo "Implement OAuth2 login
-Support GitHub and Google providers" | claude-gtd add-feature --priority medium --tags "auth,oauth"
+Support GitHub and Google providers
+EOF
 ```
 
 #### Add a Regression
 ```bash
 # Regression from specific commit
-echo "Search broken after refactor" | claude-gtd add-regression --source "git:abc123"
+gtd add regression --source "git:abc123" <<EOF
+Search broken after refactor
+
+Search returns no results after commit abc123
+EOF
 ```
 
 #### Add a Subtask
@@ -110,6 +140,9 @@ gtd done 3
 
 # Cancel a task
 gtd cancel 3
+
+# Reopen a cancelled task (moves back to NEW)
+gtd reopen 3
 ```
 
 ### Task Blocking
@@ -224,13 +257,22 @@ Most commands that create tasks read from stdin. The tool supports Git-style com
 
 ```bash
 # Single line (title only)
-echo "Task title" | claude-gtd add-bug
+gtd add bug <<EOF
+Task title
+
+Task description
+EOF
 
 # Git-style format (title, blank line, body)
-echo -e "Fix critical security issue\n\nDetailed description of the security vulnerability\nand how to reproduce it." | claude-gtd add-bug
+gtd add bug <<EOF
+Fix critical security issue
+
+Detailed description of the security vulnerability
+and how to reproduce it.
+EOF
 
 # Multi-line with heredoc
-cat <<EOF | claude-gtd add-feature
+gtd add feature <<EOF
 Implement user preferences
 
 Allow users to customize their experience with:
@@ -240,7 +282,11 @@ Allow users to customize their experience with:
 EOF
 
 # Legacy format (title + immediate description, no blank line)
-echo -e "Quick fix\nJust a small typo" | claude-gtd add-bug
+gtd add bug <<EOF
+Quick fix
+
+Just a small typo
+EOF
 ```
 
 ## Task States
@@ -305,7 +351,11 @@ echo -e "Quick fix\nJust a small typo" | claude-gtd add-bug
 ### Complete Workflow
 ```bash
 # 1. Add a feature with subtasks
-echo "Implement user dashboard" | claude-gtd add-feature --priority high --tags "ui,dashboard"
+gtd add feature --priority high --tags "ui,dashboard" <<EOF
+Implement user dashboard
+
+Create a customizable dashboard for users
+EOF
 
 # 2. Add subtasks
 echo "Design dashboard layout" | claude-gtd add-subtask 1 --kind feature

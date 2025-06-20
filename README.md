@@ -45,9 +45,11 @@ go build -o gtd
 
 ```bash
 # Add a new task (starts in INBOX)
-gtd add-bug
+gtd add bug <<EOF
 Fix memory leak in authentication
+
 Memory usage grows over time in the auth service
+EOF
 
 # Review inbox items
 gtd review
@@ -75,8 +77,17 @@ This tool implements the core GTD principles:
 ### 1. Capture
 All new tasks go into the **INBOX** state first:
 ```bash
-gtd add-bug "Fix login bug" "Users can't log in with special characters"
-gtd add-feature "Dark mode" "Implement theme switching"
+gtd add bug <<EOF
+Fix login bug
+
+Users can't log in with special characters
+EOF
+
+gtd add feature <<EOF
+Dark mode
+
+Implement theme switching
+EOF
 ```
 
 ### 2. Clarify & Organize
@@ -108,9 +119,9 @@ gtd done abc1234
 ## Command Reference
 
 ### Task Creation
-- `gtd add-bug` - Add a bug report
-- `gtd add-feature` - Add a feature request
-- `gtd add-regression` - Add a regression report
+- `gtd add bug` - Add a bug report
+- `gtd add feature` - Add a feature request
+- `gtd add regression` - Add a regression report
 - `gtd add-subtask <parent-id>` - Add a subtask to existing task
 
 ### Task Management
@@ -120,6 +131,7 @@ gtd done abc1234
 - `gtd in-progress <task-id>` - Start working on task (→ IN_PROGRESS)
 - `gtd done <task-id>` - Mark task as completed (→ DONE)
 - `gtd cancel <task-id>` - Cancel task (→ CANCELLED)
+- `gtd reopen <task-id>` - Reopen cancelled task (CANCELLED → NEW)
 
 ### Task Organization
 - `gtd block <task-id> --by <blocking-task-id>` - Mark task as blocked
@@ -218,7 +230,9 @@ gtd/
 ├── internal/
 │   ├── database/          # SQLite database layer
 │   ├── git/              # Git repository integration
-│   └── models/           # Core domain models and repository
+│   ├── models/           # Core domain models and repository
+│   ├── output/           # Output formatting and abstraction
+│   └── services/         # Business logic and services
 ├── vendor/               # Go module dependencies
 ├── flake.nix            # Nix build configuration
 ├── Makefile             # Development tasks
