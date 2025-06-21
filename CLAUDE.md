@@ -139,3 +139,6 @@ The core `tasks` table includes:
 - Always mark all completed tasks as completed using `./gtd done <task-id>`
 - The project's task database (`claude-tasks.db`) is tracked in git
 - Review LLM_AGENT_USAGE.md for detailed command examples and workflows
+
+## Key Instructions
+- Do not create unnecessary markdown files.
