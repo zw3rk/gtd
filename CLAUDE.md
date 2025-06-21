@@ -116,14 +116,26 @@ The core `tasks` table includes:
 4. **Output Abstraction**: Created formatter package for consistent output
 5. **Better Error Messages**: State transition errors now include helpful guidance
 
+## Task Management
+
+**IMPORTANT**: This project uses its own gtd tool for task management. Always:
+1. Build gtd if not already built: `go build -o gtd`
+2. Use `./gtd` to manage project tasks (bugs, features, etc.)
+3. Review existing tasks with `./gtd list` or `./gtd review`
+4. Add new tasks as they are identified
+5. Update task states as work progresses
+
 ## Code Quality Guidelines
 
-- Create frequent meaningful, high quality commit messages
+- **ALWAYS** create frequent, meaningful, high quality commit messages
 - Use dependency injection instead of global variables
 - Separate business logic from presentation logic
 - Write tests for new functionality
 - Keep formatting logic in the output package
+- Read and follow guidelines in LLM_AGENT_USAGE.md for additional context
 
 ## Memory Guidelines
 
-- Always mark all completed tasks as completed in the relevant .md files.
+- Always mark all completed tasks as completed using `./gtd done <task-id>`
+- The project's task database (`claude-tasks.db`) is tracked in git
+- Review LLM_AGENT_USAGE.md for detailed command examples and workflows
