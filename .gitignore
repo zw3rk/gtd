@@ -21,10 +21,11 @@ go.work
 claude-gtd
 gtd
 
-# Database files
-claude-tasks.db
-claude-tasks.db-shm
-claude-tasks.db-wal
+# Test database files
+test-claude-tasks.db
+test-claude-tasks.db-shm
+test-claude-tasks.db-wal
+**/test-claude-tasks.db*
 
 # IDE specific files
 .idea/
