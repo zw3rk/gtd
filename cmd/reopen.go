@@ -15,6 +15,8 @@ func newReopenCommand() *cobra.Command {
 		Long: `Reopen a cancelled task by moving it back to NEW state.
 		
 This command allows you to resume work on tasks that were previously cancelled.`,
+		Example: `  gtd reopen abc123
+  gtd reopen 1a2b3c4`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := args[0]

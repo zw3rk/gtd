@@ -21,6 +21,9 @@ Use 'gtd accept <task-id>' to accept a task (move from INBOX to NEW).
 Use 'gtd reject <task-id>' to reject a task (mark as INVALID).
 
 Note: You should complete your current active tasks before reviewing INBOX items.`,
+		Example: `  gtd review
+  gtd review --output json
+  gtd review -o oneline`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Check for active tasks first
 			activeTasks, err := repo.List(models.ListOptions{
@@ -72,6 +75,8 @@ func newAcceptCommand() *cobra.Command {
 		Use:   "accept <task-id>",
 		Short: "Accept task from INBOX (move to NEW state)",
 		Long:  `Accept a task from INBOX state by moving it to NEW state, indicating it has been reviewed and accepted for work.`,
+		Example: `  gtd accept abc123
+  gtd accept 1a2b3c4`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := args[0]
@@ -106,6 +111,8 @@ func newRejectCommand() *cobra.Command {
 		Use:   "reject <task-id>",
 		Short: "Reject task from INBOX (mark as INVALID)",
 		Long:  `Reject a task from INBOX state by marking it as INVALID, indicating it should not be worked on.`,
+		Example: `  gtd reject abc123
+  gtd reject 1a2b3c4`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			taskID := args[0]

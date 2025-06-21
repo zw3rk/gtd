@@ -21,6 +21,23 @@ func newAddCommand() *cobra.Command {
 		Use:   "add",
 		Short: "Add a new task",
 		Long:  `Add a new task to the system. Use subcommands to specify the task type.`,
+		Example: `  gtd add bug <<EOF
+  Fix memory leak
+  
+  Memory usage grows unbounded when processing large files.
+  EOF
+
+  gtd add feature --priority high <<EOF
+  Add dark mode
+  
+  Implement a toggle for dark/light theme switching.
+  EOF
+
+  gtd add regression --source "v2.1.0" <<EOF
+  Login broken after update
+  
+  Authentication fails after v2.1.0 update.
+  EOF`,
 	}
 
 	// Add subcommands for each task type
