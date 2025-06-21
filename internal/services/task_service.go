@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 
+	"github.com/zw3rk/gtd/internal/errors"
 	"github.com/zw3rk/gtd/internal/models"
 )
 
@@ -85,7 +86,15 @@ func (s *taskService) UpdateTaskState(id, newState string) error {
 
 	// Validate transition
 	if !task.CanTransitionTo(newState, children) {
-		return s.getTransitionError(task.State, newState, children)
+		// Check for parent task completion with incomplete children
+		if newState == models.StateDone && len(children) > 0 {
+			for _, child := range children {
+				if child.State != models.StateDone && child.State != models.StateCancelled {
+					return fmt.Errorf("cannot mark parent task as DONE: child task %s is in %s state", child.ShortHash(), child.State)
+				}
+			}
+		}
+		return errors.NewInvalidStateTransitionError(task.State, newState)
 	}
 
 	return s.repo.UpdateState(id, newState)
@@ -194,33 +203,3 @@ func (s *taskService) SearchTasks(query string) ([]*models.Task, error) {
 	return s.repo.Search(query)
 }
 
-// getTransitionError returns a helpful error message for invalid state transitions
-func (s *taskService) getTransitionError(currentState, newState string, children []*models.Task) error {
-	// Check for parent task completion with incomplete children
-	if newState == models.StateDone && len(children) > 0 {
-		for _, child := range children {
-			if child.State != models.StateDone && child.State != models.StateCancelled {
-				return fmt.Errorf("cannot mark parent task as DONE: child task %s is in %s state", child.ShortHash(), child.State)
-			}
-		}
-	}
-
-	// Provide helpful guidance on valid transitions
-	var helpMsg string
-	switch currentState {
-	case models.StateInbox:
-		helpMsg = "use 'gtd accept' to accept the task or 'gtd reject' to mark as invalid"
-	case models.StateNew:
-		helpMsg = "use 'gtd in-progress' to start work, 'gtd done' to complete, or 'gtd cancel' to cancel"
-	case models.StateInProgress:
-		helpMsg = "use 'gtd done' to complete or 'gtd cancel' to cancel"
-	case models.StateDone:
-		helpMsg = "use 'gtd in-progress' to reopen the task"
-	case models.StateCancelled:
-		helpMsg = "use 'gtd reopen' to move back to NEW or 'gtd in-progress' to start work"
-	case models.StateInvalid:
-		helpMsg = "invalid tasks cannot be transitioned to other states"
-	}
-
-	return fmt.Errorf("cannot transition from %s to %s (%s)", currentState, newState, helpMsg)
-}

@@ -198,3 +198,13 @@ func (t *Task) ShortHash() string {
 	}
 	return t.ID
 }
+
+// GetID returns the task ID (implements errors.Task interface)
+func (t *Task) GetID() string {
+	return t.ID
+}
+
+// GetTitle returns the task title (implements errors.Task interface)
+func (t *Task) GetTitle() string {
+	return t.Title
+}

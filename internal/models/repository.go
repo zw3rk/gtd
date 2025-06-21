@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/zw3rk/gtd/internal/database"
+	"github.com/zw3rk/gtd/internal/errors"
 )
 
 // TaskRepository handles database operations for tasks
@@ -102,10 +103,20 @@ func (r *TaskRepository) GetByID(id string) (*Task, error) {
 
 	// If not found and input looks like a hash prefix (4+ chars), try prefix match
 	if len(id) >= 4 && len(id) < 40 {
-		return r.getByHashPrefix(id)
+		task, err = r.getByHashPrefix(id)
+		if err == nil {
+			return task, nil
+		}
 	}
 
-	return nil, fmt.Errorf("task not found")
+	// Task not found - provide helpful suggestions
+	allTasks, _ := r.List(ListOptions{All: true})
+	// Convert to errors.Task interface
+	var errorTasks []errors.Task
+	for _, t := range allTasks {
+		errorTasks = append(errorTasks, t)
+	}
+	return nil, errors.NewTaskNotFoundError(id, errorTasks)
 }
 
 // getByExactID retrieves a task by its exact ID

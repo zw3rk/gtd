@@ -74,6 +74,11 @@ func (d *Database) CreateSchema() error {
 	CREATE INDEX IF NOT EXISTS idx_state_priority ON tasks(state, priority);
 	CREATE INDEX IF NOT EXISTS idx_parent ON tasks(parent);
 	CREATE INDEX IF NOT EXISTS idx_id_prefix ON tasks(substr(id, 1, 7));
+	CREATE INDEX IF NOT EXISTS idx_kind_state ON tasks(kind, state);
+	CREATE INDEX IF NOT EXISTS idx_blocked_by ON tasks(blocked_by) WHERE blocked_by IS NOT NULL;
+	CREATE INDEX IF NOT EXISTS idx_created ON tasks(created);
+	CREATE INDEX IF NOT EXISTS idx_updated ON tasks(updated);
+	CREATE INDEX IF NOT EXISTS idx_tags ON tasks(tags) WHERE tags IS NOT NULL;
 
 	-- Trigger to update the updated timestamp
 	CREATE TRIGGER IF NOT EXISTS update_task_timestamp 
@@ -170,6 +175,11 @@ func (d *Database) runMigrations() error {
 				CREATE INDEX idx_state_priority ON tasks(state, priority);
 				CREATE INDEX idx_parent ON tasks(parent);
 				CREATE INDEX idx_id_prefix ON tasks(substr(id, 1, 7));
+				CREATE INDEX idx_kind_state ON tasks(kind, state);
+				CREATE INDEX idx_blocked_by ON tasks(blocked_by) WHERE blocked_by IS NOT NULL;
+				CREATE INDEX idx_created ON tasks(created);
+				CREATE INDEX idx_updated ON tasks(updated);
+				CREATE INDEX idx_tags ON tasks(tags) WHERE tags IS NOT NULL;
 			`)
 			if err != nil {
 				return fmt.Errorf("failed to recreate indexes: %w", err)
@@ -190,6 +200,21 @@ func (d *Database) runMigrations() error {
 			if err = tx.Commit(); err != nil {
 				return fmt.Errorf("failed to commit migration: %w", err)
 			}
+		}
+	}
+
+	// Add new performance indices if they don't exist
+	newIndices := []string{
+		"CREATE INDEX IF NOT EXISTS idx_kind_state ON tasks(kind, state)",
+		"CREATE INDEX IF NOT EXISTS idx_blocked_by ON tasks(blocked_by) WHERE blocked_by IS NOT NULL",
+		"CREATE INDEX IF NOT EXISTS idx_created ON tasks(created)",
+		"CREATE INDEX IF NOT EXISTS idx_updated ON tasks(updated)",
+		"CREATE INDEX IF NOT EXISTS idx_tags ON tasks(tags) WHERE tags IS NOT NULL",
+	}
+
+	for _, indexSQL := range newIndices {
+		if _, err := d.DB.Exec(indexSQL); err != nil {
+			return fmt.Errorf("failed to create index: %w", err)
 		}
 	}
 

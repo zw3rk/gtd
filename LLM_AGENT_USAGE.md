@@ -22,23 +22,23 @@ The `gtd` tool follows the GTD (Getting Things Done) methodology with true INBOX
 # ALL tasks go to INBOX first for review - no matter how clear they seem
 echo "Memory leak in user session handling
 Found during load testing - heap grows indefinitely
-Affects production servers running >24 hours" | gtd add-bug --priority high --source "monitoring:alert-123"
+Affects production servers running >24 hours" | gtd add bug --priority high --source "monitoring:alert-123"
 
 # Features go to INBOX for prioritization decisions
 echo "Implement OAuth2 authentication
 Support Google and GitHub providers
-Include JWT token refresh mechanism" | gtd add-feature --priority medium --tags "auth,security"
+Include JWT token refresh mechanism" | gtd add feature --priority medium --tags "auth,security"
 
 # Regressions go to INBOX for urgency assessment
 echo "Search functionality broken after API refactor
-Query filters no longer work properly" | gtd add-regression --source "git:abc123def" --priority high
+Query filters no longer work properly" | gtd add regression --source "git:abc123def" --priority high
 
 # Everything gets captured in INBOX - no exceptions
-echo "Investigate user complaint about slow response" | gtd add-bug --source "support:ticket-456"
+echo "Investigate user complaint about slow response" | gtd add bug --source "support:ticket-456"
 ```
 
 **Key principles:**
-- ALL add-* commands create tasks in INBOX state
+- ALL add commands create tasks in INBOX state
 - Always provide detailed descriptions with context
 - Include reproduction steps for bugs
 - Specify business impact and urgency
@@ -152,7 +152,7 @@ Steps to reproduce:
 Expected: HTTP 429 with rate limit headers
 Actual: HTTP 500 with generic error message
 
-Impact: Poor client experience, difficult debugging" | gtd add-bug --priority high --tags "api,rate-limiting" --source "logs:2024-01-15"
+Impact: Poor client experience, difficult debugging" | gtd add bug --priority high --tags "api,rate-limiting" --source "logs:2024-01-15"
 ```
 
 ### 2. Regular Review Cycles
@@ -225,10 +225,10 @@ Found while implementing OAuth2 - sessions not properly cleared on logout" | gtd
 
 ```bash
 # Reference external systems
-gtd add-bug --source "github:issue/123"
-gtd add-bug --source "jira:BUG-456" 
-gtd add-bug --source "slack:C123/p456789"
-gtd add-bug --source "sentry:error-789"
+gtd add bug --source "github:issue/123"
+gtd add bug --source "jira:BUG-456" 
+gtd add bug --source "slack:C123/p456789"
+gtd add bug --source "sentry:error-789"
 ```
 
 ## Common Patterns and Workflows
@@ -237,7 +237,7 @@ gtd add-bug --source "sentry:error-789"
 
 ```bash
 # 1. Capture ALL bug reports in INBOX
-echo "$BUG_REPORT_CONTENT" | gtd add-bug --priority medium --source "user-report:123"
+echo "$BUG_REPORT_CONTENT" | gtd add bug --priority medium --source "user-report:123"
 
 # 2. During review session, triage
 gtd review
@@ -259,7 +259,7 @@ echo "Hotfix for critical login bug" | gtd add-subtask 1a2b3c4 --kind bug --prio
 # 1. Capture ALL feature requests in INBOX (even well-defined ones)
 echo "User dashboard with real-time metrics
 Allow users to see their activity in real-time
-Include charts for data visualization" | gtd add-feature --priority medium --tags "ui,dashboard"
+Include charts for data visualization" | gtd add feature --priority medium --tags "ui,dashboard"
 
 # 2. During review, evaluate and accept
 gtd review
@@ -316,7 +316,7 @@ gtd reject 1a2b3c4  # Reject if insufficient info
 
 # Create a new, clearer task when you have the details
 echo "Need more details for original bug report
-Original report lacks reproduction steps and context" | gtd add-bug --priority low --source "task:1a2b3c4"
+Original report lacks reproduction steps and context" | gtd add bug --priority low --source "task:1a2b3c4"
 ```
 
 ### When Priorities Change
