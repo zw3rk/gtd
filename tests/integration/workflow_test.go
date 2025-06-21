@@ -21,6 +21,9 @@ func TestFullGTDWorkflow(t *testing.T) {
 	oldWd, _ := os.Getwd()
 	defer func() { _ = os.Chdir(oldWd) }()
 	_ = os.Chdir(testDir)
+	
+	// Use test database
+	t.Setenv("GTD_DATABASE_NAME", "test-claude-tasks.db")
 
 	// Test workflow
 	t.Run("complete GTD workflow", func(t *testing.T) {
@@ -139,6 +142,9 @@ func TestParentChildWorkflow(t *testing.T) {
 	oldWd, _ := os.Getwd()
 	defer func() { _ = os.Chdir(oldWd) }()
 	_ = os.Chdir(testDir)
+	
+	// Use test database
+	t.Setenv("GTD_DATABASE_NAME", "test-claude-tasks.db")
 
 	var parentID, child1ID, child2ID string
 
@@ -202,6 +208,9 @@ func TestBlockingWorkflow(t *testing.T) {
 	oldWd, _ := os.Getwd()
 	defer func() { _ = os.Chdir(oldWd) }()
 	_ = os.Chdir(testDir)
+	
+	// Use test database
+	t.Setenv("GTD_DATABASE_NAME", "test-claude-tasks.db")
 
 	var task1ID, task2ID string
 
@@ -254,6 +263,9 @@ func TestCancelReopenWorkflow(t *testing.T) {
 	oldWd, _ := os.Getwd()
 	defer func() { _ = os.Chdir(oldWd) }()
 	_ = os.Chdir(testDir)
+	
+	// Use test database
+	t.Setenv("GTD_DATABASE_NAME", "test-claude-tasks.db")
 
 	var taskID string
 
@@ -311,6 +323,9 @@ func TestRejectWorkflow(t *testing.T) {
 	oldWd, _ := os.Getwd()
 	defer func() { _ = os.Chdir(oldWd) }()
 	_ = os.Chdir(testDir)
+	
+	// Use test database
+	t.Setenv("GTD_DATABASE_NAME", "test-claude-tasks.db")
 
 	var taskID string
 
@@ -358,6 +373,9 @@ func TestSearchAndExport(t *testing.T) {
 	oldWd, _ := os.Getwd()
 	defer func() { _ = os.Chdir(oldWd) }()
 	_ = os.Chdir(testDir)
+	
+	// Use test database
+	t.Setenv("GTD_DATABASE_NAME", "test-claude-tasks.db")
 
 	// Create multiple tasks
 	t.Run("create test tasks", func(t *testing.T) {
@@ -418,6 +436,9 @@ func TestSummaryCommand(t *testing.T) {
 	oldWd, _ := os.Getwd()
 	defer func() { _ = os.Chdir(oldWd) }()
 	_ = os.Chdir(testDir)
+	
+	// Use test database
+	t.Setenv("GTD_DATABASE_NAME", "test-claude-tasks.db")
 
 	// Create tasks in various states
 	t.Run("create diverse tasks", func(t *testing.T) {
@@ -561,7 +582,7 @@ func extractTaskID(t *testing.T, output string) string {
 func openTestDB(t *testing.T, testDir string) *database.Database {
 	t.Helper()
 	
-	dbPath := filepath.Join(testDir, "claude-tasks.db")
+	dbPath := filepath.Join(testDir, "test-claude-tasks.db")
 	db, err := database.New(dbPath)
 	if err != nil {
 		t.Fatalf("Failed to open test database: %v", err)
