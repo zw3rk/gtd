@@ -17,7 +17,7 @@
           pname = "gtd";
           version = "0.1.0";
           src = ./.;
-          vendorHash = "sha256-aJY9i1dmcoMvuQXyCwxH7k0LfjnKi+AtD0IpZzj0Rb8=";
+          vendorHash = null;
           
           # Skip tests temporarily due to file permission issues in nix sandbox
           doCheck = false;
@@ -61,6 +61,12 @@
 
         # Default package
         packages.default = config.packages.gtd;
+        
+        # Platform-specific packages for CI
+        packages.gtd-linux-amd64 = if system == "x86_64-linux" then config.packages.gtd else null;
+        packages.gtd-linux-arm64 = if system == "aarch64-linux" then config.packages.gtd else null;
+        packages.gtd-darwin-amd64 = if system == "x86_64-darwin" then config.packages.gtd else null;
+        packages.gtd-darwin-arm64 = if system == "aarch64-darwin" then config.packages.gtd else null;
 
         # Hydra-compatible release package with nix-support
         packages.gtd-release = pkgs.runCommand "gtd-release-${system}" {
