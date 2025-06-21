@@ -24,24 +24,12 @@ jobs:
 
       - name: Build all binaries
         run: |
-          # Build binaries for all platforms
-          nix build .#gtd-linux-amd64
-          nix build .#gtd-linux-arm64
-          nix build .#gtd-darwin-amd64
-          nix build .#gtd-darwin-arm64
+          # Build binary for current platform
+          nix build .#
           
-          # Copy binaries to release directory
+          # Copy binary to release directory
           mkdir -p release
-          cp -L result/bin/gtd release/gtd-linux-amd64
-          
-          nix build .#gtd-linux-arm64
-          cp -L result/bin/gtd release/gtd-linux-arm64
-          
-          nix build .#gtd-darwin-amd64
-          cp -L result/bin/gtd release/gtd-darwin-amd64
-          
-          nix build .#gtd-darwin-arm64
-          cp -L result/bin/gtd release/gtd-darwin-arm64
+          cp -L result/bin/gtd release/gtd-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)
           
           # Create checksums
           cd release

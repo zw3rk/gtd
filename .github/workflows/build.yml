@@ -31,10 +31,9 @@ jobs:
 
       - name: Build all packages
         run: |
-          nix build .#gtd-linux-amd64
-          nix build .#gtd-linux-arm64
-          nix build .#gtd-darwin-amd64
-          nix build .#gtd-darwin-arm64
+          # Build default package for current system
+          nix build .#
+          # Platform-specific builds can be added when cross-compilation is properly set up
 
       - name: Test flake checks
         run: nix flake check

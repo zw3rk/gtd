@@ -23,7 +23,7 @@
           doCheck = false;
           
           # Ensure CGO is enabled
-          CGO_ENABLED = "1";
+          env.CGO_ENABLED = "1";
           
           # Static linking flags (Linux only for true static builds)
           ldflags = [
@@ -62,47 +62,41 @@
           '';
         };
 
-        # Default package
-        packages.default = config.packages.gtd;
-        
-        # Platform-specific packages for CI
-        packages.gtd-linux-amd64 = if system == "x86_64-linux" then config.packages.gtd else null;
-        packages.gtd-linux-arm64 = if system == "aarch64-linux" then config.packages.gtd else null;
-        packages.gtd-darwin-amd64 = if system == "x86_64-darwin" then config.packages.gtd else null;
-        packages.gtd-darwin-arm64 = if system == "aarch64-darwin" then config.packages.gtd else null;
-
-        # Hydra-compatible release package with nix-support
-        packages.gtd-release = pkgs.runCommand "gtd-release-${system}" {
-          nativeBuildInputs = [ pkgs.zip ];
-        } ''
-          mkdir -p $out/nix-support
-          
-          # Copy the binary
-          mkdir -p $out/bin
-          cp ${config.packages.gtd}/bin/gtd $out/bin/
-          
-          # Create release info
-          echo "file binary-dist $out/gtd-${system}.zip" >> $out/nix-support/hydra-build-products
-          echo "doc readme $out/README" >> $out/nix-support/hydra-build-products
-          
-          # Create a README
-          cat > $out/README << EOF
-          GTD Task Management Tool
-          ========================
-          
-          System: ${system}
-          Binary: gtd
-          
-          Usage:
-            ./gtd --help
-          
-          This is a SQLite-driven CLI task management tool following GTD methodology.
-          EOF
-          
-          # Create zip archive
-          cd $out/bin
-          zip -r $out/gtd-${system}.zip gtd
-        '';
+        # Define all packages
+        packages = {
+          default = config.packages.gtd;
+          gtd-release = pkgs.runCommand "gtd-release-${system}" {
+            nativeBuildInputs = [ pkgs.zip ];
+          } ''
+            mkdir -p $out/nix-support
+            
+            # Copy the binary
+            mkdir -p $out/bin
+            cp ${config.packages.gtd}/bin/gtd $out/bin/
+            
+            # Create release info
+            echo "file binary-dist $out/gtd-${system}.zip" >> $out/nix-support/hydra-build-products
+            echo "doc readme $out/README" >> $out/nix-support/hydra-build-products
+            
+            # Create a README
+            cat > $out/README << EOF
+            GTD Task Management Tool
+            ========================
+            
+            System: ${system}
+            Binary: gtd
+            
+            Usage:
+              ./gtd --help
+            
+            This is a SQLite-driven CLI task management tool following GTD methodology.
+            EOF
+            
+            # Create zip archive
+            cd $out/bin
+            zip -r $out/gtd-${system}.zip gtd
+          '';
+        };
 
         # Development shell
         devShells.default = pkgs.mkShell {
