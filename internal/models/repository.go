@@ -10,6 +10,16 @@ import (
 	"github.com/zw3rk/gtd/internal/errors"
 )
 
+const (
+	// MinHashPrefixLength is the minimum length for task ID hash prefixes
+	MinHashPrefixLength = 4
+)
+
+// logRowsCloseError logs errors from rows.Close() without overriding the main error
+func logRowsCloseError(err error) {
+	fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+}
+
 // TaskRepository handles database operations for tasks
 type TaskRepository struct {
 	db *database.Database
@@ -101,8 +111,8 @@ func (r *TaskRepository) GetByID(id string) (*Task, error) {
 		return task, nil
 	}
 
-	// If not found and input looks like a hash prefix (4+ chars), try prefix match
-	if len(id) >= 4 && len(id) < 40 {
+	// If not found and input looks like a hash prefix, try prefix match
+	if len(id) >= MinHashPrefixLength && len(id) < 40 {
 		task, err = r.getByHashPrefix(id)
 		if err == nil {
 			return task, nil
@@ -170,7 +180,7 @@ func (r *TaskRepository) getByHashPrefix(prefix string) (*Task, error) {
 	defer func() {
 		if err := rows.Close(); err != nil {
 			// Log error but don't override the main error
-			fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+			logRowsCloseError(err)
 		}
 	}()
 
@@ -206,7 +216,7 @@ func (r *TaskRepository) GetChildren(parentID string) ([]*Task, error) {
 	defer func() {
 		if err := rows.Close(); err != nil {
 			// Log error but don't override the main error
-			fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+			logRowsCloseError(err)
 		}
 	}()
 
@@ -316,7 +326,7 @@ func (r *TaskRepository) List(opts ListOptions) ([]*Task, error) {
 	defer func() {
 		if err := rows.Close(); err != nil {
 			// Log error but don't override the main error
-			fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+			logRowsCloseError(err)
 		}
 	}()
 
@@ -340,7 +350,7 @@ func (r *TaskRepository) ListByState(state string) ([]*Task, error) {
 	defer func() {
 		if err := rows.Close(); err != nil {
 			// Log error but don't override the main error
-			fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+			logRowsCloseError(err)
 		}
 	}()
 
@@ -365,7 +375,7 @@ func (r *TaskRepository) Search(query string) ([]*Task, error) {
 	defer func() {
 		if err := rows.Close(); err != nil {
 			// Log error but don't override the main error
-			fmt.Fprintf(os.Stderr, "Warning: failed to close rows: %v\n", err)
+			logRowsCloseError(err)
 		}
 	}()
 
