@@ -195,7 +195,7 @@ func TestConfigLoad(t *testing.T) {
 					"EDITOR", "VISUAL",
 				}
 				for _, v := range vars {
-					os.Unsetenv(v)
+					_ = os.Unsetenv(v)
 				}
 			}
 
@@ -204,7 +204,7 @@ func TestConfigLoad(t *testing.T) {
 			defer clearEnv()
 
 			for k, v := range tt.envVars {
-				os.Setenv(k, v)
+				_ = os.Setenv(k, v)
 			}
 
 			// Test
