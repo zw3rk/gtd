@@ -20,7 +20,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@v17
         
       - name: Setup Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@v3
+        uses: DeterminateSystems/magic-nix-cache-action@v11
 
       - name: Build all binaries
         run: |
@@ -72,7 +72,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@v17
         
       - name: Setup Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@v3
+        uses: DeterminateSystems/magic-nix-cache-action@v11
 
       - name: Push to cachix
         env:
