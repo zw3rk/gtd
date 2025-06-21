@@ -19,8 +19,11 @@
           src = ./.;
           vendorHash = null;
           
-          # Skip tests temporarily due to file permission issues in nix sandbox
+          # Tests need to run with dynamic linking, not static
           doCheck = false;
+          
+          # Ensure CGO is enabled
+          CGO_ENABLED = "1";
           
           # Static linking flags (Linux only for true static builds)
           ldflags = [
@@ -117,17 +120,19 @@
             
             # SQLite development
             sqlite
+            sqlite.dev
             sqlite-interactive
             
             # Development utilities
             git
             ripgrep
             jq
-            
-            # For static builds (Linux only)
           ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
-            musl
-            musl.dev
+            # Linux needs gcc for CGO
+            gcc
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
+            # Darwin needs clang
+            clang
           ];
           
           shellHook = ''
@@ -140,6 +145,15 @@
             echo "  make test     - Run tests"
             echo "  make lint     - Run linter"
             echo ""
+            
+            # Ensure CGO can find SQLite
+            export CGO_ENABLED=1
+            
+            # Set proper CGO flags for Linux to avoid segfaults
+            ${pkgs.lib.optionalString pkgs.stdenv.isLinux ''
+              export CGO_CFLAGS="-I${pkgs.sqlite.dev}/include"
+              export CGO_LDFLAGS="-L${pkgs.sqlite.out}/lib -lsqlite3"
+            ''}
           '';
         };
       };
