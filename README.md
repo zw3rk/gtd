@@ -31,7 +31,7 @@ nix run github:zw3rk/gtd -- --help
 
 #### Pre-built Binaries
 
-Download pre-built binaries from the [releases page](../../releases) or from our [Hydra CI](https://hydra.iohk.io).
+Download pre-built binaries from the [releases page](../../releases) or from our [Hydra CI](https://ci.zw3rk.com).
 
 #### Building from Source
 
